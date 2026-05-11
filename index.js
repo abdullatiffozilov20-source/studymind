@@ -4,7 +4,7 @@
 // ============================================================
 
 import TelegramBot from 'node-telegram-bot-api'
-import Anthropic from '@anthropic-ai/sdk'
+import Groq from 'groq-sdk'
 import express from 'express'
 import fs from 'fs'
 import path from 'path'
@@ -13,19 +13,14 @@ import { fileURLToPath } from 'url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 // ── CONFIG ────────────────────────────────────────────────────
-const TOKEN = process.env.TELEGRAM_BOT_TOKEN
-const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY
+const TOKEN = process.env.TELEGRAM_BOT_TOKEN || "8620928978:AAGP61S5uvrLIzEw4GYqeR4VaW9bRUGkEU4"
+const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY || "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"
 const PORT = process.env.PORT || 3000
-const APP_URL = process.env.APP_URL || `http://localhost:${PORT}`
+const APP_URL = process.env.APP_URL || "https://studymind-bot.onrender.com"
 const DB_FILE = './data.json'
 
-if (!TOKEN || !ANTHROPIC_KEY) {
-  console.error('❌ TELEGRAM_BOT_TOKEN va ANTHROPIC_API_KEY kerak!')
-  process.exit(1)
-}
-
 const bot = new TelegramBot(TOKEN, { polling: true })
-const ai = new Anthropic({ apiKey: ANTHROPIC_KEY })
+const ai = new Groq({ apiKey: ANTHROPIC_KEY })
 const app = express()
 app.use(express.json())
 app.use(express.static(__dirname))
@@ -125,13 +120,15 @@ Keep responses SHORT (max 3 paragraphs). Use simple emojis. Be direct and honest
   }
 
   try {
-    const res = await ai.messages.create({
-      model: 'claude-sonnet-4-20250514',
+    const res = await ai.chat.completions.create({
+      model: 'llama3-70b-8192',
       max_tokens: 500,
-      system,
-      messages: [{ role: 'user', content: message }]
+      messages: [
+        { role: 'system', content: system },
+        { role: 'user', content: message }
+      ]
     })
-    return res.content[0]?.text || 'Xatolik yuz berdi.'
+    return res.choices[0]?.message?.content || 'Xatolik yuz berdi.'
   } catch (e) {
     if (e.status === 429) return '⏳ AI band. 30 soniyadan keyin qayta urinib koʻring.'
     return '❌ AI xatolik: ' + e.message
@@ -401,10 +398,7 @@ app.get('/api/stats', (req, res) => {
 })
 
 // ── START EXPRESS ─────────────────────────────────────────────
-// ── START EXPRESS ─────────────────────────────────────────────
-app.get('/', (req, res) => res.send('🧠 StudyMind AI — ishlayapti!'))
-
-app.listen(PORT, '0.0.0.0', () => console.log(`🌐 Web server port ${PORT} da ishlamoqda`))
+app.listen(PORT, () => console.log(`🌐 Web server: http://localhost:${PORT}`))
 
 bot.on('polling_error', err => console.error('Bot error:', err.message))
 console.log('🧠 StudyMind AI Bot ishga tushdi!')
