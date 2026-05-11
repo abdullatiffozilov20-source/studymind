@@ -401,7 +401,7 @@ app.get('/api/stats', (req, res) => {
 })
 
 // ── START EXPRESS ─────────────────────────────────────────────
-app.listen(PORT, () => console.log(`🌐 Web server: http://localhost:${PORT}`))
+app.listen(PORT, '0.0.0.0', () => console.log(`🌐 Web server port ${PORT} da ishlamoqda`))
 
 bot.on('polling_error', err => console.error('Bot error:', err.message))
 console.log('🧠 StudyMind AI Bot ishga tushdi!')
