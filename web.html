@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>StudyMind Dashboard</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0b14;--bg2:#111322;--surface:#161929;--surface2:#1c2035;
+  --accent:#4f8aff;--green:#00e5b0;--red:#ff5c7a;--yellow:#ffbc42;
+  --text:#eef0ff;--text2:#7b80a8;--border:rgba(79,138,255,0.12);
+}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;padding-bottom:2rem}
+
+/* HEADER */
+.header{background:linear-gradient(135deg,rgba(79,138,255,0.15),rgba(0,229,176,0.08));border-bottom:1px solid var(--border);padding:1.2rem 1rem}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.3rem}
+.logo{font-size:1rem;font-weight:700;display:flex;align-items:center;gap:6px}
+.level-badge{background:var(--accent);color:white;font-size:0.7rem;font-weight:700;padding:3px 8px;border-radius:100px}
+.user-name{font-size:1.3rem;font-weight:700;letter-spacing:-0.02em}
+.user-sub{color:var(--text2);font-size:0.8rem;margin-top:2px}
+
+/* XP BAR */
+.xp-bar-wrap{padding:0.75rem 1rem 0}
+.xp-top{display:flex;justify-content:space-between;font-size:0.72rem;color:var(--text2);margin-bottom:5px}
+.xp-track{background:var(--surface2);border-radius:100px;height:6px;overflow:hidden}
+.xp-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--accent),var(--green));transition:width 1s ease}
+
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:0.6rem;padding:0.85rem 1rem}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:0.85rem 0.6rem;text-align:center}
+.stat-n{font-size:1.5rem;font-weight:800;line-height:1}
+.stat-l{font-size:0.65rem;color:var(--text2);margin-top:4px}
+
+/* SECTION */
+.sec{padding:0 1rem;margin-bottom:1.2rem}
+.sec-title{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text2);margin-bottom:0.7rem}
+
+/* SUBJECTS */
+.subject-list{display:flex;flex-direction:column;gap:0.5rem}
+.subject-row{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:0.7rem 0.85rem}
+.subj-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.subj-name{font-size:0.85rem;font-weight:600}
+.subj-pct{font-size:0.75rem;font-weight:700;color:var(--accent)}
+.subj-bar-track{background:var(--bg2);border-radius:100px;height:4px;overflow:hidden}
+.subj-bar-fill{height:100%;border-radius:100px;transition:width 1.2s ease}
+.subj-status{font-size:0.65rem;margin-top:4px}
+
+/* STREAK CALENDAR */
+.streak-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.s-cell{aspect-ratio:1;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:0.55rem;font-weight:700;color:var(--text2)}
+.s-cell.done{background:var(--green);color:#003d2e}
+.s-cell.empty{background:var(--surface2)}
+.streak-meta{display:flex;gap:1rem;margin-top:0.8rem}
+.smeta{text-align:center}
+.smeta-n{font-size:1.2rem;font-weight:800}
+.smeta-l{font-size:0.65rem;color:var(--text2);margin-top:2px}
+
+/* BEHAVIOR */
+.behavior-cards{display:flex;flex-direction:column;gap:0.5rem}
+.bcard{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:0.85rem;border-left:3px solid}
+.bcard.red{border-left-color:var(--red)}
+.bcard.yellow{border-left-color:var(--yellow)}
+.bcard.green{border-left-color:var(--green)}
+.bcard-title{font-size:0.8rem;font-weight:700;margin-bottom:3px}
+.bcard-desc{font-size:0.75rem;color:var(--text2);line-height:1.5}
+
+/* SESSIONS */
+.session-list{display:flex;flex-direction:column;gap:0.4rem}
+.session-row{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.6rem 0.85rem;display:flex;justify-content:space-between;align-items:center}
+.sess-left{font-size:0.82rem;font-weight:600}
+.sess-right{font-size:0.75rem;color:var(--text2)}
+.sess-date{font-size:0.65rem;color:var(--text2);margin-top:2px}
+
+/* EMPTY / LOADING */
+.empty{text-align:center;color:var(--text2);padding:2rem;font-size:0.85rem}
+.loader{text-align:center;padding:3rem;color:var(--text2);font-size:0.9rem}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);display:flex;padding:0.6rem 0 env(safe-area-inset-bottom)}
+.nav-btn{flex:1;background:none;border:none;color:var(--text2);font-size:0.65rem;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:0.3rem 0;transition:color 0.2s}
+.nav-btn.active{color:var(--accent)}
+.nav-icon{font-size:1.2rem}
+</style>
+</head>
+<body>
+
+<div id="app"><div class="loader">⏳ Yuklanmoqda...</div></div>
+
+<script>
+// ── TELEGRAM WEBAPP ────────────────────────────────────────────
+const tg = window.Telegram?.WebApp
+if (tg) { tg.ready(); tg.expand() }
+
+// Get user ID from URL param or Telegram
+const params = new URLSearchParams(location.search)
+const UID = params.get('uid') || tg?.initDataUnsafe?.user?.id
+
+let userData = null
+let currentTab = 'home'
+
+// ── LOAD DATA ──────────────────────────────────────────────────
+async function loadUser() {
+  if (!UID) return showError()
+  try {
+    const res = await fetch(`/api/user/${UID}`)
+    if (!res.ok) throw new Error('User not found')
+    userData = await res.json()
+    render()
+  } catch (e) {
+    showError()
+  }
+}
+
+function showError() {
+  document.getElementById('app').innerHTML = `
+    <div class="empty" style="padding:4rem 2rem">
+      <div style="font-size:3rem;margin-bottom:1rem">🧠</div>
+      <div style="font-size:1rem;font-weight:700;margin-bottom:0.5rem">StudyMind AI</div>
+      <div>Avval Telegram botni ishga tushiring va /start bosing</div>
+    </div>`
+}
+
+// ── RENDER ─────────────────────────────────────────────────────
+function render() {
+  const u = userData
+  const xpNeeded = getNextLevelXP(u.level)
+  const xpPct = Math.min(100, Math.round((u.xp / xpNeeded) * 100))
+  const b = u.behavior
+  const hrs = Math.floor(b.totalMin / 60)
+  const mins = b.totalMin % 60
+
+  document.getElementById('app').innerHTML = `
+    <div class="header">
+      <div class="header-top">
+        <div class="logo">🧠 StudyMind</div>
+        <div class="level-badge">Lv.${u.level} ${getLevelName(u.level)}</div>
+      </div>
+      <div class="user-name">${u.name}</div>
+      <div class="user-sub">${u.subjects.join(' · ') || 'Fan qoʻshilmagan'}</div>
+    </div>
+
+    <div class="xp-bar-wrap">
+      <div class="xp-top"><span>⭐ ${u.xp} XP</span><span>Keyingi: ${xpNeeded} XP</span></div>
+      <div class="xp-track"><div class="xp-fill" style="width:${xpPct}%"></div></div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat">
+        <div class="stat-n" style="color:#ff9f43">🔥 ${u.streak.current}</div>
+        <div class="stat-l">Streak (kun)</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n" style="color:var(--green)">${hrs}s ${mins}d</div>
+        <div class="stat-l">Jami vaqt</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n" style="color:var(--accent)">${b.count}</div>
+        <div class="stat-l">Sessiyalar</div>
+      </div>
+    </div>
+
+    ${renderTab()}
+
+    <nav class="bottom-nav">
+      <button class="nav-btn ${currentTab==='home'?'active':''}" onclick="switchTab('home')">
+        <span class="nav-icon">🏠</span>Bosh
+      </button>
+      <button class="nav-btn ${currentTab==='streak'?'active':''}" onclick="switchTab('streak')">
+        <span class="nav-icon">🔥</span>Streak
+      </button>
+      <button class="nav-btn ${currentTab==='behavior'?'active':''}" onclick="switchTab('behavior')">
+        <span class="nav-icon">🧬</span>Tahlil
+      </button>
+      <button class="nav-btn ${currentTab==='history'?'active':''}" onclick="switchTab('history')">
+        <span class="nav-icon">📋</span>Tarix
+      </button>
+    </nav>
+  `
+}
+
+function renderTab() {
+  switch(currentTab) {
+    case 'home': return renderHome()
+    case 'streak': return renderStreak()
+    case 'behavior': return renderBehavior()
+    case 'history': return renderHistory()
+  }
+}
+
+function renderHome() {
+  const u = userData
+  const b = u.behavior
+  const colors = ['#4f8aff','#00e5b0','#ff9f43','#a855f7','#ff5c7a']
+
+  if (!u.subjects.length) return `<div class="sec"><div class="empty">📚 Fan qoʻshilmagan<br>Botda /start bosing</div></div>`
+
+  // Subject progress (simulate from sessions)
+  const subjectMins = {}
+  u.subjects.forEach(s => subjectMins[s] = 0)
+  u.sessions.forEach(s => { if (subjectMins[s.subject] !== undefined) subjectMins[s.subject] += s.minutes })
+  const maxMin = Math.max(...Object.values(subjectMins), 1)
+
+  return `
+    <div class="sec">
+      <div class="sec-title">📚 Fanlar progressi</div>
+      <div class="subject-list">
+        ${u.subjects.map((subj, i) => {
+          const pct = Math.round((subjectMins[subj] / maxMin) * 100)
+          const avoided = b.avoided?.includes(subj)
+          return `
+            <div class="subject-row">
+              <div class="subj-top">
+                <span class="subj-name">${subj}</span>
+                <span class="subj-pct">${subjectMins[subj]}min</span>
+              </div>
+              <div class="subj-bar-track">
+                <div class="subj-bar-fill" style="width:${pct}%;background:${colors[i % colors.length]}"></div>
+              </div>
+              ${avoided ? '<div class="subj-status" style="color:#ff5c7a">⚠️ 5 kunda oʻqilmagan</div>' : ''}
+            </div>`
+        }).join('')}
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">⚡ Eng yaxshi vaqt</div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem;text-align:center">
+        <div style="font-size:2rem;font-weight:800;color:var(--green)">${b.bestHour !== null ? b.bestHour + ':00' : '—'}</div>
+        <div style="color:var(--text2);font-size:0.8rem;margin-top:4px">Shu soatda eng samarali oʻqiysiz</div>
+      </div>
+    </div>`
+}
+
+function renderStreak() {
+  const u = userData
+  const history = new Set(u.streak.history || [])
+  const today = new Date()
+  const days = []
+  for (let i = 27; i >= 0; i--) {
+    const d = new Date(today)
+    d.setDate(d.getDate() - i)
+    days.push(d.toISOString().split('T')[0])
+  }
+  const dayLabels = ['Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh', 'Ya']
+
+  return `
+    <div class="sec">
+      <div class="sec-title">🔥 28 kunlik streak</div>
+      <div class="streak-grid">
+        ${days.map((d, i) => `
+          <div class="s-cell ${history.has(d) ? 'done' : 'empty'}" title="${d}">
+            ${i < 7 ? dayLabels[i % 7] : ''}
+          </div>`).join('')}
+      </div>
+      <div class="streak-meta">
+        <div class="smeta"><div class="smeta-n" style="color:var(--green)">${u.streak.current}</div><div class="smeta-l">Joriy streak</div></div>
+        <div class="smeta"><div class="smeta-n" style="color:var(--accent)">${u.streak.longest}</div><div class="smeta-l">Rekord</div></div>
+        <div class="smeta"><div class="smeta-n" style="color:var(--yellow)">${u.xp}</div><div class="smeta-l">Jami XP</div></div>
+      </div>
+    </div>`
+}
+
+function renderBehavior() {
+  const b = userData.behavior
+  const u = userData
+
+  if (b.count < 3) {
+    return `<div class="sec"><div class="empty">📊 Tahlil uchun kamida<br><strong>3 ta sessiya</strong> kerak<br><br>Hozirda: ${b.count} ta sessiya</div></div>`
+  }
+
+  const cards = []
+
+  if (b.avoided?.length) {
+    cards.push({ type: 'red', title: '⚠️ Qochish aniqlandi', desc: `${b.avoided.join(', ')} fanlaridan 5 kundan beri qochasiz. Bu avoidance — emas jadval muammosi.` })
+  }
+
+  if (b.bestHour !== null) {
+    const isEven = b.bestHour >= 8 && b.bestHour <= 12
+    cards.push({ type: isEven ? 'green' : 'yellow', title: `⚡ Eng yaxshi soat: ${b.bestHour}:00`, desc: isEven ? 'Ertalab oʻqiysiz — bu ideal! Eng qiyin fanlarni shu vaqtga rejalashtiring.' : 'Eng samarali vaqtingiz kechga toʻgʻri keladi. Bunga eʼtibor bering.' })
+  }
+
+  if (b.mostStudied) {
+    cards.push({ type: 'green', title: `📚 Eng koʻp: ${b.mostStudied}`, desc: `Bu fanda eng koʻp vaqt sarfladingiz. Boshqa fanlar ham shu darajaga erishishi kerak.` })
+  }
+
+  const avgMin = b.count > 0 ? Math.round(b.totalMin / b.count) : 0
+  if (avgMin < 20) {
+    cards.push({ type: 'yellow', title: '⏱ Sessiyalar qisqa', desc: `Oʻrtacha sessiya ${avgMin} daqiqa. Kamida 25 daqiqa qiling — qisqa sessiyalar kam samara beradi.` })
+  }
+
+  return `
+    <div class="sec">
+      <div class="sec-title">🧬 Xulq-atvor tahlili</div>
+      <div class="behavior-cards">
+        ${cards.length ? cards.map(c => `
+          <div class="bcard ${c.type}">
+            <div class="bcard-title">${c.title}</div>
+            <div class="bcard-desc">${c.desc}</div>
+          </div>`).join('') : '<div class="empty">Hozircha ma\'lumot yetarli emas</div>'}
+      </div>
+    </div>`
+}
+
+function renderHistory() {
+  const sessions = [...(userData.sessions || [])].reverse().slice(0, 20)
+  const moodEmoji = { hard: '😔', ok: '😐', good: '😊', great: '🔥' }
+
+  return `
+    <div class="sec">
+      <div class="sec-title">📋 So'nggi sessiyalar</div>
+      ${sessions.length ? `
+        <div class="session-list">
+          ${sessions.map(s => `
+            <div class="session-row">
+              <div>
+                <div class="sess-left">${moodEmoji[s.mood] || '😐'} ${s.subject}</div>
+                <div class="sess-date">${s.date} · ${s.hour}:00</div>
+              </div>
+              <div class="sess-right">${s.minutes} min</div>
+            </div>`).join('')}
+        </div>` : '<div class="empty">Hali sessiya yoʻq</div>'}
+    </div>`
+}
+
+// ── HELPERS ────────────────────────────────────────────────────
+function getNextLevelXP(level) {
+  const t = [0, 100, 300, 600, 1000, 1500, 2200, 3000]
+  return t[level] || 3000 + (level - 7) * 500
+}
+function getLevelName(l) {
+  const n = ['','Beginner','Student','Learner','Focused','Scholar','Expert','Master']
+  return n[l] || 'Legend'
+}
+
+function switchTab(tab) {
+  currentTab = tab
+  render()
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+// ── INIT ───────────────────────────────────────────────────────
+loadUser()
+</script>
+</body>
+</html>
