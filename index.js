@@ -654,9 +654,8 @@ console.log('✅ Telegram bot ishga tushdi')
 
 // ── START ─────────────────────────────────────────────────────────
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`✅ Server: http://localhost:${PORT}`)
+  console.log(`✅ Server port ${PORT} da ishlamoqda`)
   console.log('🧠 StudyMind tayyor!')
 })
-
 process.once('SIGINT', () => bot.stop('SIGINT'))
 process.once('SIGTERM', () => bot.stop('SIGTERM'))
