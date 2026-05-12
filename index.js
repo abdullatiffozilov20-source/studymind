@@ -472,7 +472,7 @@ app.get('/api/admin/stats', requireAuth, async (req, res) => {
 
 // ── PING ──────────────────────────────────────────────────────────
 app.get('/ping', (req, res) => res.send('ok'))
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'app.html')))
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'web.html')))
 
 // ── TELEGRAM BOT ──────────────────────────────────────────────────
 const bot = new Telegraf(BOT_TOKEN)
