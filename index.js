@@ -649,7 +649,10 @@ setInterval(async () => {
   }
 }, 60 * 60 * 1000)
 
-bot.launch()
+bot.launch({
+  allowedUpdates: [],
+  dropPendingUpdates: true
+})
 console.log('✅ Telegram bot ishga tushdi')
 
 // ── START ─────────────────────────────────────────────────────────
