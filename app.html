@@ -3,309 +3,373 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>StudyMind</title>
-<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Satoshi:wght@300;400;500;700&display=swap" rel="stylesheet">
+<title>StudyMind Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --bg:#07080f;
-  --bg2:#0d0f1c;
-  --card:#111425;
-  --card2:#161a2e;
-  --border:rgba(108,99,255,0.15);
-  --border2:rgba(108,99,255,0.3);
-  --purple:#6c63ff;
-  --teal:#00d4aa;
-  --red:#ff5470;
-  --yellow:#ffd166;
-  --text:#f0f2ff;
-  --text2:#8892b0;
-  --text3:#3d4468;
-  --r:16px;
-  --font:'Clash Display',sans-serif;
-  --body:'Satoshi',sans-serif;
+  --bg:#f0f2f8;
+  --bg2:#e8eaf2;
+  --white:#ffffff;
+  --card:#ffffff;
+  --sidebar:#1a1d2e;
+  --sidebar2:#242740;
+  --purple:#534AB7;
+  --purple-l:#EEEDFE;
+  --teal:#1D9E75;
+  --teal-l:#E1F5EE;
+  --amber:#BA7517;
+  --amber-l:#FAEEDA;
+  --coral:#D85A30;
+  --coral-l:#FAECE7;
+  --blue:#185FA5;
+  --blue-l:#E6F1FB;
+  --text:#1a1d2e;
+  --text2:#64748b;
+  --text3:#94a3b8;
+  --border:#e2e8f0;
+  --shadow:0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.04);
+  --shadow2:0 4px 16px rgba(0,0,0,0.1);
+  --r:12px;
+  --font:'Plus Jakarta Sans',sans-serif;
+  --mono:'JetBrains Mono',monospace;
 }
-html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--body)}
 
-/* LAYOUT */
-#app{display:flex;flex-direction:column;height:100vh;height:100dvh}
-#page{flex:1;overflow-y:auto;overflow-x:hidden;padding:0 0 80px;scroll-behavior:smooth}
-#page::-webkit-scrollbar{display:none}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);overflow:hidden}
 
-/* NAV */
-.nav{position:fixed;bottom:0;left:0;right:0;background:rgba(13,15,28,0.95);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;padding:8px 0 max(8px, env(safe-area-inset-bottom));z-index:100}
-.nav-btn{flex:1;background:none;border:none;color:var(--text3);display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 4px;transition:all 0.2s;font-family:var(--body)}
-.nav-btn.active{color:var(--purple)}
-.nav-btn .icon{font-size:1.35rem;transition:transform 0.2s}
-.nav-btn.active .icon{transform:scale(1.15)}
-.nav-btn .label{font-size:0.62rem;font-weight:500;letter-spacing:0.02em}
+/* ── LAYOUT ── */
+#app{display:grid;grid-template-columns:220px 1fr;grid-template-rows:56px 1fr;height:100vh;height:100dvh}
+#topbar{grid-column:1/-1;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 1.25rem;box-shadow:var(--shadow);z-index:50}
+#sidebar{background:var(--sidebar);overflow-y:auto;padding:1rem 0}
+#sidebar::-webkit-scrollbar{display:none}
+#main{overflow-y:auto;padding:1.5rem}
+#main::-webkit-scrollbar{width:4px}
+#main::-webkit-scrollbar-track{background:transparent}
+#main::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 
-/* HEADER */
-.topbar{padding:1rem 1.1rem 0.5rem;display:flex;align-items:center;justify-content:space-between}
-.topbar-logo{font-family:var(--font);font-size:1.2rem;font-weight:700;display:flex;align-items:center;gap:6px}
-.topbar-logo span{background:linear-gradient(135deg,var(--purple),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.topbar-right{display:flex;align-items:center;gap:8px}
-.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--teal));display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:700;color:white;overflow:hidden}
-.avatar img{width:100%;height:100%;object-fit:cover}
+/* ── TOPBAR ── */
+.topbar-logo{font-size:1rem;font-weight:800;display:flex;align-items:center;gap:8px;color:var(--text)}
+.topbar-logo .logo-icon{width:28px;height:28px;background:linear-gradient(135deg,var(--purple),#7c74e0);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:0.8rem}
+.topbar-right{display:flex;align-items:center;gap:0.75rem}
+.view-toggle{display:flex;background:var(--bg);border-radius:8px;padding:3px;gap:2px}
+.view-btn{padding:0.3rem 0.75rem;border-radius:6px;font-size:0.72rem;font-weight:600;cursor:pointer;border:none;background:none;color:var(--text2);transition:all 0.2s;font-family:var(--font)}
+.view-btn.active{background:var(--white);color:var(--purple);box-shadow:var(--shadow)}
+.topbar-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--teal));display:flex;align-items:center;justify-content:center;font-size:0.78rem;font-weight:700;color:white;cursor:pointer;overflow:hidden}
+.topbar-avatar img{width:100%;height:100%;object-fit:cover}
+.badge-pill{background:var(--coral-l);color:var(--coral);font-size:0.68rem;font-weight:700;padding:3px 9px;border-radius:100px}
 
-/* HERO CARD */
-.hero-card{margin:0.75rem 1.1rem;background:linear-gradient(135deg,rgba(108,99,255,0.2),rgba(0,212,170,0.1));border:1px solid var(--border2);border-radius:20px;padding:1.2rem 1.3rem;position:relative;overflow:hidden}
-.hero-card::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;background:radial-gradient(circle,rgba(108,99,255,0.3),transparent);border-radius:50%}
-.hero-greeting{font-size:0.78rem;color:var(--text2);margin-bottom:2px}
-.hero-name{font-family:var(--font);font-size:1.4rem;font-weight:700;margin-bottom:0.8rem;letter-spacing:-0.02em}
-.hero-stats{display:flex;gap:1rem}
-.hero-stat{text-align:center}
-.hero-stat-n{font-family:var(--font);font-size:1.2rem;font-weight:700}
-.hero-stat-l{font-size:0.62rem;color:var(--text2);margin-top:1px}
+/* ── SIDEBAR ── */
+.sidebar-section{padding:0 0.75rem;margin-bottom:0.5rem}
+.sidebar-label{font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#4a5175;padding:0 0.5rem;margin-bottom:0.25rem}
+.nav-item{display:flex;align-items:center;gap:10px;padding:0.6rem 0.75rem;border-radius:8px;cursor:pointer;color:#8b90b8;font-size:0.82rem;font-weight:500;transition:all 0.15s;margin-bottom:2px}
+.nav-item:hover{background:var(--sidebar2);color:#c8ccee}
+.nav-item.active{background:var(--purple);color:white}
+.nav-item .ni{font-size:1rem;width:20px;text-align:center;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--coral);color:white;font-size:0.6rem;font-weight:700;padding:2px 6px;border-radius:100px;min-width:18px;text-align:center}
 
-/* XP BAR */
-.xp-wrap{margin:0 1.1rem 0.8rem}
-.xp-top{display:flex;justify-content:space-between;font-size:0.72rem;color:var(--text2);margin-bottom:5px}
-.xp-track{background:var(--card2);border-radius:100px;height:5px;overflow:hidden}
-.xp-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--purple),var(--teal));transition:width 1.2s cubic-bezier(0.4,0,0.2,1)}
+/* ── PAGE HEADER ── */
+.page-header{margin-bottom:1.5rem}
+.page-title{font-size:1.4rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:0.25rem}
+.page-sub{color:var(--text2);font-size:0.82rem}
 
-/* SECTION */
-.sec{padding:0 1.1rem;margin-bottom:1.2rem}
-.sec-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem}
-.sec-title{font-family:var(--font);font-size:0.85rem;font-weight:600;letter-spacing:-0.01em}
-.sec-action{font-size:0.72rem;color:var(--purple);cursor:pointer;font-weight:500}
+/* ── METRIC CARDS ── */
+.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;margin-bottom:1.5rem}
+.metric-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.1rem;box-shadow:var(--shadow)}
+.metric-label{font-size:0.7rem;color:var(--text2);font-weight:500;margin-bottom:0.4rem}
+.metric-value{font-size:1.6rem;font-weight:800;letter-spacing:-0.03em;line-height:1}
+.metric-sub{font-size:0.7rem;color:var(--text3);margin-top:4px}
+.metric-icon{font-size:1.4rem;margin-bottom:0.5rem}
 
-/* QUICK STATS */
-.quick-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:0.6rem;margin:0.5rem 1.1rem 1rem}
-.qs{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:0.85rem 0.6rem;text-align:center}
-.qs-n{font-family:var(--font);font-size:1.3rem;font-weight:700}
-.qs-l{font-size:0.62rem;color:var(--text2);margin-top:3px}
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;box-shadow:var(--shadow);margin-bottom:0.75rem}
+.card-title{font-size:0.82rem;font-weight:700;margin-bottom:1rem;color:var(--text);display:flex;align-items:center;gap:6px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.75rem}
 
-/* SUBJECT CARDS */
-.subject-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1rem 1.1rem;margin-bottom:0.65rem;transition:all 0.2s;cursor:pointer;position:relative;overflow:hidden}
-.subject-card::after{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
-.subject-card:active{transform:scale(0.98)}
-.subj-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.7rem}
-.subj-left{display:flex;align-items:center;gap:8px}
-.subj-emoji{font-size:1.3rem;line-height:1}
-.subj-name{font-family:var(--font);font-size:0.95rem;font-weight:600}
-.subj-exam{font-size:0.68rem;color:var(--text2);margin-top:1px}
-.subj-actions{display:flex;gap:6px}
-.subj-btn{background:rgba(108,99,255,0.12);border:none;border-radius:8px;padding:5px 10px;font-size:0.72rem;color:var(--purple);cursor:pointer;font-family:var(--body);transition:all 0.2s}
-.subj-btn:active{background:rgba(108,99,255,0.25)}
-.subj-bar-track{background:var(--card2);border-radius:100px;height:4px;overflow:hidden}
-.subj-bar-fill{height:100%;border-radius:100px;transition:width 1s ease}
-.subj-meta{display:flex;justify-content:space-between;margin-top:6px;font-size:0.68rem;color:var(--text2)}
+/* ── SUBJECT CARD ── */
+.subject-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.1rem;box-shadow:var(--shadow);cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden}
+.subject-card:hover{transform:translateY(-2px);box-shadow:var(--shadow2)}
+.subject-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:2px}
+.sc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem}
+.sc-info{display:flex;align-items:center;gap:8px}
+.sc-emoji{font-size:1.3rem}
+.sc-name{font-weight:700;font-size:0.9rem}
+.sc-type{font-size:0.65rem;color:var(--text3);margin-top:1px}
+.sc-score{font-size:1.3rem;font-weight:800}
+.bar-track{background:var(--bg2);border-radius:100px;height:4px;overflow:hidden;margin-bottom:6px}
+.bar-fill{height:100%;border-radius:100px;transition:width 1s ease}
+.sc-meta{display:flex;justify-content:space-between;font-size:0.68rem;color:var(--text2)}
+.sc-actions{display:flex;gap:5px;margin-top:0.6rem}
+.sc-btn{background:var(--bg);border:none;border-radius:6px;padding:4px 10px;font-size:0.7rem;cursor:pointer;font-family:var(--font);font-weight:600;color:var(--text2);transition:all 0.15s}
+.sc-btn:hover{background:var(--border);color:var(--text)}
+.sc-btn.primary{background:var(--purple-l);color:var(--purple)}
 
-/* URGENT EXAM */
-.urgent-card{background:linear-gradient(135deg,rgba(255,84,112,0.15),rgba(255,84,112,0.05));border:1px solid rgba(255,84,112,0.3);border-radius:14px;padding:0.9rem 1rem;margin-bottom:0.6rem;display:flex;align-items:center;gap:10px}
-.urgent-icon{font-size:1.5rem;flex-shrink:0}
-.urgent-name{font-weight:600;font-size:0.88rem}
-.urgent-days{font-size:0.72rem;color:var(--red);margin-top:2px}
+/* ── GRADE INPUT ── */
+.grade-item{display:flex;align-items:center;gap:8px;padding:0.6rem 0;border-bottom:1px solid var(--border)}
+.grade-item:last-child{border-bottom:none}
+.grade-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.grade-subj{font-size:0.82rem;font-weight:500;flex:1}
+.grade-score{font-size:0.82rem;font-weight:700;font-family:var(--mono)}
+.grade-date{font-size:0.68rem;color:var(--text3)}
 
-/* AI CHAT */
-.chat-messages{padding:0.75rem 1.1rem;display:flex;flex-direction:column;gap:0.75rem;min-height:200px}
-.chat-msg{max-width:85%;animation:fadein 0.3s ease}
-@keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+/* ── MOOD ── */
+.mood-row{display:flex;gap:8px;justify-content:center;margin:0.75rem 0}
+.mood-btn{width:44px;height:44px;border-radius:50%;border:2px solid var(--border);background:var(--bg);font-size:1.4rem;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center}
+.mood-btn.selected{border-color:var(--purple);background:var(--purple-l);transform:scale(1.15)}
+
+/* ── CHART ── */
+.bar-chart-wrap{display:flex;align-items:flex-end;gap:6px;height:80px;padding:0 4px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar-rect{width:100%;border-radius:4px 4px 0 0;min-height:3px;transition:height 1s cubic-bezier(0.4,0,0.2,1)}
+.bar-lbl{font-size:0.58rem;color:var(--text3)}
+
+/* ── AI BUBBLE ── */
+.ai-bubble{background:var(--purple-l);border:1px solid rgba(83,74,183,0.2);border-radius:0 var(--r) var(--r) var(--r);padding:1rem;margin-bottom:1rem;position:relative}
+.ai-bubble::before{content:'🧠';position:absolute;top:-10px;left:0;font-size:1.1rem}
+.ai-bubble p{font-size:0.82rem;line-height:1.7;color:var(--text)}
+
+/* ── CHAT ── */
+.chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 200px)}
+.chat-msgs{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:0.75rem}
+.chat-msgs::-webkit-scrollbar{width:3px}
+.chat-msgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.chat-msg{max-width:80%;animation:fadein 0.3s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .chat-msg.user{align-self:flex-end}
 .chat-msg.ai{align-self:flex-start}
-.chat-bubble{padding:0.75rem 0.95rem;border-radius:16px;font-size:0.84rem;line-height:1.65}
-.chat-msg.user .chat-bubble{background:linear-gradient(135deg,var(--purple),#8b85ff);color:white;border-radius:16px 4px 16px 16px}
-.chat-msg.ai .chat-bubble{background:var(--card);border:1px solid var(--border);border-radius:4px 16px 16px 16px;color:var(--text)}
+.chat-bubble-msg{padding:0.7rem 0.9rem;border-radius:12px;font-size:0.82rem;line-height:1.65}
+.chat-msg.user .chat-bubble-msg{background:var(--purple);color:white;border-radius:12px 2px 12px 12px}
+.chat-msg.ai .chat-bubble-msg{background:var(--card);border:1px solid var(--border);border-radius:2px 12px 12px 12px}
 .chat-time{font-size:0.62rem;color:var(--text3);margin-top:3px;padding:0 4px}
 .chat-msg.user .chat-time{text-align:right}
-.typing{display:flex;gap:4px;padding:0.75rem 0.95rem;background:var(--card);border:1px solid var(--border);border-radius:4px 16px 16px 16px;width:fit-content}
-.typing span{width:6px;height:6px;border-radius:50%;background:var(--purple);animation:bounce 1.2s infinite}
-.typing span:nth-child(2){animation-delay:0.2s}
-.typing span:nth-child(3){animation-delay:0.4s}
-@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
-
-.chat-bar{position:sticky;bottom:80px;padding:0.65rem 1.1rem;background:rgba(7,8,15,0.9);backdrop-filter:blur(10px);border-top:1px solid var(--border)}
+.typing-dots{display:flex;gap:4px;padding:0.7rem 0.9rem;background:var(--card);border:1px solid var(--border);border-radius:2px 12px 12px 12px;width:fit-content}
+.typing-dots span{width:6px;height:6px;border-radius:50%;background:var(--purple);animation:bounce 1.2s infinite}
+.typing-dots span:nth-child(2){animation-delay:0.2s}
+.typing-dots span:nth-child(3){animation-delay:0.4s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+.chat-input-bar{border-top:1px solid var(--border);padding:0.75rem;background:var(--card);border-radius:0 0 var(--r) var(--r)}
 .chat-input-row{display:flex;gap:8px;align-items:flex-end}
-.chat-subject-sel{background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text2);font-size:0.75rem;padding:0.4rem 0.6rem;font-family:var(--body);max-width:100px;cursor:pointer}
-.chat-input-wrap{flex:1;background:var(--card);border:1px solid var(--border);border-radius:14px;display:flex;align-items:center;padding:0.5rem 0.75rem;gap:6px;transition:border-color 0.2s}
-.chat-input-wrap:focus-within{border-color:var(--purple)}
-.chat-input-wrap textarea{flex:1;background:none;border:none;color:var(--text);font-size:0.84rem;font-family:var(--body);outline:none;resize:none;max-height:100px;line-height:1.5}
-.chat-input-wrap textarea::placeholder{color:var(--text3)}
-.chat-send{background:linear-gradient(135deg,var(--purple),#8b85ff);border:none;width:36px;height:36px;border-radius:10px;color:white;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s}
-.chat-send:active{transform:scale(0.92)}
-.chat-send:disabled{opacity:0.5}
-.ai-tools{display:flex;gap:6px;margin-bottom:0.6rem;overflow-x:auto;padding-bottom:2px}
-.ai-tool{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:0.35rem 0.85rem;font-size:0.72rem;color:var(--text2);cursor:pointer;white-space:nowrap;font-family:var(--body);transition:all 0.2s;flex-shrink:0}
-.ai-tool:active{background:var(--card2);color:var(--purple);border-color:var(--border2)}
+.chat-textarea{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:0.6rem 0.85rem;font-size:0.82rem;font-family:var(--font);outline:none;resize:none;color:var(--text);max-height:100px;transition:border-color 0.2s}
+.chat-textarea:focus{border-color:var(--purple)}
+.chat-send-btn{background:var(--purple);border:none;width:36px;height:36px;border-radius:10px;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.9rem;flex-shrink:0;transition:all 0.2s}
+.chat-send-btn:hover{background:#4339a3}
+.chat-send-btn:disabled{opacity:0.5;cursor:not-allowed}
 
-/* FLASHCARDS */
-.card-review{padding:0.75rem 1.1rem}
-.fc-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2rem 1.5rem;text-align:center;min-height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s;margin-bottom:1rem;position:relative}
-.fc-card.revealed{background:linear-gradient(135deg,rgba(108,99,255,0.1),rgba(0,212,170,0.05));border-color:var(--border2)}
-.fc-front{font-size:1.1rem;font-weight:600;line-height:1.5}
-.fc-back{font-size:0.95rem;color:var(--teal);margin-top:0.75rem;line-height:1.6}
-.fc-hint{font-size:0.72rem;color:var(--text3);margin-top:0.5rem}
-.fc-btns{display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem;margin-bottom:1rem}
-.fc-btn{border:none;border-radius:10px;padding:0.65rem 0.3rem;font-size:0.72rem;font-weight:600;cursor:pointer;font-family:var(--body);transition:all 0.15s}
-.fc-btn:active{transform:scale(0.94)}
-.fc-btn.again{background:rgba(255,84,112,0.15);color:var(--red)}
-.fc-btn.hard{background:rgba(255,209,102,0.15);color:var(--yellow)}
-.fc-btn.good{background:rgba(108,99,255,0.15);color:var(--purple)}
-.fc-btn.easy{background:rgba(0,212,170,0.15);color:var(--teal)}
-.fc-progress{text-align:center;font-size:0.78rem;color:var(--text2);margin-bottom:0.75rem}
+/* ── FLASHCARD ── */
+.fc-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2rem;text-align:center;min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s;margin-bottom:1rem;box-shadow:var(--shadow)}
+.fc-card.revealed{background:var(--teal-l);border-color:rgba(29,158,117,0.3)}
+.fc-front{font-size:1rem;font-weight:600;line-height:1.5}
+.fc-back{font-size:0.9rem;color:var(--teal);margin-top:0.75rem;font-weight:500}
+.fc-hint{font-size:0.7rem;color:var(--text3);margin-top:0.5rem}
+.fc-rating{display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem;margin-bottom:1rem}
+.fc-rate-btn{border:none;border-radius:8px;padding:0.6rem;font-size:0.72rem;font-weight:700;cursor:pointer;font-family:var(--font);transition:all 0.15s}
+.fc-rate-btn:active{transform:scale(0.94)}
+.fc-rate-btn.again{background:var(--coral-l);color:var(--coral)}
+.fc-rate-btn.hard{background:var(--amber-l);color:var(--amber)}
+.fc-rate-btn.good{background:var(--blue-l);color:var(--blue)}
+.fc-rate-btn.easy{background:var(--teal-l);color:var(--teal)}
 
-/* ANALYTICS */
-.chart-wrap{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.1rem;margin-bottom:0.8rem}
-.chart-title{font-family:var(--font);font-size:0.82rem;font-weight:600;margin-bottom:1rem}
-.bar-chart{display:flex;align-items:flex-end;justify-content:space-between;gap:4px;height:80px}
-.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
-.bar{width:100%;border-radius:4px 4px 0 0;transition:height 1s cubic-bezier(0.4,0,0.2,1);min-height:2px}
-.bar-label{font-size:0.58rem;color:var(--text3)}
-.bar-val{font-size:0.6rem;color:var(--text2)}
+/* ── QUIZ ── */
+.quiz-question{font-size:0.95rem;font-weight:600;margin-bottom:1rem;line-height:1.5}
+.quiz-options{display:flex;flex-direction:column;gap:0.5rem;margin-bottom:1rem}
+.quiz-opt{background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:0.7rem 1rem;font-size:0.82rem;cursor:pointer;transition:all 0.15s;text-align:left;font-family:var(--font);color:var(--text)}
+.quiz-opt:hover{border-color:var(--purple);background:var(--purple-l)}
+.quiz-opt.selected{border-color:var(--purple);background:var(--purple-l);color:var(--purple);font-weight:600}
+.quiz-opt.correct{border-color:var(--teal);background:var(--teal-l);color:var(--teal);font-weight:600}
+.quiz-opt.wrong{border-color:var(--coral);background:var(--coral-l);color:var(--coral);font-weight:600}
 
-/* MODAL */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);z-index:200;display:flex;align-items:flex-end;animation:fadein 0.2s ease}
-.modal{background:var(--bg2);border-radius:24px 24px 0 0;padding:1.5rem 1.1rem max(1.5rem,env(safe-area-inset-bottom));width:100%;max-height:90vh;overflow-y:auto;animation:slideup 0.3s cubic-bezier(0.4,0,0.2,1)}
-@keyframes slideup{from{transform:translateY(100%)}to{transform:none}}
-.modal-handle{width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 1.2rem}
-.modal-title{font-family:var(--font);font-size:1.05rem;font-weight:700;margin-bottom:1.2rem}
+/* ── CAREER ── */
+.career-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.1rem;margin-bottom:0.6rem;display:flex;align-items:center;gap:1rem;box-shadow:var(--shadow)}
+.career-match{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.78rem;font-weight:800;flex-shrink:0;font-family:var(--mono)}
+.career-name{font-weight:700;font-size:0.9rem;margin-bottom:2px}
+.career-desc{font-size:0.75rem;color:var(--text2);line-height:1.5}
+.career-salary{font-size:0.7rem;color:var(--teal);font-weight:600;margin-top:3px}
 
-/* FORM */
-.field{margin-bottom:1rem}
-.field label{display:block;font-size:0.75rem;color:var(--text2);margin-bottom:6px;font-weight:500}
-.field input,.field textarea,.field select{width:100%;background:var(--card);border:1px solid var(--border);border-radius:12px;color:var(--text);padding:0.75rem 0.9rem;font-size:0.88rem;font-family:var(--body);outline:none;transition:border-color 0.2s;-webkit-appearance:none}
-.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--purple)}
-.emoji-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-top:6px}
-.emoji-opt{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:6px;text-align:center;font-size:1.1rem;cursor:pointer;transition:all 0.15s}
-.emoji-opt.selected{border-color:var(--purple);background:rgba(108,99,255,0.15)}
-.color-grid{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
-.color-opt{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all 0.15s}
-.color-opt.selected{border-color:white;transform:scale(1.15)}
+/* ── JOURNAL ── */
+.journal-entry{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1rem;margin-bottom:0.6rem;box-shadow:var(--shadow)}
+.je-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem}
+.je-date{font-size:0.72rem;color:var(--text2);font-weight:500}
+.je-mood{font-size:1.1rem}
+.je-content{font-size:0.8rem;color:var(--text);line-height:1.6;margin-bottom:0.5rem}
+.je-tags{display:flex;gap:4px;flex-wrap:wrap}
+.je-tag{background:var(--purple-l);color:var(--purple);font-size:0.65rem;font-weight:600;padding:2px 8px;border-radius:100px}
 
-/* BUTTONS */
-.btn{width:100%;padding:0.9rem;border:none;border-radius:14px;font-size:0.92rem;font-weight:600;cursor:pointer;font-family:var(--font);transition:all 0.2s;letter-spacing:-0.01em}
+/* ── SCHEDULE ── */
+.schedule-item{display:flex;align-items:center;gap:10px;padding:0.7rem 0;border-bottom:1px solid var(--border)}
+.schedule-item:last-child{border-bottom:none}
+.si-check{width:20px;height:20px;border-radius:6px;border:2px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s}
+.si-check.done{background:var(--teal);border-color:var(--teal);color:white}
+.si-info{flex:1}
+.si-title{font-size:0.82rem;font-weight:600}
+.si-title.done-text{text-decoration:line-through;color:var(--text3)}
+.si-sub{font-size:0.68rem;color:var(--text2);margin-top:1px}
+.si-time{font-size:0.72rem;font-weight:600;color:var(--purple);font-family:var(--mono)}
+
+/* ── INSIGHT ── */
+.insight-section{margin-bottom:1rem}
+.insight-label{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text2);margin-bottom:0.5rem}
+.insight-chip{display:inline-flex;align-items:center;background:var(--bg);border:1px solid var(--border);border-radius:100px;padding:4px 10px;font-size:0.75rem;margin:2px;font-weight:500}
+.insight-chip.strength{background:var(--teal-l);border-color:rgba(29,158,117,0.2);color:var(--teal)}
+.insight-chip.weakness{background:var(--coral-l);border-color:rgba(216,90,48,0.2);color:var(--coral)}
+.insight-chip.rec{background:var(--blue-l);border-color:rgba(24,95,165,0.2);color:var(--blue)}
+
+/* ── FORMS ── */
+.field{margin-bottom:0.85rem}
+.field label{display:block;font-size:0.73rem;font-weight:600;color:var(--text2);margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;color:var(--text);padding:0.6rem 0.85rem;font-size:0.85rem;font-family:var(--font);outline:none;transition:border-color 0.2s;-webkit-appearance:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--purple);background:var(--white)}
+.emoji-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin-top:4px}
+.emoji-opt{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px;text-align:center;font-size:1rem;cursor:pointer;transition:all 0.15s}
+.emoji-opt.selected{border-color:var(--purple);background:var(--purple-l)}
+.color-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.color-dot{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all 0.15s}
+.color-dot.selected{border-color:var(--text);transform:scale(1.1)}
+
+/* ── BUTTONS ── */
+.btn{padding:0.65rem 1.25rem;border:none;border-radius:8px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:var(--font);transition:all 0.2s;letter-spacing:-0.01em}
 .btn:active{transform:scale(0.97)}
-.btn-primary{background:linear-gradient(135deg,var(--purple),#8b85ff);color:white}
-.btn-secondary{background:var(--card2);color:var(--text2);margin-top:0.5rem}
-.btn-danger{background:rgba(255,84,112,0.15);color:var(--red)}
+.btn-primary{background:var(--purple);color:white}
+.btn-primary:hover{background:#4339a3}
+.btn-secondary{background:var(--bg);color:var(--text2);border:1px solid var(--border)}
+.btn-teal{background:var(--teal);color:white}
+.btn-danger{background:var(--coral-l);color:var(--coral)}
+.btn-full{width:100%;padding:0.75rem}
+.btn-sm{padding:0.4rem 0.85rem;font-size:0.75rem}
 
-/* LOGIN */
-.login-page{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;text-align:center}
-.login-logo{font-size:4rem;margin-bottom:1rem}
-.login-title{font-family:var(--font);font-size:2rem;font-weight:700;margin-bottom:0.5rem;background:linear-gradient(135deg,var(--purple),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.login-sub{color:var(--text2);font-size:0.9rem;margin-bottom:2.5rem;line-height:1.6;max-width:300px}
-.login-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:0.95rem;border:none;border-radius:14px;font-size:0.92rem;font-weight:600;cursor:pointer;font-family:var(--font);margin-bottom:0.75rem;transition:all 0.2s;text-decoration:none}
-.login-btn:active{transform:scale(0.97)}
-.login-google{background:white;color:#1a1a2e}
-.login-tg{background:linear-gradient(135deg,#229ED9,#1a7db3);color:white}
+/* ── MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.4);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:flex-end;justify-content:center;animation:fadein 0.2s}
+.modal{background:var(--white);border-radius:20px 20px 0 0;padding:1.5rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom));width:100%;max-width:560px;max-height:90vh;overflow-y:auto;animation:slideup 0.3s cubic-bezier(0.4,0,0.2,1)}
+@keyframes slideup{from{transform:translateY(100%)}to{transform:none}}
+.modal-handle{width:36px;height:3px;background:var(--border);border-radius:2px;margin:0 auto 1.25rem}
+.modal-title{font-size:1rem;font-weight:800;margin-bottom:1.25rem;letter-spacing:-0.02em}
 
-/* UTILS */
-.pill{display:inline-flex;align-items:center;gap:4px;font-size:0.68rem;font-weight:600;padding:3px 10px;border-radius:100px;font-family:var(--font)}
-.pill-purple{background:rgba(108,99,255,0.15);color:var(--purple);border:1px solid rgba(108,99,255,0.25)}
-.pill-teal{background:rgba(0,212,170,0.12);color:var(--teal);border:1px solid rgba(0,212,170,0.2)}
-.pill-red{background:rgba(255,84,112,0.12);color:var(--red);border:1px solid rgba(255,84,112,0.2)}
-.empty{text-align:center;padding:2.5rem 1rem;color:var(--text2);font-size:0.85rem}
+/* ── UTILS ── */
+.tag{display:inline-flex;align-items:center;font-size:0.68rem;font-weight:600;padding:3px 9px;border-radius:100px;border:1px solid}
+.tag-purple{background:var(--purple-l);color:var(--purple);border-color:rgba(83,74,183,0.2)}
+.tag-teal{background:var(--teal-l);color:var(--teal);border-color:rgba(29,158,117,0.2)}
+.tag-amber{background:var(--amber-l);color:var(--amber);border-color:rgba(186,117,23,0.2)}
+.tag-coral{background:var(--coral-l);color:var(--coral);border-color:rgba(216,90,48,0.2)}
+.empty{text-align:center;padding:3rem 1rem;color:var(--text2)}
 .empty-icon{font-size:2.5rem;margin-bottom:0.75rem}
-.divider{border:none;border-top:1px solid var(--border);margin:0.5rem 0}
+.divider{border:none;border-top:1px solid var(--border);margin:0.75rem 0}
+.xp-bar-track{background:var(--bg2);border-radius:100px;height:4px;overflow:hidden;margin-top:4px}
+.xp-bar-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--purple),var(--teal));transition:width 1s ease}
+.progress-val{font-size:0.68rem;color:var(--text2);display:flex;justify-content:space-between;margin-top:4px}
+.urgent-banner{background:var(--coral-l);border:1px solid rgba(216,90,48,0.25);border-radius:var(--r);padding:0.85rem 1rem;margin-bottom:0.75rem;display:flex;align-items:center;gap:10px}
 
-/* NOTES MODAL */
-.notes-area{width:100%;background:var(--card);border:1px solid var(--border);border-radius:12px;color:var(--text);padding:0.75rem;font-size:0.85rem;font-family:var(--body);outline:none;resize:none;min-height:150px}
+/* ── LOGIN ── */
+.login-page{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;text-align:center;background:var(--bg)}
+.login-card{background:var(--white);border:1px solid var(--border);border-radius:20px;padding:2.5rem 2rem;width:100%;max-width:380px;box-shadow:var(--shadow2)}
+.login-logo{font-size:3rem;margin-bottom:0.75rem}
+.login-title{font-size:1.6rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:0.4rem;color:var(--text)}
+.login-sub{color:var(--text2);font-size:0.85rem;margin-bottom:2rem;line-height:1.6}
+.login-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:0.85rem;border-radius:10px;font-size:0.88rem;font-weight:700;cursor:pointer;font-family:var(--font);margin-bottom:0.6rem;transition:all 0.2s;text-decoration:none;border:none}
+.login-btn:active{transform:scale(0.97)}
+.login-google{background:var(--text);color:white}
+.login-tg{background:#229ED9;color:white}
+.login-or{color:var(--text3);font-size:0.75rem;margin:0.5rem 0}
 
-/* SESSION LOG */
-.log-modal .dur-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px}
-.dur-opt{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:0.6rem;text-align:center;font-size:0.82rem;cursor:pointer;transition:all 0.15s;font-weight:500}
-.dur-opt.selected{background:rgba(108,99,255,0.15);border-color:var(--purple);color:var(--purple)}
+/* MOBILE */
+@media(max-width:768px){
+  #app{grid-template-columns:1fr;grid-template-rows:56px 1fr 60px}
+  #sidebar{display:none}
+  #main{padding:1rem}
+  .metric-grid{grid-template-columns:repeat(2,1fr)}
+  .two-col,.three-col{grid-template-columns:1fr}
+  #mobile-nav{display:flex}
+  #app.mobile #topbar{grid-column:1}
+}
+#mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--border);padding:6px 0 max(6px,env(safe-area-inset-bottom));z-index:100}
+.mob-btn{flex:1;background:none;border:none;color:var(--text3);display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;font-family:var(--font);padding:4px}
+.mob-btn.active{color:var(--purple)}
+.mob-icon{font-size:1.2rem}
+.mob-label{font-size:0.58rem;font-weight:600}
 </style>
 </head>
 <body>
-
 <div id="root"></div>
 
 <script>
-// ═══════════════════════════════════════════════════════
-//  STATE
-// ═══════════════════════════════════════════════════════
 const tg = window.Telegram?.WebApp
 if (tg) { tg.ready(); tg.expand() }
 
-let state = {
-  user: null,
-  subjects: [],
-  stats: null,
-  tab: 'home',
-  chatMessages: [],
-  chatSubjectId: '',
-  flashcards: [],
-  currentCard: 0,
-  cardRevealed: false,
-  modal: null,
-  loading: false,
-  aiLoading: false,
-  newSubject: { name: '', emoji: '📚', color: '#6c63ff', examDate: '' },
-  newCard: { front: '', back: '', subjectId: '' },
-  sessionLog: { subjectId: '', duration: 25, score: '', notes: '' },
-  notesText: '',
+// ── STATE ──────────────────────────────────────────────────────────
+let S = {
+  user: null, subjects: [], stats: null,
+  tab: 'dashboard',
+  viewMode: 'student', // student | parent
+  chatMsgs: [], chatSubjectId: '', aiLoading: false,
+  flashcards: [], fcIdx: 0, fcRevealed: false,
+  quizData: null, quizAnswered: false, quizUserAns: null,
+  journals: [], journalMood: null, journalText: '',
+  notes: [], scheduleItems: [], insights: [], careers: [],
+  grades: [], behaviorLogs: [],
+  modal: null, modalData: null,
+  newSubject: { name:'', type:'school', emoji:'📚', color:'#534AB7', examDate:'' },
+  newFlashcard: { front:'', back:'', subjectId:'' },
+  newNote: { title:'', content:'', subjectId:'' },
+  newSchedule: { title:'', subjectId:'', scheduledTime:'', date:'' },
+  newGrade: { subjectId:'', score:'', note:'', date:'' },
+  sessionLog: { subjectId:'', duration:25, score:'', mood:3 },
+  notesText: '', loading: false,
+  isMobile: window.innerWidth < 768
 }
 
-const EMOJIS = ['📚','📐','🔬','📖','🌍','🎨','💻','🎵','🧪','🧮','📝','🏛️','🌱','⚗️','🔭','🎭']
-const COLORS = ['#6c63ff','#00d4aa','#ff5470','#ffd166','#06d6a0','#ef8c8c','#4cc9f0','#f77f00']
+const EMOJIS = ['📚','📐','🔬','📖','🌍','🎨','💻','🎵','🧪','🧮','📝','🏛️','🌱','⚗️','🔭','🎭','🗺️','🎯']
+const COLORS = ['#534AB7','#1D9E75','#D85A30','#BA7517','#185FA5','#7c3aed','#0891b2','#be185d']
+const MOODS = ['😔','😐','😊','😄','🤩']
 
-// ═══════════════════════════════════════════════════════
-//  API
-// ═══════════════════════════════════════════════════════
-async function api(method, path, body) {
-  const res = await fetch(path, {
-    method,
-    headers: { 'Content-Type': 'application/json' },
-    body: body ? JSON.stringify(body) : undefined
-  })
-  if (!res.ok) throw new Error(await res.text())
-  return res.json()
+// ── API ────────────────────────────────────────────────────────────
+async function api(m, p, b) {
+  const r = await fetch(p, { method:m, headers:{'Content-Type':'application/json'}, body: b ? JSON.stringify(b) : undefined })
+  if (!r.ok) throw new Error(await r.text())
+  return r.json()
 }
+const GET = p => api('GET', p)
+const POST = (p, b) => api('POST', p, b)
+const PUT = (p, b) => api('PUT', p, b)
+const PATCH = (p, b) => api('PATCH', p, b)
+const DEL = p => api('DELETE', p)
 
-const GET  = path => api('GET', path)
-const POST = (path, body) => api('POST', path, body)
-const PUT  = (path, body) => api('PUT', path, body)
-const DEL  = path => api('DELETE', path)
-
-// ═══════════════════════════════════════════════════════
-//  AUTH
-// ═══════════════════════════════════════════════════════
+// ── INIT ───────────────────────────────────────────────────────────
 async function init() {
-  // Try Telegram WebApp auth
   if (tg?.initDataUnsafe?.user) {
     const u = tg.initDataUnsafe.user
-    try {
-      await POST('/auth/telegram', { telegramId: u.id, name: u.first_name, username: u.username })
-    } catch {}
+    try { await POST('/auth/telegram', { telegramId: u.id, name: u.first_name, username: u.username }) } catch {}
   }
-
   try {
-    state.user = await GET('/api/user')
-    await loadData()
+    S.user = await GET('/api/user')
+    await loadAll()
     render()
-  } catch {
-    renderLogin()
-  }
+  } catch { renderLogin() }
 }
 
-async function loadData() {
-  const [subjects, stats, flashcards] = await Promise.all([
-    GET('/api/subjects'),
-    GET('/api/stats'),
-    GET('/api/flashcards?dueOnly=true')
+async function loadAll() {
+  const [subjects, stats, flashcards, journals, notes, schedule] = await Promise.all([
+    GET('/api/subjects'), GET('/api/stats'),
+    GET('/api/flashcards?dueOnly=true'),
+    GET('/api/journal'), GET('/api/notes'),
+    GET('/api/schedule?date=' + today())
   ])
-  state.subjects = subjects
-  state.stats = stats
-  state.flashcards = flashcards
-  state.currentCard = 0
-  state.cardRevealed = false
+  S.subjects = subjects; S.stats = stats
+  S.flashcards = flashcards; S.fcIdx = 0; S.fcRevealed = false
+  S.journals = journals; S.notes = notes; S.scheduleItems = schedule
 }
 
-// ═══════════════════════════════════════════════════════
-//  RENDER
-// ═══════════════════════════════════════════════════════
+function today() { return new Date().toISOString().split('T')[0] }
+function now() { return new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) }
+
+// ── RENDER ─────────────────────────────────────────────────────────
 function render() {
-  const root = document.getElementById('root')
-  root.innerHTML = `
-    <div id="app">
+  document.getElementById('root').innerHTML = `
+    <div id="app${S.isMobile?' class=mobile':''}">
       ${renderTopbar()}
-      <div id="page">${renderPage()}</div>
-      ${renderNav()}
+      ${renderSidebar()}
+      <main id="main">${renderPage()}</main>
+      ${renderMobileNav()}
     </div>
-    ${state.modal ? renderModal() : ''}
+    ${S.modal ? renderModal() : ''}
   `
   afterRender()
 }
@@ -313,303 +377,571 @@ function render() {
 function renderLogin() {
   document.getElementById('root').innerHTML = `
     <div class="login-page">
-      <div class="login-logo">🧠</div>
-      <div class="login-title">StudyMind</div>
-      <p class="login-sub">Aqlli o'quv assistentingiz. Xulq-atvoringizni tahlil qilib, qiynalayotgan joyingizni aniqlaydi.</p>
-      <a href="/auth/google" class="login-btn login-google">
-        <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-        Google bilan kirish
-      </a>
-      <div style="color:var(--text3);font-size:0.78rem;margin:0.5rem 0">yoki</div>
-      <button class="login-btn login-tg" onclick="loginTelegram()">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-2.012 9.486c-.148.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.48 14.6l-2.95-.924c-.64-.2-.654-.64.135-.948l11.52-4.44c.533-.194 1 .13.377.96z"/></svg>
-        Telegram bilan kirish
-      </button>
-    </div>
-  `
+      <div class="login-card">
+        <div class="login-logo">🧠</div>
+        <div class="login-title">StudyMind Pro</div>
+        <p class="login-sub">Aqlli o'quv assistentingiz. Baholar, xulq-atvor, AI tahlil — hammasi bir joyda.</p>
+        <a href="/auth/google" class="login-btn login-google">
+          <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#fff" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#fff" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#fff" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#fff" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Google bilan kirish
+        </a>
+        <div class="login-or">yoki</div>
+        <button class="login-btn login-tg" onclick="loginTelegram()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-2.012 9.486c-.148.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.48 14.6l-2.95-.924c-.64-.2-.654-.64.135-.948l11.52-4.44c.533-.194 1 .13.377.96z"/></svg>
+          Telegram bilan kirish
+        </button>
+      </div>
+    </div>`
 }
 
 function loginTelegram() {
   if (tg?.initDataUnsafe?.user) {
     const u = tg.initDataUnsafe.user
-    POST('/auth/telegram', { telegramId: u.id, name: u.first_name, username: u.username })
-      .then(() => init())
-      .catch(() => alert('Xatolik. Telegram orqali kiring.'))
+    POST('/auth/telegram', { telegramId: u.id, name: u.first_name, username: u.username }).then(() => init()).catch(() => alert('Xatolik'))
   } else {
-    alert('Bu funksiya Telegram ichida ishlaydi. Botni oching: @studymind_bot')
+    alert('Telegram ichida ishlaydi. Botni oching.')
   }
 }
 
 function renderTopbar() {
-  const u = state.user
-  const initials = u?.name?.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || 'SM'
-  return `
-    <div class="topbar">
-      <div class="topbar-logo">🧠 <span>StudyMind</span></div>
-      <div class="topbar-right">
-        ${state.stats?.dueCards ? `<span class="pill pill-red">🔁 ${state.stats.dueCards}</span>` : ''}
-        <div class="avatar" onclick="openModal('settings')">${u?.avatar ? `<img src="${u.avatar}">` : initials}</div>
+  const u = S.user
+  const initials = u?.name?.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase() || 'SM'
+  return `<header id="topbar">
+    <div class="topbar-logo">
+      <div class="logo-icon">🧠</div>
+      StudyMind Pro
+    </div>
+    <div class="topbar-right">
+      ${S.stats?.dueCards ? `<span class="badge-pill">🔁 ${S.stats.dueCards}</span>` : ''}
+      <div class="view-toggle">
+        <button class="view-btn ${S.viewMode==='student'?'active':''}" onclick="setView('student')">O'quvchi</button>
+        <button class="view-btn ${S.viewMode==='parent'?'active':''}" onclick="setView('parent')">Ota-ona</button>
       </div>
-    </div>`
+      <div class="topbar-avatar" onclick="openModal('settings')">${u?.avatar?`<img src="${u.avatar}">`:`${initials}`}</div>
+    </div>
+  </header>`
 }
 
-function renderNav() {
-  const tabs = [
-    { id: 'home', icon: '🏠', label: 'Bosh' },
-    { id: 'subjects', icon: '📚', label: 'Fanlar' },
-    { id: 'ai', icon: '🧠', label: 'AI' },
-    { id: 'flashcards', icon: '🔁', label: 'Kartalar' },
-    { id: 'analytics', icon: '📊', label: 'Tahlil' },
+function renderSidebar() {
+  const navItems = [
+    { id:'dashboard', icon:'🏠', label:'Dashboard' },
+    { id:'subjects', icon:'📚', label:'Fanlar' },
+    { id:'grades', icon:'📊', label:'Baholar' },
+    { id:'schedule', icon:'📅', label:'Kun tartibi' },
+    { id:'flashcards', icon:'🔁', label:'Flashcard', badge: S.stats?.dueCards },
+    { id:'quiz', icon:'❓', label:'Quiz' },
+    { id:'notes', icon:'📝', label:'Mavzular' },
+    { id:'journal', icon:'🗒️', label:'Kunlik xotira' },
+    { id:'ai', icon:'🧠', label:'AI Tutor' },
+    { id:'insights', icon:'🔍', label:'AI Tahlil' },
+    { id:'career', icon:'🎯', label:'Karyera yo\'li' },
   ]
-  return `<nav class="nav">${tabs.map(t => `
-    <button class="nav-btn ${state.tab === t.id ? 'active' : ''}" onclick="switchTab('${t.id}')">
-      <span class="icon">${t.icon}</span>
-      <span class="label">${t.label}</span>
-    </button>`).join('')}</nav>`
+  return `<nav id="sidebar">
+    <div style="padding:0.75rem 1rem 1rem">
+      <div style="font-size:0.72rem;font-weight:700;color:#4a5175;text-transform:uppercase;letter-spacing:0.08em">Menyu</div>
+    </div>
+    <div class="sidebar-section">
+      ${navItems.map(n => `
+        <div class="nav-item ${S.tab===n.id?'active':''}" onclick="switchTab('${n.id}')">
+          <span class="ni">${n.icon}</span>
+          <span>${n.label}</span>
+          ${n.badge ? `<span class="nav-badge">${n.badge}</span>` : ''}
+        </div>`).join('')}
+    </div>
+    <div style="padding:0.75rem 1rem;margin-top:auto">
+      <div style="font-size:0.68rem;color:#4a5175">
+        🔥 ${S.user?.streak||0} kun streak<br>
+        ⭐ ${S.user?.xp||0} XP · Lv.${S.user?.level||1}
+      </div>
+    </div>
+  </nav>`
+}
+
+function renderMobileNav() {
+  const items = [
+    {id:'dashboard',icon:'🏠',label:'Bosh'},
+    {id:'subjects',icon:'📚',label:'Fanlar'},
+    {id:'ai',icon:'🧠',label:'AI'},
+    {id:'flashcards',icon:'🔁',label:'Karta'},
+    {id:'insights',icon:'🔍',label:'Tahlil'},
+  ]
+  return `<nav id="mobile-nav">
+    ${items.map(i=>`<button class="mob-btn ${S.tab===i.id?'active':''}" onclick="switchTab('${i.id}')">
+      <span class="mob-icon">${i.icon}</span>
+      <span class="mob-label">${i.label}</span>
+    </button>`).join('')}
+  </nav>`
 }
 
 function renderPage() {
-  switch (state.tab) {
-    case 'home': return renderHome()
+  switch(S.tab) {
+    case 'dashboard': return renderDashboard()
     case 'subjects': return renderSubjects()
-    case 'ai': return renderAI()
+    case 'grades': return renderGrades()
+    case 'schedule': return renderSchedule()
     case 'flashcards': return renderFlashcards()
-    case 'analytics': return renderAnalytics()
+    case 'quiz': return renderQuiz()
+    case 'notes': return renderNotes()
+    case 'journal': return renderJournal()
+    case 'ai': return renderAI()
+    case 'insights': return renderInsights()
+    case 'career': return renderCareer()
+    default: return renderDashboard()
   }
 }
 
-// ── HOME ──────────────────────────────────────────────────────────
-function renderHome() {
-  const u = state.user
-  const s = state.stats
+// ── DASHBOARD ──────────────────────────────────────────────────────
+function renderDashboard() {
+  const s = S.stats; const u = S.user
   if (!u) return ''
-
-  const xpNeeded = nextLevelXP(u.level)
-  const xpPct = Math.min(100, Math.round((u.xp / xpNeeded) * 100))
+  const xpNext = nextLevelXP(u.level)
+  const xpPct = Math.min(100, Math.round((u.xp/xpNext)*100))
   const hour = new Date().getHours()
-  const greeting = hour < 12 ? "Xayrli tong" : hour < 17 ? "Xayrli kun" : "Xayrli kech"
+  const greeting = hour<12?'Xayrli tong':'hour<17'?'Xayrli kun':'Xayrli kech'
 
-  const urgentHTML = s?.urgentSubjects?.length ? `
-    <div class="sec">
-      <div class="sec-head"><div class="sec-title">🚨 Yaqin imtihonlar</div></div>
-      ${s.urgentSubjects.map(subj => {
-        const days = Math.ceil((new Date(subj.examDate) - new Date()) / 86400000)
-        return `<div class="urgent-card">
-          <div class="urgent-icon">${subj.emoji}</div>
-          <div><div class="urgent-name">${subj.name}</div><div class="urgent-days">${days} kun qoldi</div></div>
-        </div>`
-      }).join('')}
-    </div>` : ''
-
-  const topSubjects = (s?.subjects || []).slice(0, 3)
+  const weekly = s?.weekly || []
+  const maxMin = Math.max(...weekly.map(d=>d.minutes), 1)
+  const dayLabels = ['Du','Se','Ch','Pa','Ju','Sh','Ya']
 
   return `
-    <div class="hero-card">
-      <div class="hero-greeting">${greeting},</div>
-      <div class="hero-name">${u.name} 👋</div>
-      <div class="hero-stats">
-        <div class="hero-stat"><div class="hero-stat-n" style="color:#ff9f43">🔥 ${u.streak}</div><div class="hero-stat-l">Streak</div></div>
-        <div class="hero-stat"><div class="hero-stat-n" style="color:var(--teal)">Lv.${u.level}</div><div class="hero-stat-l">Daraja</div></div>
-        <div class="hero-stat"><div class="hero-stat-n" style="color:var(--purple)">${s?.todayMinutes || 0}m</div><div class="hero-stat-l">Bugun</div></div>
+    <div class="page-header">
+      <div class="page-title">${hour<12?'🌅':hour<17?'☀️':'🌙'} ${greeting}, ${u.name}!</div>
+      <div class="page-sub">${S.viewMode==='parent'?'Farzandingiz haqida umumiy ko\'rinish':'Bugun qanday o\'qiyapmiz?'}</div>
+    </div>
+
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="metric-icon">📊</div>
+        <div class="metric-label">O'rtacha baho</div>
+        <div class="metric-value" style="color:var(--purple)">${s?.avgGrade||'—'}</div>
+        <div class="metric-sub">Barcha fanlar bo'yicha</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon">🔥</div>
+        <div class="metric-label">Streak</div>
+        <div class="metric-value" style="color:var(--coral)">${u.streak}</div>
+        <div class="metric-sub">kun uzluksiz</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon">⏱</div>
+        <div class="metric-label">Bugun</div>
+        <div class="metric-value" style="color:var(--teal)">${s?.todayMinutes||0}</div>
+        <div class="metric-sub">daqiqa o'qildi</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon">⭐</div>
+        <div class="metric-label">Level ${u.level}</div>
+        <div class="metric-value" style="color:var(--amber)">${u.xp}</div>
+        <div class="metric-sub">
+          <div class="xp-bar-track"><div class="xp-bar-fill" style="width:${xpPct}%"></div></div>
+          ${xpPct}% → Lv.${u.level+1}
+        </div>
       </div>
     </div>
 
-    <div class="xp-wrap">
-      <div class="xp-top"><span>⭐ ${u.xp} XP</span><span>Lv.${u.level + 1} → ${xpNeeded} XP</span></div>
-      <div class="xp-track"><div class="xp-fill" style="width:${xpPct}%"></div></div>
-    </div>
+    ${s?.urgentSubjects?.length ? s.urgentSubjects.map(subj => {
+      const days = Math.ceil((new Date(subj.examDate)-new Date())/86400000)
+      return `<div class="urgent-banner"><span style="font-size:1.3rem">⚠️</span><div><div style="font-weight:700;font-size:0.85rem">${subj.emoji} ${subj.name} — imtihon!</div><div style="font-size:0.72rem;color:var(--coral)">${days} kun qoldi</div></div></div>`
+    }).join('') : ''}
 
-    <div class="quick-stats">
-      <div class="qs"><div class="qs-n" style="color:var(--teal)">${s?.todayMinutes || 0}</div><div class="qs-l">Bugun (min)</div></div>
-      <div class="qs"><div class="qs-n" style="color:var(--purple)">${s?.dueCards || 0}</div><div class="qs-l">Kartalar</div></div>
-      <div class="qs"><div class="qs-n" style="color:var(--yellow)">${s?.subjects?.length || 0}</div><div class="qs-l">Fanlar</div></div>
-    </div>
+    <div class="two-col">
+      <div>
+        ${S.insights?.length ? `
+          <div class="ai-bubble">
+            <p>${S.insights[0]?.summary || 'AI tahlil uchun "AI Tahlil" bo\'limiga o\'ting.'}</p>
+          </div>` : `
+          <div class="ai-bubble">
+            <p>🧠 AI tahlil uchun "AI Tahlil" bo'limiga o'ting va "Tahlil qilish" tugmasini bosing.</p>
+          </div>`}
 
-    ${urgentHTML}
-
-    ${topSubjects.length ? `
-    <div class="sec">
-      <div class="sec-head">
-        <div class="sec-title">📚 Fanlar</div>
-        <div class="sec-action" onclick="switchTab('subjects')">Hammasi →</div>
+        <div class="card">
+          <div class="card-title">📈 Haftalik o'qish</div>
+          <div class="bar-chart-wrap">
+            ${weekly.map((d,i) => {
+              const h = Math.max(4, Math.round((d.minutes/maxMin)*70))
+              return `<div class="bar-col">
+                <div style="font-size:0.58rem;color:var(--text3)">${d.minutes||''}</div>
+                <div class="bar-rect" style="height:${h}px;background:${d.minutes>0?'var(--purple)':'var(--bg2)'}"></div>
+                <div class="bar-lbl">${dayLabels[i]}</div>
+              </div>`
+            }).join('')}
+          </div>
+        </div>
       </div>
-      ${topSubjects.map(subj => subjectCardHTML(subj)).join('')}
-    </div>` : `
-    <div class="empty">
-      <div class="empty-icon">📚</div>
-      <div>Hali fan qo'shilmagan</div>
-      <button class="btn btn-primary" style="margin-top:1rem;max-width:200px" onclick="openModal('addSubject')">Fan qo'shish</button>
-    </div>`}
+
+      <div>
+        <div class="card">
+          <div class="card-title">📚 Fanlar holati</div>
+          ${S.subjects.slice(0,5).map(s => `
+            <div style="margin-bottom:0.75rem">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+                <span style="font-size:0.8rem;font-weight:500">${s.emoji} ${s.name}</span>
+                <span style="font-size:0.75rem;font-weight:700;color:${s.progress>=70?'var(--teal)':s.progress>=50?'var(--amber)':'var(--coral)'}">${s.progress}%</span>
+              </div>
+              <div class="bar-track"><div class="bar-fill" style="width:${s.progress}%;background:${s.color}"></div></div>
+            </div>`).join('')}
+          ${!S.subjects.length ? '<div class="empty"><div class="empty-icon">📚</div><div>Fan qo\'shing</div></div>' : ''}
+        </div>
+
+        <div class="card">
+          <div class="card-title">🧬 Behavior</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem">
+            ${[
+              {label:'Bugun o\'qildi', val:(s?.todayMinutes||0)+' min', color:'var(--purple)'},
+              {label:'Kartalar', val:s?.dueCards||0, color:'var(--amber)'},
+              {label:'Kayfiyat', val:s?.todayMood?MOODS[(s.todayMood-1)]:'—', color:'var(--teal)'},
+              {label:'Mavzular', val:s?.dueNotes||0, color:'var(--coral)'},
+            ].map(b=>`<div style="background:var(--bg);border-radius:8px;padding:0.6rem;text-align:center">
+              <div style="font-size:0.62rem;color:var(--text2)">${b.label}</div>
+              <div style="font-size:1.1rem;font-weight:700;color:${b.color}">${b.val}</div>
+            </div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>`
+}
+
+// ── SUBJECTS ───────────────────────────────────────────────────────
+function renderSubjects() {
+  return `
+    <div class="page-header">
+      <div class="page-title">📚 Fanlar</div>
+      <div class="page-sub">Fanlaringizni boshqaring</div>
+    </div>
+    <div style="display:flex;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap">
+      <button class="btn btn-primary btn-sm" onclick="openModal('addSubject')">+ Fan qo'shish</button>
+      <button class="btn btn-secondary btn-sm" onclick="openModal('logSession')">+ Sessiya qayd</button>
+    </div>
+    <div class="three-col">
+      ${S.subjects.map(s => subjectCard(s)).join('')}
+      ${!S.subjects.length ? '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📚</div><div>Hali fan qo\'shilmagan</div></div>' : ''}
+    </div>`
+}
+
+function subjectCard(s) {
+  const days = s.examDate ? Math.ceil((new Date(s.examDate)-new Date())/86400000) : null
+  const urgent = days !== null && days <= 7
+  return `<div class="subject-card" style="--c:${s.color}">
+    <div class="subject-card::before" style="background:${s.color}"></div>
+    <style>.subject-card::before{background:${s.color}}</style>
+    <div class="sc-top">
+      <div class="sc-info">
+        <span class="sc-emoji">${s.emoji}</span>
+        <div>
+          <div class="sc-name">${s.name}</div>
+          <div class="sc-type"><span class="tag ${s.type==='school'?'tag-purple':'tag-teal'}">${s.type==='school'?'Maktab':'Universitet'}</span></div>
+        </div>
+      </div>
+      <div class="sc-score" style="color:${s.color}">${s.progress}%</div>
+    </div>
+    <div class="bar-track"><div class="bar-fill" style="width:${s.progress}%;background:${s.color}"></div></div>
+    <div class="sc-meta">
+      <span>${s.totalXP} XP</span>
+      ${days!==null?`<span style="color:${urgent?'var(--coral)':'var(--text3)'}">📅 ${days} kun</span>`:''}
+    </div>
+    <div class="sc-actions">
+      <button class="sc-btn primary" onclick="openLogSessionFor('${s._id}','${s.name}')">+ O'qish</button>
+      <button class="sc-btn" onclick="openModal('addGrade','${s._id}')">📊 Baho</button>
+      <button class="sc-btn" onclick="openModal('examPlan','${s._id}')">📅 Reja</button>
+      <button class="sc-btn" style="color:var(--coral)" onclick="deleteSubject('${s._id}')">🗑</button>
+    </div>
+  </div>`
+}
+
+// ── GRADES ─────────────────────────────────────────────────────────
+function renderGrades() {
+  return `
+    <div class="page-header">
+      <div class="page-title">📊 Baholar</div>
+    </div>
+    <div style="margin-bottom:1rem">
+      <button class="btn btn-primary btn-sm" onclick="openModal('addGrade')">+ Baho kiritish</button>
+    </div>
+    ${S.subjects.map(subj => {
+      const subjGrades = S.grades.filter(g => String(g.subjectId) === String(subj._id))
+      if (!subjGrades.length) return ''
+      const avg = Math.round(subjGrades.reduce((s,g)=>s+g.score,0)/subjGrades.length)
+      return `<div class="card">
+        <div class="card-title">${subj.emoji} ${subj.name} <span style="margin-left:auto;font-size:0.78rem;color:${avg>=70?'var(--teal)':avg>=50?'var(--amber)':'var(--coral)'};font-weight:700">O'rtacha: ${avg}</span></div>
+        ${subjGrades.slice(0,5).map(g => `
+          <div class="grade-item">
+            <div class="grade-dot" style="background:${g.score>=70?'var(--teal)':g.score>=50?'var(--amber)':'var(--coral)'}"></div>
+            <span class="grade-subj">${g.note || 'Baho'}</span>
+            <span class="grade-score" style="color:${g.score>=70?'var(--teal)':g.score>=50?'var(--amber)':'var(--coral)'}">${g.score}</span>
+            <span class="grade-date">${g.date}</span>
+          </div>`).join('')}
+      </div>`
+    }).join('')}
+    ${!S.grades.length ? '<div class="empty"><div class="empty-icon">📊</div><div>Hali baho kiritilmagan</div></div>' : ''}`
+}
+
+// ── SCHEDULE ───────────────────────────────────────────────────────
+function renderSchedule() {
+  const done = S.scheduleItems.filter(s=>s.isDone).length
+  return `
+    <div class="page-header">
+      <div class="page-title">📅 Kun tartibi</div>
+      <div class="page-sub">Bugun: ${done}/${S.scheduleItems.length} bajarildi</div>
+    </div>
+    <button class="btn btn-primary btn-sm" style="margin-bottom:1rem" onclick="openModal('addSchedule')">+ Vazifa qo'shish</button>
+    <div class="card">
+      ${S.scheduleItems.length ? S.scheduleItems.map(item => `
+        <div class="schedule-item">
+          <div class="si-check ${item.isDone?'done':''}" onclick="toggleSchedule('${item._id}',${!item.isDone})">
+            ${item.isDone?'✓':''}
+          </div>
+          <div class="si-info">
+            <div class="si-title ${item.isDone?'done-text':''}">${item.title}</div>
+            ${item.subjectName?`<div class="si-sub">${item.subjectName}</div>`:''}
+          </div>
+          ${item.scheduledTime?`<div class="si-time">${item.scheduledTime}</div>`:''}
+          <button class="btn btn-sm btn-danger" onclick="deleteSchedule('${item._id}')">×</button>
+        </div>`).join('') : '<div class="empty"><div class="empty-icon">📅</div><div>Bugun uchun vazifa qo\'shing</div></div>'}
+    </div>`
+}
+
+// ── FLASHCARDS ─────────────────────────────────────────────────────
+function renderFlashcards() {
+  const cards = S.flashcards; const idx = S.fcIdx; const card = cards[idx]
+  return `
+    <div class="page-header">
+      <div class="page-title">🔁 Flashcard</div>
+      <div class="page-sub">Spaced repetition metodi</div>
+    </div>
+    <button class="btn btn-primary btn-sm" style="margin-bottom:1rem" onclick="openModal('addFlashcard')">+ Karta qo'shish</button>
+    ${!cards.length ? `<div class="empty"><div class="empty-icon">✅</div><div>Bugungi kartalar bajarildi!</div><div style="margin-top:0.5rem;font-size:0.75rem;color:var(--text3)">Yangi karta qo'shing</div></div>` : `
+      <div style="text-align:center;font-size:0.78rem;color:var(--text2);margin-bottom:0.75rem">Karta ${idx+1} / ${cards.length}</div>
+      <div class="fc-card ${S.fcRevealed?'revealed':''}" onclick="revealCard()">
+        <div class="fc-front">${card?.front||''}</div>
+        ${S.fcRevealed?`<div class="divider" style="width:100%"></div><div class="fc-back">${card?.back||''}</div>`:''}
+        ${!S.fcRevealed?'<div class="fc-hint" style="margin-top:1rem">👆 Ko\'rish uchun bosing</div>':''}
+      </div>
+      ${S.fcRevealed?`<div class="fc-rating">
+        <button class="fc-rate-btn again" onclick="reviewCard(0)">🔴 Qayta</button>
+        <button class="fc-rate-btn hard" onclick="reviewCard(2)">🟡 Qiyin</button>
+        <button class="fc-rate-btn good" onclick="reviewCard(3)">🟢 Yaxshi</button>
+        <button class="fc-rate-btn easy" onclick="reviewCard(5)">⚡ Oson</button>
+      </div>`:''}
+    `}
   `
 }
 
-// ── SUBJECTS ──────────────────────────────────────────────────────
-function renderSubjects() {
+// ── QUIZ ───────────────────────────────────────────────────────────
+function renderQuiz() {
   return `
-    <div style="padding:0.75rem 1.1rem 0">
-      <button class="btn btn-primary" style="margin-bottom:0" onclick="openModal('addSubject')">+ Fan qo'shish</button>
+    <div class="page-header">
+      <div class="page-title">❓ Quiz</div>
+      <div class="page-sub">AI tomonidan yaratilgan savollar</div>
     </div>
-    <div class="sec" style="margin-top:1rem">
-      ${state.subjects.length ? state.subjects.map(s => subjectCardHTML(s, true)).join('') :
-        `<div class="empty"><div class="empty-icon">📚</div><div>Fan qo'shing va o'qishni boshlang!</div></div>`}
+    ${!S.quizData ? `
+      <div class="card">
+        <div class="card-title">Quiz boshlash</div>
+        <div class="field">
+          <label>Fan tanlang</label>
+          <select id="quiz-subj">
+            <option value="">Umumiy</option>
+            ${S.subjects.map(s=>`<option value="${s._id}">${s.emoji} ${s.name}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field">
+          <label>Mavzu (ixtiyoriy)</label>
+          <input id="quiz-topic" placeholder="Masalan: Newton qonunlari">
+        </div>
+        <button class="btn btn-primary btn-full" onclick="generateQuiz()">🧠 Quiz yaratish</button>
+      </div>` :
+      renderQuizQuestion()
+    }`
+}
+
+function renderQuizQuestion() {
+  const q = S.quizData[S.quizCurrentIdx || 0]
+  if (!q) return `<div class="card"><div class="card-title">✅ Quiz tugadi!</div><button class="btn btn-primary" onclick="S.quizData=null;render()">Yangi quiz</button></div>`
+  return `
+    <div class="card">
+      <div style="font-size:0.72rem;color:var(--text2);margin-bottom:0.75rem">Savol ${(S.quizCurrentIdx||0)+1} / ${S.quizData.length}</div>
+      <div class="quiz-question">${q.question}</div>
+      <div class="quiz-options">
+        ${q.options.map((opt,i) => {
+          let cls = 'quiz-opt'
+          if (S.quizAnswered) {
+            if (i === q.correctIndex) cls += ' correct'
+            else if (i === S.quizUserAns) cls += ' wrong'
+          } else if (i === S.quizUserAns) cls += ' selected'
+          return `<button class="${cls}" onclick="answerQuiz(${i},'${q.question?.replace(/'/g,'\\\'')}')">${opt}</button>`
+        }).join('')}
+      </div>
+      ${S.quizAnswered && q.explanation ? `<div style="background:var(--blue-l);border-radius:8px;padding:0.75rem;font-size:0.8rem;color:var(--blue);margin-bottom:0.75rem">💡 ${q.explanation}</div>` : ''}
+      ${S.quizAnswered ? `<button class="btn btn-primary btn-full" onclick="nextQuizQuestion()">Keyingi →</button>` : ''}
     </div>`
 }
 
-function subjectCardHTML(subj, showDelete = false) {
-  const days = subj.examDate ? Math.ceil((new Date(subj.examDate) - new Date()) / 86400000) : null
-  const urgent = days !== null && days <= 7
+// ── NOTES ──────────────────────────────────────────────────────────
+function renderNotes() {
   return `
-    <div class="subject-card" style="--subj-color:${subj.color}" onclick="">
-      <div class="subj-top">
-        <div class="subj-left">
-          <span class="subj-emoji">${subj.emoji}</span>
+    <div class="page-header">
+      <div class="page-title">📝 Mavzular</div>
+      <div class="page-sub">O'zlashtirish darajasi va takrorlash</div>
+    </div>
+    <button class="btn btn-primary btn-sm" style="margin-bottom:1rem" onclick="openModal('addNote')">+ Mavzu qo'shish</button>
+    ${S.notes.map(note => `
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.5rem">
           <div>
-            <div class="subj-name">${subj.name}</div>
-            ${days !== null ? `<div class="subj-exam" style="color:${urgent ? 'var(--red)' : 'var(--text2)'}">📅 ${days} kun</div>` : ''}
+            <div style="font-weight:700;font-size:0.9rem">${note.title}</div>
+            ${note.subjectName?`<div style="font-size:0.7rem;color:var(--text2)">${note.subjectName}</div>`:''}
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-sm btn-secondary" onclick="testNote('${note._id}','${note.title?.replace(/'/g,'\\\'') || ''}')">🧠 Test</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteNote('${note._id}')">🗑</button>
           </div>
         </div>
-        <div class="subj-actions">
-          <button class="subj-btn" onclick="event.stopPropagation();openLogSession('${subj._id}','${subj.name}')">+ Log</button>
-          <button class="subj-btn" onclick="event.stopPropagation();openModal('examPlan','${subj._id}')">📅 Plan</button>
-          ${showDelete ? `<button class="subj-btn" style="color:var(--red)" onclick="event.stopPropagation();deleteSubject('${subj._id}')">🗑</button>` : ''}
+        ${note.content?`<div style="font-size:0.8rem;color:var(--text2);line-height:1.6;margin-bottom:0.75rem">${note.content.slice(0,200)}${note.content.length>200?'...':''}</div>`:''}
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <div style="font-size:0.72rem;color:var(--text2);flex-shrink:0">O'zlashtirish:</div>
+          <input type="range" min="0" max="100" value="${note.masteryLevel}" style="flex:1;accent-color:var(--purple)" onchange="updateMastery('${note._id}',this.value)">
+          <div style="font-size:0.72rem;font-weight:700;color:var(--purple);min-width:32px">${note.masteryLevel}%</div>
         </div>
-      </div>
-      <div class="subj-bar-track">
-        <div class="subj-bar-fill" style="width:${subj.progress}%;background:${subj.color}"></div>
-      </div>
-      <div class="subj-meta"><span>${subj.progress}% bajarildi</span><span>${subj.totalXP} XP</span></div>
-    </div>
-    <style>.subject-card::after{background:${subj.color}}</style>`
+        <div style="font-size:0.68rem;color:var(--text3)">Takrorlash: ${note.nextReview}</div>
+      </div>`).join('')}
+    ${!S.notes.length ? '<div class="empty"><div class="empty-icon">📝</div><div>Mavzu qo\'shing</div></div>' : ''}`
 }
 
-// ── AI ────────────────────────────────────────────────────────────
-function renderAI() {
-  const msgs = state.chatMessages
+// ── JOURNAL ────────────────────────────────────────────────────────
+function renderJournal() {
+  const todayEntry = S.journals.find(j => j.date === today())
+  const isParent = S.viewMode === 'parent'
   return `
-    <div class="chat-messages" id="chat-msgs">
-      ${!msgs.length ? `
-        <div class="chat-msg ai">
-          <div class="chat-bubble">Salom! Men StudyMind AI — aqlli o'quv murabbiyingiz. Qanday yordam kerak? 🧠</div>
-        </div>` : ''}
-      ${msgs.map(m => `
-        <div class="chat-msg ${m.role}">
-          <div class="chat-bubble">${m.content.replace(/\n/g, '<br>')}</div>
-          <div class="chat-time">${m.time || ''}</div>
+    <div class="page-header">
+      <div class="page-title">🗒️ Kunlik xotira</div>
+    </div>
+    ${!isParent ? `
+    <div class="card">
+      <div class="card-title">Bugun — ${today()}</div>
+      <div style="font-size:0.78rem;color:var(--text2);margin-bottom:0.5rem">Kayfiyatingiz?</div>
+      <div class="mood-row">
+        ${MOODS.map((m,i)=>`<button class="mood-btn ${S.journalMood===(i+1)?'selected':''}" onclick="S.journalMood=${i+1};render()">${m}</button>`).join('')}
+      </div>
+      <div class="field" style="margin-top:0.75rem">
+        <label>Bugungi fikrlar</label>
+        <textarea placeholder="Bugun nima o'qidim, nima qiyin bo'ldi..." rows="3" oninput="S.journalText=this.value">${S.journalText || (todayEntry?.content||'')}</textarea>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="saveJournal()">Saqlash</button>
+    </div>` : ''}
+    <div class="card">
+      <div class="card-title">📆 Oxirgi yozuvlar</div>
+      ${S.journals.slice(0,7).map(j => `
+        <div class="journal-entry">
+          <div class="je-top">
+            <span class="je-date">${j.date}</span>
+            <span class="je-mood">${MOODS[j.mood-1]||'😐'}</span>
+          </div>
+          ${!isParent && j.content ? `<div class="je-content">${j.content.slice(0,150)}${j.content.length>150?'...':''}</div>` : ''}
+          <div class="je-tags">${(j.tags||[]).map(t=>`<span class="je-tag">#${t}</span>`).join('')}</div>
         </div>`).join('')}
-      ${state.aiLoading ? `<div class="chat-msg ai"><div class="typing"><span></span><span></span><span></span></div></div>` : ''}
-    </div>
+      ${!S.journals.length ? '<div class="empty">Hali yozuv yo\'q</div>' : ''}
+    </div>`
+}
 
-    <div class="chat-bar">
-      <div class="ai-tools">
-        <div class="ai-tool" onclick="sendQuickPrompt('Mening xulq-atvorimni tahlil qil')">🧬 Tahlil</div>
-        <div class="ai-tool" onclick="openNotesModal()">📝 Xulosa</div>
-        ${state.subjects.map(s => `<div class="ai-tool" onclick="sendQuickPrompt('${s.name} fanidan imtihon rejasi tuz')">${s.emoji} ${s.name}</div>`).join('')}
-      </div>
-      <div class="chat-input-row">
-        <select class="chat-subject-sel" onchange="state.chatSubjectId=this.value">
-          <option value="">Fan...</option>
-          ${state.subjects.map(s => `<option value="${s._id}">${s.emoji} ${s.name}</option>`).join('')}
+// ── AI TUTOR ───────────────────────────────────────────────────────
+function renderAI() {
+  return `
+    <div class="page-header">
+      <div class="page-title">🧠 AI Tutor</div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <div style="padding:0.75rem 1rem;border-bottom:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;overflow-x:auto">
+        <select style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.35rem 0.65rem;font-size:0.75rem;font-family:var(--font);color:var(--text2)" onchange="S.chatSubjectId=this.value">
+          <option value="">Fan tanlang...</option>
+          ${S.subjects.map(s=>`<option value="${s._id}">${s.emoji} ${s.name}</option>`).join('')}
         </select>
-        <div class="chat-input-wrap">
-          <textarea id="chat-in" placeholder="Savolingizni yozing..." rows="1" onkeydown="handleChatKey(event)" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+        <button class="btn btn-sm btn-secondary" onclick="quickPrompt('Mening o\'qish xulq-atvorimni tahlil qil')">🧬 Tahlil</button>
+        <button class="btn btn-sm btn-secondary" onclick="openModal('summarize')">📝 Xulosa</button>
+        ${S.subjects.slice(0,3).map(s=>`<button class="btn btn-sm btn-secondary" onclick="quickPrompt('${s.name} fanida yordam ber')">${s.emoji}</button>`).join('')}
+      </div>
+      <div class="chat-msgs" id="chat-msgs">
+        ${!S.chatMsgs.length ? `<div class="chat-msg ai"><div class="chat-bubble-msg">Salom! Men StudyMind AI — aqlli o'quv murabbiyingiz. Savol bering yoki "Tahlil" tugmasini bosing! 🧠</div></div>` : ''}
+        ${S.chatMsgs.map(m=>`<div class="chat-msg ${m.role}">
+          <div class="chat-bubble-msg">${m.content.replace(/\n/g,'<br>')}</div>
+          <div class="chat-time">${m.time||''}</div>
+        </div>`).join('')}
+        ${S.aiLoading?`<div class="chat-msg ai"><div class="typing-dots"><span></span><span></span><span></span></div></div>`:''}
+      </div>
+      <div class="chat-input-bar">
+        <div class="chat-input-row">
+          <textarea class="chat-textarea" id="chat-in" placeholder="Savolingizni yozing..." rows="1" onkeydown="handleChatKey(event)" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+          <button class="chat-send-btn" onclick="sendChat()" ${S.aiLoading?'disabled':''}>➤</button>
         </div>
-        <button class="chat-send" id="chat-send-btn" onclick="sendChat()" ${state.aiLoading ? 'disabled' : ''}>➤</button>
       </div>
     </div>`
 }
 
-// ── FLASHCARDS ────────────────────────────────────────────────────
-function renderFlashcards() {
-  const cards = state.flashcards
-  const idx = state.currentCard
-  const card = cards[idx]
-
+// ── INSIGHTS ───────────────────────────────────────────────────────
+function renderInsights() {
+  const ins = S.insights[0]
   return `
-    <div style="padding:0.75rem 1.1rem 0">
-      <button class="btn btn-primary" style="margin-bottom:0" onclick="openModal('addCard')">+ Karta qo'shish</button>
+    <div class="page-header">
+      <div class="page-title">🔍 AI Tahlil</div>
+      <div class="page-sub">Haftalik AI hisobot</div>
     </div>
-
-    <div class="card-review">
-      ${!cards.length ? `
-        <div class="empty" style="margin-top:2rem">
-          <div class="empty-icon">🔁</div>
-          <div>Bugungi kartalar bajarildi! ✅</div>
-          <div style="margin-top:0.5rem;font-size:0.78rem">Yangi karta qo'shing</div>
-        </div>` : `
-        <div class="fc-progress">Karta ${idx + 1} / ${cards.length}</div>
-        <div class="fc-card ${state.cardRevealed ? 'revealed' : ''}" onclick="revealCard()">
-          <div class="fc-front">${card?.front || ''}</div>
-          ${state.cardRevealed ? `<hr class="divider" style="width:100%;margin:0.75rem 0"><div class="fc-back">${card?.back || ''}</div>` : ''}
-          ${!state.cardRevealed ? `<div class="fc-hint" style="margin-top:1.5rem">👆 Ko'rish uchun bosing</div>` : ''}
+    <button class="btn btn-primary" style="margin-bottom:1rem" onclick="generateInsight()">🧠 Tahlil qilish</button>
+    ${ins ? `
+      <div class="card">
+        <div class="card-title">📋 Umumiy xulosa</div>
+        <div class="ai-bubble"><p>${ins.summary}</p></div>
+        <div class="insight-section">
+          <div class="insight-label">✅ Kuchli tomonlar</div>
+          ${(ins.strengths||[]).map(s=>`<span class="insight-chip strength">✓ ${s}</span>`).join('')}
         </div>
-        ${state.cardRevealed ? `
-        <div class="fc-btns">
-          <button class="fc-btn again" onclick="reviewCard(0)">🔴 Qayta</button>
-          <button class="fc-btn hard" onclick="reviewCard(2)">🟡 Qiyin</button>
-          <button class="fc-btn good" onclick="reviewCard(3)">🟢 Yaxshi</button>
-          <button class="fc-btn easy" onclick="reviewCard(5)">⚡ Oson</button>
-        </div>` : ''}
-      `}
-    </div>`
+        <div class="insight-section">
+          <div class="insight-label">⚠️ Zaif tomonlar</div>
+          ${(ins.weaknesses||[]).map(w=>`<span class="insight-chip weakness">! ${w}</span>`).join('')}
+        </div>
+        <div class="insight-section">
+          <div class="insight-label">💡 Tavsiyalar</div>
+          ${(ins.recommendations||[]).map(r=>`<span class="insight-chip rec">→ ${r}</span>`).join('')}
+        </div>
+        ${ins.learningStyle?`<div style="margin-top:0.75rem;font-size:0.8rem"><span style="font-weight:600">O'qish uslubi:</span> ${ins.learningStyle}</div>`:''}
+        ${ins.bestStudyTime?`<div style="font-size:0.8rem"><span style="font-weight:600">Eng yaxshi vaqt:</span> ${ins.bestStudyTime}</div>`:''}
+      </div>` : `<div class="empty"><div class="empty-icon">🔍</div><div>Tahlil qilish uchun yuqoridagi tugmani bosing</div></div>`}
+  `
 }
 
-// ── ANALYTICS ────────────────────────────────────────────────────
-function renderAnalytics() {
-  const weekly = state.stats?.weekly || []
-  const maxMin = Math.max(...weekly.map(d => d.minutes), 1)
-  const days = ['Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh', 'Ya']
-  const totalWeek = weekly.reduce((s, d) => s + d.minutes, 0)
-
+// ── CAREER ─────────────────────────────────────────────────────────
+function renderCareer() {
   return `
-    <div class="sec" style="margin-top:0.75rem">
-      <div class="chart-wrap">
-        <div class="chart-title">📈 Haftalik o'qish (daqiqa) — Jami: ${totalWeek}min</div>
-        <div class="bar-chart">
-          ${weekly.map((d, i) => {
-            const h = Math.max(4, Math.round((d.minutes / maxMin) * 80))
-            const dayLabel = days[new Date(d.date).getDay() || 6]
-            return `<div class="bar-col">
-              <div class="bar-val">${d.minutes || ''}</div>
-              <div class="bar" style="height:${h}px;background:${d.minutes > 0 ? 'linear-gradient(180deg,var(--purple),var(--teal))' : 'var(--card2)'}"></div>
-              <div class="bar-label">${dayLabel}</div>
-            </div>`
-          }).join('')}
+    <div class="page-header">
+      <div class="page-title">🎯 Karyera yo'li</div>
+    </div>
+    <button class="btn btn-purple btn-sm" style="margin-bottom:1rem;background:var(--purple);color:white" onclick="generateCareer()">🎯 Karyera tahlili</button>
+    ${S.careers.map(c => `
+      <div class="career-card">
+        <div class="career-match" style="background:${c.match>=80?'var(--teal-l)':c.match>=60?'var(--amber-l)':'var(--coral-l)'};color:${c.match>=80?'var(--teal)':c.match>=60?'var(--amber)':'var(--coral)'}">
+          ${c.match}%
         </div>
-      </div>
-
-      <div class="chart-wrap">
-        <div class="chart-title">📚 Fan progressi</div>
-        ${state.subjects.map(s => `
-          <div style="margin-bottom:0.8rem">
-            <div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:5px">
-              <span>${s.emoji} ${s.name}</span>
-              <span style="color:var(--text2)">${s.progress}%</span>
-            </div>
-            <div class="subj-bar-track">
-              <div class="subj-bar-fill" style="width:${s.progress}%;background:${s.color}"></div>
-            </div>
-          </div>`).join('')}
-        ${!state.subjects.length ? '<div class="empty">Fan qo\'shing</div>' : ''}
-      </div>
-    </div>`
+        <div style="flex:1">
+          <div class="career-name">${c.career}</div>
+          <div class="career-desc">${c.description}</div>
+          ${c.avgSalary?`<div class="career-salary">💰 ${c.avgSalary}</div>`:''}
+        </div>
+      </div>`).join('')}
+    ${!S.careers.length ? '<div class="empty"><div class="empty-icon">🎯</div><div>Karyera tahlili uchun yuqoridagi tugmani bosing</div></div>' : ''}
+  `
 }
 
-// ═══════════════════════════════════════════════════════
-//  MODALS
-// ═══════════════════════════════════════════════════════
+// ── MODALS ─────────────────────────────────────────────────────────
 function renderModal() {
-  switch (state.modal) {
-    case 'addSubject': return wrapModal('Fan qo\'shish', renderAddSubject())
-    case 'addCard': return wrapModal('Karta qo\'shish', renderAddCard())
-    case 'logSession': return wrapModal('Sessiya qayd etish', renderLogSession())
-    case 'examPlan': return wrapModal('Imtihon Rejasi', renderExamPlan())
-    case 'notes': return wrapModal('Xulosa chiqarish', renderNotesModal())
-    case 'settings': return wrapModal('Sozlamalar', renderSettings())
-    default: return ''
+  const modals = {
+    addSubject: ['Fan qo\'shish', renderAddSubjectModal()],
+    addFlashcard: ['Karta qo\'shish', renderAddFlashcardModal()],
+    addNote: ['Mavzu qo\'shish', renderAddNoteModal()],
+    addSchedule: ['Vazifa qo\'shish', renderAddScheduleModal()],
+    addGrade: ['Baho kiritish', renderAddGradeModal()],
+    logSession: ['Sessiya qayd', renderLogSessionModal()],
+    examPlan: ['Imtihon rejasi', renderExamPlanModal()],
+    summarize: ['Xulosa chiqarish', renderSummarizeModal()],
+    settings: ['Sozlamalar', renderSettingsModal()],
   }
-}
-
-function wrapModal(title, content) {
+  const [title, content] = modals[S.modal] || ['', '']
   return `<div class="modal-bg" onclick="if(event.target===this)closeModal()">
     <div class="modal">
       <div class="modal-handle"></div>
@@ -619,293 +951,319 @@ function wrapModal(title, content) {
   </div>`
 }
 
-function renderAddSubject() {
-  const s = state.newSubject
+function renderAddSubjectModal() {
+  const s = S.newSubject
   return `
-    <div class="field"><label>Fan nomi</label><input id="subj-name" value="${s.name}" oninput="state.newSubject.name=this.value" placeholder="Masalan: Matematika"></div>
-    <div class="field">
-      <label>Emoji</label>
-      <div class="emoji-grid">${EMOJIS.map(e => `<div class="emoji-opt ${s.emoji===e?'selected':''}" onclick="selectEmoji('${e}')">${e}</div>`).join('')}</div>
-    </div>
-    <div class="field">
-      <label>Rang</label>
-      <div class="color-grid">${COLORS.map(c => `<div class="color-opt ${s.color===c?'selected':''}" style="background:${c}" onclick="selectColor('${c}')"></div>`).join('')}</div>
-    </div>
-    <div class="field"><label>Imtihon sanasi (ixtiyoriy)</label><input type="date" value="${s.examDate}" oninput="state.newSubject.examDate=this.value"></div>
-    <button class="btn btn-primary" onclick="saveSubject()">Saqlash</button>
-    <button class="btn btn-secondary" onclick="closeModal()">Bekor</button>`
+    <div class="field"><label>Fan nomi *</label><input value="${s.name}" oninput="S.newSubject.name=this.value" placeholder="Matematika"></div>
+    <div class="field"><label>Turi</label><select onchange="S.newSubject.type=this.value"><option value="school" ${s.type==='school'?'selected':''}>Maktab</option><option value="university" ${s.type==='university'?'selected':''}>Universitet</option></select></div>
+    <div class="field"><label>Emoji</label><div class="emoji-grid">${EMOJIS.map(e=>`<div class="emoji-opt ${s.emoji===e?'selected':''}" onclick="S.newSubject.emoji='${e}';render()">${e}</div>`).join('')}</div></div>
+    <div class="field"><label>Rang</label><div class="color-row">${COLORS.map(c=>`<div class="color-dot ${s.color===c?'selected':''}" style="background:${c}" onclick="S.newSubject.color='${c}';render()"></div>`).join('')}</div></div>
+    <div class="field"><label>Imtihon sanasi</label><input type="date" value="${s.examDate}" oninput="S.newSubject.examDate=this.value"></div>
+    <button class="btn btn-primary btn-full" onclick="saveSubject()">Saqlash</button>
+    <button class="btn btn-secondary btn-full" style="margin-top:0.5rem" onclick="closeModal()">Bekor</button>`
 }
 
-function renderAddCard() {
+function renderAddFlashcardModal() {
   return `
-    <div class="field">
-      <label>Fan (ixtiyoriy)</label>
-      <select onchange="state.newCard.subjectId=this.value">
-        <option value="">Tanlang...</option>
-        ${state.subjects.map(s => `<option value="${s._id}">${s.emoji} ${s.name}</option>`).join('')}
-      </select>
-    </div>
-    <div class="field"><label>Savol (old tomon)</label><textarea id="card-front" placeholder="Savol yoki ibora..." oninput="state.newCard.front=this.value" rows="3" style="resize:none;width:100%;background:var(--card);border:1px solid var(--border);border-radius:12px;color:var(--text);padding:0.75rem;font-family:var(--body);font-size:0.88rem;outline:none"></textarea></div>
-    <div class="field"><label>Javob (orqa tomon)</label><textarea id="card-back" placeholder="Javob..." oninput="state.newCard.back=this.value" rows="3" style="resize:none;width:100%;background:var(--card);border:1px solid var(--border);border-radius:12px;color:var(--text);padding:0.75rem;font-family:var(--body);font-size:0.88rem;outline:none"></textarea></div>
-    <button class="btn btn-primary" onclick="saveCard()">Saqlash</button>
-    <button class="btn btn-secondary" onclick="closeModal()">Bekor</button>`
+    <div class="field"><label>Fan</label><select onchange="S.newFlashcard.subjectId=this.value"><option value="">Tanlang</option>${S.subjects.map(s=>`<option value="${s._id}">${s.emoji} ${s.name}</option>`).join('')}</select></div>
+    <div class="field"><label>Savol (old tomon) *</label><textarea rows="3" placeholder="Savol..." oninput="S.newFlashcard.front=this.value"></textarea></div>
+    <div class="field"><label>Javob (orqa tomon) *</label><textarea rows="3" placeholder="Javob..." oninput="S.newFlashcard.back=this.value"></textarea></div>
+    <button class="btn btn-primary btn-full" onclick="saveFlashcard()">Saqlash</button>
+    <button class="btn btn-secondary btn-full" style="margin-top:0.5rem" onclick="closeModal()">Bekor</button>`
 }
 
-function renderLogSession() {
-  const durs = [15, 25, 45, 60, 90, 120]
+function renderAddNoteModal() {
   return `
-    <div class="field">
-      <label>Fan</label>
-      <select onchange="state.sessionLog.subjectId=this.value">
-        <option value="">Tanlang...</option>
-        ${state.subjects.map(s => `<option value="${s._id}" ${state.sessionLog.subjectId===s._id?'selected':''}>${s.emoji} ${s.name}</option>`).join('')}
-      </select>
-    </div>
-    <div class="field log-modal">
-      <label>Vaqt (daqiqa)</label>
-      <div class="dur-grid">${durs.map(d => `<div class="dur-opt ${state.sessionLog.duration===d?'selected':''}" onclick="selectDur(${d})">${d} min</div>`).join('')}</div>
-      <input type="number" placeholder="Boshqa vaqt..." oninput="state.sessionLog.duration=Number(this.value)" style="margin-top:8px">
-    </div>
-    <div class="field"><label>Ball (0-100, ixtiyoriy)</label><input type="number" min="0" max="100" placeholder="..." oninput="state.sessionLog.score=this.value"></div>
-    <div class="field"><label>Izoh (ixtiyoriy)</label><input placeholder="Bugun nima o'qidim..." oninput="state.sessionLog.notes=this.value"></div>
-    <button class="btn btn-primary" onclick="saveSession()">Saqlash ✅</button>
-    <button class="btn btn-secondary" onclick="closeModal()">Bekor</button>`
+    <div class="field"><label>Fan</label><select onchange="S.newNote.subjectId=this.value"><option value="">Tanlang</option>${S.subjects.map(s=>`<option value="${s._id}">${s.emoji} ${s.name}</option>`).join('')}</select></div>
+    <div class="field"><label>Mavzu sarlavhasi *</label><input placeholder="Masalan: Newton 2-qonun" oninput="S.newNote.title=this.value"></div>
+    <div class="field"><label>Kontent</label><textarea rows="4" placeholder="Mavzu haqida yozing..." oninput="S.newNote.content=this.value"></textarea></div>
+    <button class="btn btn-primary btn-full" onclick="saveNote()">Saqlash</button>
+    <button class="btn btn-secondary btn-full" style="margin-top:0.5rem" onclick="closeModal()">Bekor</button>`
 }
 
-function renderExamPlan() {
-  return `<div id="plan-content" style="color:var(--text2);font-size:0.85rem;line-height:1.8">⏳ Reja tuzilmoqda...</div>
-    <button class="btn btn-secondary" style="margin-top:1rem" onclick="closeModal()">Yopish</button>`
-}
-
-function renderNotesModal() {
+function renderAddScheduleModal() {
   return `
-    <div class="field"><label>Konspektingizni yozing — AI xulosa chiqaradi</label>
-      <textarea class="notes-area" id="notes-input" placeholder="Matnni bu yerga yozing..." oninput="state.notesText=this.value"></textarea>
-    </div>
-    <button class="btn btn-primary" onclick="summarizeNotes()">🧠 Xulosa chiqar</button>
-    <div id="summary-result" style="margin-top:1rem;font-size:0.84rem;line-height:1.7;color:var(--text)"></div>
-    <button class="btn btn-secondary" onclick="closeModal()">Yopish</button>`
+    <div class="field"><label>Vazifa nomi *</label><input placeholder="Matematika darsiga tayyorlanish" oninput="S.newSchedule.title=this.value"></div>
+    <div class="field"><label>Fan</label><select onchange="S.newSchedule.subjectId=this.value"><option value="">Tanlang</option>${S.subjects.map(s=>`<option value="${s._id}">${s.emoji} ${s.name}</option>`).join('')}</select></div>
+    <div class="field"><label>Vaqt</label><input type="time" oninput="S.newSchedule.scheduledTime=this.value"></div>
+    <div class="field"><label>Sana</label><input type="date" value="${today()}" oninput="S.newSchedule.date=this.value"></div>
+    <button class="btn btn-primary btn-full" onclick="saveSchedule()">Saqlash</button>
+    <button class="btn btn-secondary btn-full" style="margin-top:0.5rem" onclick="closeModal()">Bekor</button>`
 }
 
-function renderSettings() {
-  const u = state.user
+function renderAddGradeModal() {
+  return `
+    <div class="field"><label>Fan *</label><select onchange="S.newGrade.subjectId=this.value"><option value="">Tanlang</option>${S.subjects.map(s=>`<option value="${s._id}" ${S.newGrade.subjectId===s._id?'selected':''}>${s.emoji} ${s.name}</option>`).join('')}</select></div>
+    <div class="field"><label>Ball (0-100) *</label><input type="number" min="0" max="100" placeholder="85" oninput="S.newGrade.score=this.value"></div>
+    <div class="field"><label>Izoh</label><input placeholder="Nazorat ishi, mustaqil ish..." oninput="S.newGrade.note=this.value"></div>
+    <div class="field"><label>Sana</label><input type="date" value="${today()}" oninput="S.newGrade.date=this.value"></div>
+    <button class="btn btn-primary btn-full" onclick="saveGrade()">Saqlash</button>
+    <button class="btn btn-secondary btn-full" style="margin-top:0.5rem" onclick="closeModal()">Bekor</button>`
+}
+
+function renderLogSessionModal() {
+  const durs = [15,25,45,60,90,120]
+  return `
+    <div class="field"><label>Fan</label><select onchange="S.sessionLog.subjectId=this.value"><option value="">Tanlang</option>${S.subjects.map(s=>`<option value="${s._id}" ${S.sessionLog.subjectId===s._id?'selected':''}>${s.emoji} ${s.name}</option>`).join('')}</select></div>
+    <div class="field"><label>Vaqt (daqiqa)</label>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:6px">
+        ${durs.map(d=>`<div style="background:${S.sessionLog.duration===d?'var(--purple-l)':'var(--bg)'};border:1.5px solid ${S.sessionLog.duration===d?'var(--purple)':'var(--border)'};border-radius:8px;padding:0.5rem;text-align:center;font-size:0.8rem;cursor:pointer;font-weight:600;color:${S.sessionLog.duration===d?'var(--purple)':'var(--text2)'}" onclick="S.sessionLog.duration=${d};render()">${d} min</div>`).join('')}
+      </div>
+      <input type="number" placeholder="Boshqa vaqt..." oninput="S.sessionLog.duration=Number(this.value)">
+    </div>
+    <div class="field"><label>Ball (ixtiyoriy)</label><input type="number" min="0" max="100" placeholder="..." oninput="S.sessionLog.score=this.value"></div>
+    <div class="field"><label>Kayfiyat</label><div class="mood-row" style="justify-content:flex-start">${MOODS.map((m,i)=>`<button class="mood-btn ${S.sessionLog.mood===(i+1)?'selected':''}" onclick="S.sessionLog.mood=${i+1};render()">${m}</button>`).join('')}</div></div>
+    <button class="btn btn-primary btn-full" onclick="saveSession()">Saqlash ✅</button>
+    <button class="btn btn-secondary btn-full" style="margin-top:0.5rem" onclick="closeModal()">Bekor</button>`
+}
+
+function renderExamPlanModal() {
+  return `<div id="plan-content" style="color:var(--text2);font-size:0.82rem;line-height:1.8">⏳ Reja tuzilmoqda...</div>
+    <button class="btn btn-secondary btn-full" style="margin-top:1rem" onclick="closeModal()">Yopish</button>`
+}
+
+function renderSummarizeModal() {
+  return `
+    <div class="field"><label>Konspektingizni yozing</label><textarea id="sum-input" rows="6" placeholder="Matnni bu yerga yozing..." oninput="S.notesText=this.value"></textarea></div>
+    <button class="btn btn-primary btn-full" onclick="summarizeNotes()">🧠 Xulosa chiqar</button>
+    <div id="sum-result" style="margin-top:1rem;font-size:0.82rem;line-height:1.7"></div>
+    <button class="btn btn-secondary btn-full" style="margin-top:0.5rem" onclick="closeModal()">Yopish</button>`
+}
+
+function renderSettingsModal() {
+  const u = S.user
   return `
     <div style="text-align:center;margin-bottom:1.5rem">
-      <div class="avatar" style="width:60px;height:60px;font-size:1.3rem;margin:0 auto 0.75rem">${u?.avatar ? `<img src="${u.avatar}">` : u?.name?.[0] || 'U'}</div>
-      <div style="font-family:var(--font);font-size:1.1rem;font-weight:600">${u?.name}</div>
-      <div style="color:var(--text2);font-size:0.8rem">${u?.email || 'Telegram foydalanuvchi'}</div>
+      <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--teal));display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:700;color:white;margin:0 auto 0.75rem">${u?.avatar?`<img src="${u.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:u?.name?.[0]||'U'}</div>
+      <div style="font-weight:700;font-size:1rem">${u?.name}</div>
+      <div style="color:var(--text2);font-size:0.78rem">${u?.email||'Telegram foydalanuvchi'}</div>
     </div>
-    <div class="field">
-      <label>Til</label>
-      <select onchange="changeLang(this.value)">
-        <option value="uz" ${u?.lang==='uz'?'selected':''}>🇺🇿 O'zbek</option>
-        <option value="ru" ${u?.lang==='ru'?'selected':''}>🇷🇺 Русский</option>
-        <option value="en" ${u?.lang==='en'?'selected':''}>🇬🇧 English</option>
-      </select>
-    </div>
-    <div style="background:var(--card);border-radius:12px;padding:1rem;margin-bottom:1rem">
-      <div style="font-size:0.78rem;color:var(--text2);margin-bottom:0.5rem">Statistika</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
-        <div><div style="font-family:var(--font);font-size:1.2rem;font-weight:700;color:var(--purple)">${u?.xp}</div><div style="font-size:0.7rem;color:var(--text2)">Jami XP</div></div>
-        <div><div style="font-family:var(--font);font-size:1.2rem;font-weight:700;color:var(--teal)">${u?.streak}</div><div style="font-size:0.7rem;color:var(--text2)">Streak</div></div>
-      </div>
-    </div>
-    <button class="btn btn-danger" onclick="logout()">Chiqish</button>
-    <button class="btn btn-secondary" onclick="closeModal()">Yopish</button>`
+    <div class="field"><label>Sinf / Kurs</label><input placeholder="11-sinf yoki 2-kurs" value="${u?.grade||''}" oninput="updateUser('grade',this.value)"></div>
+    <div class="field"><label>Maktab / Universitet</label><input placeholder="O'qiydigan joyingiz" value="${u?.school||''}" oninput="updateUser('school',this.value)"></div>
+    <div class="field"><label>Til</label><select onchange="updateUser('lang',this.value)"><option value="uz" ${u?.lang==='uz'?'selected':''}>🇺🇿 O'zbek</option><option value="ru" ${u?.lang==='ru'?'selected':''}>🇷🇺 Русский</option><option value="en" ${u?.lang==='en'?'selected':''}>🇬🇧 English</option></select></div>
+    <button class="btn btn-danger btn-full" onclick="logout()">Chiqish</button>
+    <button class="btn btn-secondary btn-full" style="margin-top:0.5rem" onclick="closeModal()">Yopish</button>`
 }
 
-// ═══════════════════════════════════════════════════════
-//  ACTIONS
-// ═══════════════════════════════════════════════════════
-function switchTab(tab) {
-  state.tab = tab
-  render()
-  document.getElementById('page')?.scrollTo({ top: 0 })
-}
-
-function openModal(type, data) {
-  state.modal = type
-  state.modalData = data
-  if (type === 'addSubject') state.newSubject = { name: '', emoji: '📚', color: '#6c63ff', examDate: '' }
-  if (type === 'addCard') state.newCard = { front: '', back: '', subjectId: '' }
-  render()
-  if (type === 'examPlan' && data) loadExamPlan(data)
-}
-
-function closeModal() { state.modal = null; render() }
-
-function selectEmoji(e) { state.newSubject.emoji = e; render() }
-function selectColor(c) { state.newSubject.color = c; render() }
-function selectDur(d) { state.sessionLog.duration = d; render() }
+// ── ACTIONS ────────────────────────────────────────────────────────
+function switchTab(tab) { S.tab=tab; render(); document.getElementById('main')?.scrollTo({top:0}) }
+function setView(v) { S.viewMode=v; render() }
+function openModal(type, data) { S.modal=type; S.modalData=data; if(type==='addSubject') S.newSubject={name:'',type:'school',emoji:'📚',color:'#534AB7',examDate:''}; if(type==='addGrade'&&data) S.newGrade.subjectId=data; render(); if(type==='examPlan'&&data) loadExamPlan(data) }
+function closeModal() { S.modal=null; render() }
+function openLogSessionFor(id,name) { S.sessionLog={subjectId:id,duration:25,score:'',mood:3}; openModal('logSession') }
 
 async function saveSubject() {
-  const { name, emoji, color, examDate } = state.newSubject
+  const {name,type,emoji,color,examDate} = S.newSubject
   if (!name.trim()) return alert('Fan nomi kiriting')
   try {
-    const subj = await POST('/api/subjects', { name: name.trim(), emoji, color, examDate })
-    state.subjects.push(subj)
-    closeModal()
-  } catch (e) { alert('Xatolik: ' + e.message) }
+    const s = await POST('/api/subjects', {name:name.trim(),type,emoji,color,examDate})
+    S.subjects.push(s); closeModal()
+  } catch(e) { alert('Xatolik: '+e.message) }
 }
 
 async function deleteSubject(id) {
   if (!confirm('Fan o\'chirilsinmi?')) return
-  await DEL('/api/subjects/' + id)
-  state.subjects = state.subjects.filter(s => s._id !== id)
-  render()
+  await DEL('/api/subjects/'+id)
+  S.subjects = S.subjects.filter(s=>s._id!==id); render()
 }
 
-async function saveCard() {
-  const { front, back, subjectId } = state.newCard
-  if (!front.trim() || !back.trim()) return alert('Savol va javob kiriting')
-  await POST('/api/flashcards', { front, back, subjectId })
-  await refreshFlashcards()
-  closeModal()
+async function saveFlashcard() {
+  const {front,back,subjectId} = S.newFlashcard
+  if (!front.trim()||!back.trim()) return alert('Savol va javob kiriting')
+  await POST('/api/flashcards', {front,back,subjectId})
+  S.flashcards = await GET('/api/flashcards?dueOnly=true')
+  S.fcIdx=0; S.fcRevealed=false; closeModal()
 }
 
-async function refreshFlashcards() {
-  state.flashcards = await GET('/api/flashcards?dueOnly=true')
-  state.currentCard = 0
-  state.cardRevealed = false
-}
+function revealCard() { S.fcRevealed=true; render() }
 
-function revealCard() {
-  state.cardRevealed = true
-  render()
-}
-
-async function reviewCard(quality) {
-  const card = state.flashcards[state.currentCard]
+async function reviewCard(q) {
+  const card = S.flashcards[S.fcIdx]
   if (!card) return
-  await POST(`/api/flashcards/${card._id}/review`, { quality })
-  state.currentCard++
-  state.cardRevealed = false
-  if (state.currentCard >= state.flashcards.length) {
-    await refreshFlashcards()
+  await POST(`/api/flashcards/${card._id}/review`, {quality:q})
+  S.fcIdx++; S.fcRevealed=false
+  if (S.fcIdx >= S.flashcards.length) {
+    S.flashcards = await GET('/api/flashcards?dueOnly=true')
+    S.fcIdx=0
   }
   render()
 }
 
-function openLogSession(subjectId, name) {
-  state.sessionLog = { subjectId, duration: 25, score: '', notes: '' }
-  openModal('logSession')
+async function saveGrade() {
+  const {subjectId,score,note,date} = S.newGrade
+  if (!score) return alert('Ball kiriting')
+  try {
+    const g = await POST('/api/grades', {subjectId,score:Number(score),note,date:date||today()})
+    S.grades.unshift(g)
+    S.subjects = await GET('/api/subjects')
+    closeModal()
+  } catch(e) { alert('Xatolik: '+e.message) }
+}
+
+async function saveNote() {
+  const {title,content,subjectId} = S.newNote
+  if (!title.trim()) return alert('Sarlavha kiriting')
+  const n = await POST('/api/notes', {title,content,subjectId})
+  S.notes.unshift(n); closeModal()
+}
+
+async function updateMastery(id, level) {
+  await PUT('/api/notes/'+id, {masteryLevel:Number(level)})
+  const n = S.notes.find(n=>n._id===id)
+  if (n) n.masteryLevel=Number(level)
+}
+
+async function deleteNote(id) {
+  if (!confirm('O\'chirilsinmi?')) return
+  await DEL('/api/notes/'+id)
+  S.notes=S.notes.filter(n=>n._id!==id); render()
+}
+
+async function testNote(id, title) {
+  S.tab='quiz'; S.quizData=null; render()
+  const result = await POST('/api/quiz/generate', {topicContent:title, count:3})
+  S.quizData = result.questions; S.quizCurrentIdx=0; S.quizAnswered=false; S.quizUserAns=null
+  render()
+}
+
+async function saveSchedule() {
+  const {title,subjectId,scheduledTime,date} = S.newSchedule
+  if (!title.trim()) return alert('Nomi kiriting')
+  const s = await POST('/api/schedule', {title,subjectId,scheduledTime,date:date||today()})
+  S.scheduleItems.push(s); closeModal()
+}
+
+async function deleteSchedule(id) {
+  await DEL('/api/schedule/'+id)
+  S.scheduleItems=S.scheduleItems.filter(s=>s._id!==id); render()
+}
+
+async function toggleSchedule(id, done) {
+  await PATCH('/api/schedule/'+id+'/done', {isDone:done})
+  const s=S.scheduleItems.find(s=>s._id===id); if(s) s.isDone=done; render()
 }
 
 async function saveSession() {
-  const { subjectId, duration, score, notes } = state.sessionLog
+  const {subjectId,duration,score,mood} = S.sessionLog
   if (!duration) return alert('Vaqtni kiriting')
   try {
-    const result = await POST('/api/sessions', { subjectId, duration: Number(duration), score: score ? Number(score) : undefined, notes })
-    state.user.xp = result.newXP
-    state.user.level = result.level
-    state.user.streak = result.streak
-    await loadData()
-    closeModal()
-    showToast(`+${result.xpEarned} XP 🎯`)
-  } catch (e) { alert('Xatolik: ' + e.message) }
+    const r = await POST('/api/sessions', {subjectId,duration:Number(duration),score:score?Number(score):undefined,mood})
+    S.user.xp=r.newXP; S.user.level=r.level; S.user.streak=r.streak
+    S.stats = await GET('/api/stats'); S.subjects = await GET('/api/subjects')
+    closeModal(); showToast(`+${r.xpEarned} XP 🎯${r.leveledUp?' ⬆️ Level up!':''}`)
+  } catch(e) { alert('Xatolik: '+e.message) }
+}
+
+async function saveJournal() {
+  if (!S.journalMood) return alert('Kayfiyatni tanlang')
+  const entry = await POST('/api/journal', {mood:S.journalMood, content:S.journalText})
+  const idx = S.journals.findIndex(j=>j.date===today())
+  if (idx>=0) S.journals[idx]=entry; else S.journals.unshift(entry)
+  showToast('✅ Saqlandi'); render()
+}
+
+async function generateQuiz() {
+  const subjectId = document.getElementById('quiz-subj')?.value
+  const topic = document.getElementById('quiz-topic')?.value
+  showToast('⏳ Quiz yaratilmoqda...')
+  const r = await POST('/api/quiz/generate', {subjectId, topicContent:topic, count:5})
+  S.quizData = r.questions; S.quizCurrentIdx=0; S.quizAnswered=false; S.quizUserAns=null
+  render()
+}
+
+async function answerQuiz(i) {
+  if (S.quizAnswered) return
+  S.quizUserAns=i; S.quizAnswered=true
+  const q = S.quizData[S.quizCurrentIdx||0]
+  render()
+}
+
+function nextQuizQuestion() {
+  S.quizCurrentIdx=(S.quizCurrentIdx||0)+1
+  S.quizAnswered=false; S.quizUserAns=null; render()
+}
+
+async function sendChat() {
+  const inp = document.getElementById('chat-in')
+  const msg = inp?.value?.trim()
+  if (!msg||S.aiLoading) return
+  S.chatMsgs.push({role:'user',content:msg,time:now()}); inp.value=''
+  S.aiLoading=true; render(); scrollChat()
+  try {
+    const {reply} = await POST('/api/ai/chat', {message:msg, subjectId:S.chatSubjectId||undefined, isParent:S.viewMode==='parent'})
+    S.chatMsgs.push({role:'assistant',content:reply,time:now()})
+  } catch { S.chatMsgs.push({role:'assistant',content:'❌ Xatolik. Qayta urinib koring.',time:now()}) }
+  S.aiLoading=false; render(); scrollChat()
+}
+
+function quickPrompt(text) { const inp=document.getElementById('chat-in'); if(inp) inp.value=text; sendChat() }
+function handleChatKey(e) { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat()} }
+
+async function generateInsight() {
+  showToast('⏳ AI tahlil qilmoqda...')
+  try {
+    const ins = await POST('/api/ai/weekly-insight', {})
+    S.insights=[ins]; render()
+  } catch(e) { showToast('❌ Xatolik: '+e.message) }
+}
+
+async function generateCareer() {
+  showToast('⏳ Karyera tahlili...')
+  try {
+    const {careers} = await POST('/api/ai/career', {})
+    S.careers=careers; render()
+  } catch(e) { showToast('❌ Xatolik') }
 }
 
 async function loadExamPlan(subjectId) {
   const el = document.getElementById('plan-content')
   if (!el) return
   try {
-    const { plan } = await POST('/api/ai/exam-plan', { subjectId })
-    if (el) el.innerHTML = plan.replace(/\n/g, '<br>')
-  } catch { if (el) el.innerHTML = '❌ Xatolik yuz berdi.' }
+    const {plan} = await POST('/api/ai/exam-plan', {subjectId})
+    if (el) el.innerHTML=plan.replace(/\n/g,'<br>')
+  } catch { if(el) el.innerHTML='❌ Xatolik.' }
 }
-
-async function sendChat() {
-  const inp = document.getElementById('chat-in')
-  const msg = inp?.value?.trim()
-  if (!msg || state.aiLoading) return
-
-  state.chatMessages.push({ role: 'user', content: msg, time: now() })
-  inp.value = ''
-  state.aiLoading = true
-  render()
-
-  scrollChat()
-
-  try {
-    const { reply } = await POST('/api/ai/chat', { message: msg, subjectId: state.chatSubjectId || undefined })
-    state.chatMessages.push({ role: 'assistant', content: reply, time: now() })
-  } catch {
-    state.chatMessages.push({ role: 'assistant', content: '❌ Xatolik yuz berdi. Qayta urinib ko\'ring.', time: now() })
-  }
-
-  state.aiLoading = false
-  render()
-  scrollChat()
-}
-
-function sendQuickPrompt(text) {
-  const inp = document.getElementById('chat-in')
-  if (inp) inp.value = text
-  sendChat()
-}
-
-function handleChatKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat() }
-}
-
-function openNotesModal() { openModal('notes') }
 
 async function summarizeNotes() {
-  const notes = state.notesText || document.getElementById('notes-input')?.value
+  const notes = S.notesText||document.getElementById('sum-input')?.value
   if (!notes?.trim()) return alert('Matn kiriting')
-  const el = document.getElementById('summary-result')
-  if (el) el.innerHTML = '⏳ Xulosa chiqarilmoqda...'
+  const el=document.getElementById('sum-result')
+  if(el) el.innerHTML='⏳ Xulosa chiqarilmoqda...'
   try {
-    const { summary } = await POST('/api/ai/summarize', { notes })
-    if (el) el.innerHTML = summary.replace(/\n/g, '<br>')
-  } catch { if (el) el.innerHTML = '❌ Xatolik.' }
+    const {summary}=await POST('/api/ai/summarize',{notes})
+    if(el) el.innerHTML=summary.replace(/\n/g,'<br>')
+  } catch { if(el) el.innerHTML='❌ Xatolik.' }
 }
 
-async function changeLang(lang) {
-  await PUT('/api/user', { lang })
-  state.user.lang = lang
+async function updateUser(field, val) {
+  try { await PUT('/api/user', {[field]:val}); S.user[field]=val } catch {}
 }
 
-async function logout() {
-  await POST('/auth/logout')
-  location.reload()
-}
+async function logout() { await POST('/auth/logout'); location.reload() }
 
-// ═══════════════════════════════════════════════════════
-//  UTILS
-// ═══════════════════════════════════════════════════════
-function nextLevelXP(level) {
-  const t = [0, 100, 300, 600, 1000, 1500, 2200, 3000]
-  return t[level] || 3000 + (level - 7) * 500
-}
-
-function now() {
-  return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-}
-
-function scrollChat() {
-  setTimeout(() => {
-    const el = document.getElementById('chat-msgs')
-    if (el) el.scrollTop = el.scrollHeight
-  }, 50)
-}
-
+// ── UTILS ──────────────────────────────────────────────────────────
+function nextLevelXP(l) { const t=[0,100,300,600,1000,1500,2200,3000,4000,5500]; return t[l]||5500+(l-9)*1000 }
+function scrollChat() { setTimeout(()=>{ const el=document.getElementById('chat-msgs'); if(el) el.scrollTop=el.scrollHeight },50) }
 function showToast(msg) {
-  const el = document.createElement('div')
-  el.style.cssText = `position:fixed;top:1rem;left:50%;transform:translateX(-50%);background:var(--purple);color:white;padding:0.6rem 1.2rem;border-radius:100px;font-size:0.85rem;font-weight:600;z-index:999;animation:fadein 0.3s ease`
-  el.textContent = msg
-  document.body.appendChild(el)
-  setTimeout(() => el.remove(), 2500)
+  const el=document.createElement('div')
+  el.style.cssText='position:fixed;top:1rem;left:50%;transform:translateX(-50%);background:var(--text);color:white;padding:0.6rem 1.25rem;border-radius:100px;font-size:0.82rem;font-weight:600;z-index:999;animation:fadein 0.3s ease;white-space:nowrap'
+  el.textContent=msg; document.body.appendChild(el); setTimeout(()=>el.remove(),2500)
+}
+function afterRender() { if(S.tab==='ai') scrollChat() }
+
+async function loadGrades() { S.grades = await GET('/api/grades') }
+async function loadInsights() { S.insights = await GET('/api/ai/insights') }
+
+// On tab change, load extra data
+const origSwitch = switchTab
+window.switchTab = async function(tab) {
+  S.tab=tab
+  if(tab==='grades' && !S.grades.length) await loadGrades()
+  if(tab==='insights' && !S.insights.length) await loadInsights()
+  render()
+  document.getElementById('main')?.scrollTo({top:0})
 }
 
-function afterRender() {
-  const page = document.getElementById('page')
-  if (page && state.tab === 'ai') {
-    scrollChat()
-  }
-}
-
-// ── INIT ──────────────────────────────────────────────────────────
 init()
 </script>
 </body>
