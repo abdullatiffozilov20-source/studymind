@@ -228,7 +228,7 @@ async function ai(messages, system, maxTokens = 700) {
   const t = setTimeout(() => ctrl.abort(), 10000)
   try {
     const r = await groq.chat.completions.create({
-      model: 'llama3-70b-8192',
+      model: 'llama-3.3-70b-versatile',
       max_tokens: maxTokens,
       messages: [{ role: 'system', content: system }, ...messages]
     }, { signal: ctrl.signal })
