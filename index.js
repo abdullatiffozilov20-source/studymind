@@ -1,7 +1,8 @@
 // ================================================================
-//  🧠 StudyMind Pro — Full Backend v3.0
-//  StudyMind + EduMind features merged
-//  Express + MongoDB + Telegram + Google Auth + Groq AI
+//  🧠 StudyMind — AI-First Student Assistant v4.0
+//  Olib tashlangan: manual baho kiritish, murakkab career UI
+//  Qoldirilgan: AI chat (asosiy), fanlar, streak, flashcard, schedule
+//  AI: barcha ma'lumotlarni o'zi yig'adi suhbat orqali
 // ================================================================
 import express from 'express'
 import session from 'express-session'
@@ -24,7 +25,7 @@ const GROQ_KEY      = process.env.GROQ_API_KEY
 const GOOGLE_ID     = process.env.GOOGLE_CLIENT_ID
 const GOOGLE_SECRET = process.env.GOOGLE_CLIENT_SECRET
 const DOMAIN        = process.env.DOMAIN || `http://localhost:${PORT}`
-const SECRET        = process.env.SESSION_SECRET || 'studymind-pro-2025'
+const SECRET        = process.env.SESSION_SECRET || 'studymind-2025'
 const ADMIN_EMAIL   = process.env.ADMIN_EMAIL || ''
 
 if (!MONGO_URI || !BOT_TOKEN || !GROQ_KEY) {
@@ -36,66 +37,64 @@ await mongoose.connect(MONGO_URI)
 console.log('✅ MongoDB ulandi')
 
 // ── SCHEMAS ───────────────────────────────────────────────────────
+
 const UserSchema = new mongoose.Schema({
   name: String,
   email: { type: String, unique: true, sparse: true },
   avatar: String,
-  role: { type: String, enum: ['student', 'parent', 'teacher'], default: 'student' },
-  familyId: { type: mongoose.Schema.Types.ObjectId },
-  isAdmin: { type: Boolean, default: false },
   telegramId: { type: String, unique: true, sparse: true },
   telegramUsername: String,
   lang: { type: String, default: 'uz', enum: ['uz', 'ru', 'en'] },
-  grade: String,
+  grade: String,   // "11-sinf", "2-kurs"
   school: String,
-  level: { type: Number, default: 1 },
+  isAdmin: { type: Boolean, default: false },
+  // Gamification
   xp: { type: Number, default: 0 },
+  level: { type: Number, default: 1 },
   streak: { type: Number, default: 0 },
   lastStudyDate: String,
+  // Behavior (AI tomonidan to'ldiriladi)
+  totalStudyMinutes: { type: Number, default: 0 },
+  avgMood: { type: Number, default: 3 },
   createdAt: { type: Date, default: Date.now }
 })
 
 const SubjectSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  name: { type: String, required: true },
-  type: { type: String, enum: ['school', 'university'], default: 'school' },
+  name: String,
   emoji: { type: String, default: '📚' },
   color: { type: String, default: '#534AB7' },
   examDate: String,
-  progress: { type: Number, default: 0 },
-  totalXP: { type: Number, default: 0 },
+  // AI tomonidan yangilanadi
+  avgGrade: { type: Number, default: 0 },
+  gradeHistory: [{ score: Number, date: String, note: String }], // AI suhbatdan chiqaradi
   weakTopics: [String],
+  progress: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now }
 })
 
-const GradeSchema = new mongoose.Schema({
+// AI chat — asosiy
+const ChatSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  subjectId: { type: mongoose.Schema.Types.ObjectId, ref: 'Subject', required: true },
-  subjectName: String,
-  score: { type: Number, min: 0, max: 100 },
-  note: String,
-  date: { type: String, default: () => new Date().toISOString().split('T')[0] },
-  createdAt: { type: Date, default: Date.now }
-})
-
-const StudySessionSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  subjectId: mongoose.Schema.Types.ObjectId,
-  subjectName: String,
-  date: String,
-  duration: Number,
-  score: Number,
-  notes: String,
-  xpEarned: Number,
-  mood: { type: Number, min: 1, max: 5, default: 3 },
+  role: { type: String, enum: ['user', 'assistant', 'system'] },
+  content: String,
+  // AI suhbatdan chiqargan ma'lumotlar
+  extractedData: {
+    grade: { subjectName: String, score: Number, note: String },
+    studyMinutes: Number,
+    mood: Number,
+    completedTask: String,
+  },
   createdAt: { type: Date, default: Date.now }
 })
 
 const FlashcardSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   subjectId: mongoose.Schema.Types.ObjectId,
+  subjectName: String,
   front: String,
   back: String,
+  // SM-2
   interval: { type: Number, default: 1 },
   easeFactor: { type: Number, default: 2.5 },
   nextReview: { type: String, default: () => new Date().toISOString().split('T')[0] },
@@ -103,100 +102,39 @@ const FlashcardSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 })
 
-const QuizSchema = new mongoose.Schema({
+const ScheduleSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  subjectId: mongoose.Schema.Types.ObjectId,
-  question: String,
-  options: [String],
-  correctIndex: Number,
-  explanation: String,
-  userAnswer: Number,
-  isCorrect: Boolean,
-  createdAt: { type: Date, default: Date.now }
-})
-
-const JournalSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  date: { type: String, default: () => new Date().toISOString().split('T')[0] },
-  mood: { type: Number, min: 1, max: 5 },
-  content: String,
-  tags: [String],
-  isPrivate: { type: Boolean, default: true },
-  createdAt: { type: Date, default: Date.now }
-})
-
-const TopicNoteSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  subjectId: mongoose.Schema.Types.ObjectId,
-  subjectName: String,
   title: String,
-  content: String,
-  masteryLevel: { type: Number, min: 0, max: 100, default: 0 },
-  nextReview: { type: String, default: () => new Date().toISOString().split('T')[0] },
-  reviewInterval: { type: Number, default: 1 },
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now }
-})
-
-const BehaviorLogSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  date: { type: String, default: () => new Date().toISOString().split('T')[0] },
-  focusMinutes: { type: Number, default: 0 },
-  studySessions: { type: Number, default: 0 },
-  questionsAsked: { type: Number, default: 0 },
-  streakDays: { type: Number, default: 0 },
-  avgMood: { type: Number, default: 3 },
+  subjectName: String,
+  time: String,
+  date: String,
+  isDone: { type: Boolean, default: false },
+  // AI tomonidan yaratilgan
+  aiGenerated: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now }
 })
 
-const AIInsightSchema = new mongoose.Schema({
+const InsightSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  generatedAt: { type: Date, default: Date.now },
+  weekNumber: Number,
   summary: String,
   strengths: [String],
   weaknesses: [String],
   recommendations: [String],
   learningStyle: String,
   bestStudyTime: String,
-  careerSuggestions: mongoose.Schema.Types.Mixed,
-  weekNumber: Number
+  generatedAt: { type: Date, default: Date.now }
 })
 
-const AIChatSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  role: { type: String, enum: ['user', 'assistant'] },
-  content: String,
-  subjectId: mongoose.Schema.Types.ObjectId,
-  createdAt: { type: Date, default: Date.now }
-})
-
-const ScheduleSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  title: String,
-  subjectId: mongoose.Schema.Types.ObjectId,
-  subjectName: String,
-  scheduledTime: String,
-  dayOfWeek: Number,
-  date: String,
-  isDone: { type: Boolean, default: false },
-  createdAt: { type: Date, default: Date.now }
-})
-
-const User        = mongoose.model('User', UserSchema)
-const Subject     = mongoose.model('Subject', SubjectSchema)
-const Grade       = mongoose.model('Grade', GradeSchema)
-const StudySession = mongoose.model('StudySession', StudySessionSchema)
-const Flashcard   = mongoose.model('Flashcard', FlashcardSchema)
-const Quiz        = mongoose.model('Quiz', QuizSchema)
-const Journal     = mongoose.model('Journal', JournalSchema)
-const TopicNote   = mongoose.model('TopicNote', TopicNoteSchema)
-const BehaviorLog = mongoose.model('BehaviorLog', BehaviorLogSchema)
-const AIInsight   = mongoose.model('AIInsight', AIInsightSchema)
-const AIChat      = mongoose.model('AIChat', AIChatSchema)
-const Schedule    = mongoose.model('Schedule', ScheduleSchema)
+const User      = mongoose.model('User', UserSchema)
+const Subject   = mongoose.model('Subject', SubjectSchema)
+const Chat      = mongoose.model('Chat', ChatSchema)
+const Flashcard = mongoose.model('Flashcard', FlashcardSchema)
+const Schedule  = mongoose.model('Schedule', ScheduleSchema)
+const Insight   = mongoose.model('Insight', InsightSchema)
 
 // ── MIDDLEWARE ─────────────────────────────────────────────────────
-app.use(express.json({ limit: '10mb' }))
+app.use(express.json({ limit: '5mb' }))
 app.use(express.static(__dirname))
 app.use(session({
   secret: SECRET,
@@ -208,123 +146,147 @@ app.use(session({
 app.use(passport.initialize())
 app.use(passport.session())
 
-passport.serializeUser((user, done) => done(null, user._id))
+passport.serializeUser((u, done) => done(null, u._id))
 passport.deserializeUser(async (id, done) => {
   try { done(null, await User.findById(id)) } catch (e) { done(e) }
 })
 
 if (GOOGLE_ID && GOOGLE_SECRET) {
   passport.use(new GoogleStrategy({
-    clientID: GOOGLE_ID,
-    clientSecret: GOOGLE_SECRET,
+    clientID: GOOGLE_ID, clientSecret: GOOGLE_SECRET,
     callbackURL: `${DOMAIN}/auth/google/callback`
   }, async (at, rt, profile, done) => {
     try {
-      let user = await User.findOne({ email: profile.emails[0].value })
-      if (!user) user = await User.create({
+      let u = await User.findOne({ email: profile.emails[0].value })
+      if (!u) u = await User.create({
         name: profile.displayName,
         email: profile.emails[0].value,
         avatar: profile.photos[0]?.value,
         isAdmin: profile.emails[0].value === ADMIN_EMAIL
       })
-      done(null, user)
+      done(null, u)
     } catch (e) { done(e) }
   }))
 }
 
-// ── HELPERS ────────────────────────────────────────────────────────
 async function getUser(req) {
   if (req.user) return req.user
-  if (req.session?.telegramUserId) return await User.findById(req.session.telegramUserId)
+  if (req.session?.tid) return await User.findById(req.session.tid)
   return null
 }
 
-function requireAuth(req, res, next) {
+function auth(req, res, next) {
   getUser(req).then(u => {
     if (!u) return res.status(401).json({ error: 'Unauthorized' })
-    req.currentUser = u
-    next()
+    req.u = u; next()
   }).catch(() => res.status(401).json({ error: 'Unauthorized' }))
 }
 
+// ── LEVEL & XP ─────────────────────────────────────────────────────
 function calcLevel(xp) {
-  if (xp < 100) return 1; if (xp < 300) return 2; if (xp < 600) return 3
-  if (xp < 1000) return 4; if (xp < 1500) return 5; if (xp < 2200) return 6
-  if (xp < 3000) return 7; if (xp < 4000) return 8; if (xp < 5500) return 9
-  return Math.floor(10 + (xp - 5500) / 1000)
-}
-
-async function addXP(userId, amount) {
-  const user = await User.findById(userId)
-  const prevLevel = user.level
-  user.xp += amount
-  user.level = calcLevel(user.xp)
-  const today = new Date().toISOString().split('T')[0]
-  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
-  if (user.lastStudyDate !== today) {
-    user.streak = user.lastStudyDate === yesterday ? user.streak + 1 : 1
-    user.lastStudyDate = today
+  const thresholds = [0,100,250,500,900,1400,2000,2800,3800,5000]
+  for (let i = thresholds.length - 1; i >= 0; i--) {
+    if (xp >= thresholds[i]) return i + 1
   }
-  await user.save()
-
-  // Update behavior log
-  await BehaviorLog.findOneAndUpdate(
-    { userId, date: today },
-    { $inc: { focusMinutes: 0, studySessions: 1 }, streakDays: user.streak },
-    { upsert: true }
-  )
-
-  return { user, leveledUp: user.level > prevLevel }
+  return 1
 }
 
-function sm2(card, quality) {
-  let { easeFactor, interval, repetitions } = card
-  if (quality >= 3) {
-    interval = repetitions === 0 ? 1 : repetitions === 1 ? 6 : Math.round(interval * easeFactor)
-    repetitions++
-    easeFactor = Math.max(1.3, easeFactor + 0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02))
-  } else { repetitions = 0; interval = 1 }
+async function giveXP(userId, amount) {
+  const u = await User.findById(userId)
+  const prev = u.level
+  u.xp += amount
+  u.level = calcLevel(u.xp)
+  const today = todayStr()
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
+  if (u.lastStudyDate !== today) {
+    u.streak = u.lastStudyDate === yesterday ? u.streak + 1 : 1
+    u.lastStudyDate = today
+  }
+  await u.save()
+  return { user: u, leveledUp: u.level > prev }
+}
+
+function todayStr() { return new Date().toISOString().split('T')[0] }
+
+// ── SM-2 ──────────────────────────────────────────────────────────
+function sm2(card, q) {
+  let { easeFactor: ef, interval, repetitions: rep } = card
+  if (q >= 3) {
+    interval = rep === 0 ? 1 : rep === 1 ? 6 : Math.round(interval * ef)
+    rep++
+    ef = Math.max(1.3, ef + 0.1 - (5 - q) * (0.08 + (5 - q) * 0.02))
+  } else { rep = 0; interval = 1 }
   const nextReview = new Date(Date.now() + interval * 86400000).toISOString().split('T')[0]
-  return { interval, easeFactor, repetitions, nextReview }
+  return { interval, easeFactor: ef, repetitions: rep, nextReview }
 }
 
-// ── AI ─────────────────────────────────────────────────────────────
+// ── GROQ AI ───────────────────────────────────────────────────────
 const groq = new Groq({ apiKey: GROQ_KEY })
 
-async function askAI(messages, systemPrompt, maxTokens = 800) {
-  const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), 10000)
+async function ai(messages, system, maxTokens = 700) {
+  const ctrl = new AbortController()
+  const t = setTimeout(() => ctrl.abort(), 10000)
   try {
-    const res = await groq.chat.completions.create({
+    const r = await groq.chat.completions.create({
       model: 'llama3-70b-8192',
       max_tokens: maxTokens,
-      messages: [{ role: 'system', content: systemPrompt }, ...messages]
-    }, { signal: controller.signal })
-    clearTimeout(timer)
-    return res.choices[0]?.message?.content || 'Javob olishda xatolik.'
+      messages: [{ role: 'system', content: system }, ...messages]
+    }, { signal: ctrl.signal })
+    clearTimeout(t)
+    return r.choices[0]?.message?.content || ''
   } catch (e) {
-    clearTimeout(timer)
-    if (e.name === 'AbortError') return 'AI javob bermadi. Qayta urinib koring.'
-    return 'AI xatolik: ' + e.message
+    clearTimeout(t)
+    return e.name === 'AbortError' ? 'Vaqt tugadi. Qayta urinib koring.' : 'Xatolik: ' + e.message
   }
 }
 
-function buildTutorSystem(user, subject = null, isParent = false) {
+// Asosiy AI system prompt — "ota kabi" murabbiy
+function buildSystem(user, subjects = []) {
   const lang = user?.lang || 'uz'
-  const langNote = lang === 'uz' ? 'Respond in Uzbek.' : lang === 'ru' ? 'Respond in Russian.' : 'Respond in English.'
-  const tone = isParent
-    ? 'Professional, calm tone for parents.'
-    : 'Friendly, encouraging tone for students.'
-  return `You are StudyMind AI — a behavioral learning coach and personal tutor.
-${langNote} ${tone}
-Student: ${user?.name}, Grade: ${user?.grade || 'unknown'}, Level: ${user?.level}, Streak: ${user?.streak} days.
-${subject ? `Current subject: ${subject.name}. Weak topics: ${subject.weakTopics?.join(', ') || 'none'}.` : ''}
-Be direct, honest, specific. Max 4 short paragraphs. Use emojis naturally. Like a wise caring mentor.`
+  const langNote = lang === 'uz' ? 'Faqat O\'zbek tilida javob ber.' : lang === 'ru' ? 'Отвечай только на русском.' : 'Respond in English only.'
+  const subjList = subjects.map(s => `${s.emoji}${s.name}(o'rtacha:${s.avgGrade||'?'}, zaif:${s.weakTopics?.join(',')||'noma\'lum'})`).join(', ')
+
+  return `Sen StudyMind AI — ${user?.name||'o\'quvchi'}ning shaxsiy o'quv assistentisan. Ota kabi mehribon, lekin to'g'ri so'z.
+
+${langNote}
+
+O'quvchi ma'lumotlari:
+- Ism: ${user?.name}, Sinf: ${user?.grade||'noma\'lum'}, Maktab: ${user?.school||'noma\'lum'}
+- Daraja: Lv.${user?.level}, XP: ${user?.xp}, Streak: ${user?.streak} kun
+- Fanlar: ${subjList || 'hali qo\'shilmagan'}
+
+Qoidalar:
+1. Qisqa va aniq yoz (max 3 qisqa paragraf)
+2. Bahoni o'quvchi aytsa — EXTRACT qil va [GRADE:FanNomi:Ball] formatda yoz (javob oxirida)
+3. Vaqtni aytsa — [STUDY:daqiqa] formatda yoz
+4. Kayfiyatni anglasang — [MOOD:1-5] yoz
+5. Flashcard yaratishni taklif et, quiz ber, ertangi plan tuz
+6. HECH QACHON to'g'ridan javob berma — o'quvchini o'ylat
+7. Doim rag'batlantir, ammo real bo'l
+
+Bugungi sana: ${todayStr()}`
 }
 
-// ── AUTH ROUTES ────────────────────────────────────────────────────
+// AI javobidan ma'lumot chiqarish
+function extractFromAI(text) {
+  const result = {}
+  const gradeMatch = text.match(/\[GRADE:([^:]+):(\d+)\]/i)
+  if (gradeMatch) result.grade = { subjectName: gradeMatch[1].trim(), score: parseInt(gradeMatch[2]) }
+  const studyMatch = text.match(/\[STUDY:(\d+)\]/i)
+  if (studyMatch) result.studyMinutes = parseInt(studyMatch[1])
+  const moodMatch = text.match(/\[MOOD:([1-5])\]/i)
+  if (moodMatch) result.mood = parseInt(moodMatch[1])
+  return result
+}
+
+// Clean text (teglarsiz)
+function cleanText(text) {
+  return text.replace(/\[GRADE:[^\]]+\]/gi, '').replace(/\[STUDY:[^\]]+\]/gi, '').replace(/\[MOOD:[^\]]+\]/gi, '').trim()
+}
+
+// ── AUTH ──────────────────────────────────────────────────────────
 app.get('/auth/google', (req, res, next) => {
-  if (!GOOGLE_ID || !GOOGLE_SECRET) return res.redirect('/?error=google_not_configured')
+  if (!GOOGLE_ID) return res.redirect('/?error=no_google')
   passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next)
 })
 app.get('/auth/google/callback',
@@ -333,429 +295,394 @@ app.get('/auth/google/callback',
 )
 app.post('/auth/telegram', async (req, res) => {
   const { telegramId, name, username } = req.body
-  if (!telegramId) return res.status(400).json({ error: 'telegramId kerak' })
   try {
-    let user = await User.findOne({ telegramId: String(telegramId) })
-    if (!user) user = await User.create({ telegramId: String(telegramId), name, telegramUsername: username })
-    req.session.telegramUserId = user._id
-    res.json({ ok: true, user: { name: user.name, level: user.level, xp: user.xp } })
+    let u = await User.findOne({ telegramId: String(telegramId) })
+    if (!u) u = await User.create({ telegramId: String(telegramId), name, telegramUsername: username })
+    req.session.tid = u._id
+    res.json({ ok: true })
   } catch (e) { res.status(500).json({ error: e.message }) }
 })
 app.post('/auth/logout', (req, res) => { req.session.destroy(); res.json({ ok: true }) })
 
-// ── USER ───────────────────────────────────────────────────────────
-app.get('/api/user', requireAuth, (req, res) => {
-  const u = req.currentUser
-  res.json({ _id: u._id, name: u.name, email: u.email, avatar: u.avatar, lang: u.lang, level: u.level, xp: u.xp, streak: u.streak, role: u.role, grade: u.grade, school: u.school, isAdmin: u.isAdmin })
+// ── USER ──────────────────────────────────────────────────────────
+app.get('/api/user', auth, (req, res) => {
+  const u = req.u
+  res.json({ _id: u._id, name: u.name, email: u.email, avatar: u.avatar, lang: u.lang, grade: u.grade, school: u.school, xp: u.xp, level: u.level, streak: u.streak, totalStudyMinutes: u.totalStudyMinutes, isAdmin: u.isAdmin })
 })
-app.put('/api/user', requireAuth, async (req, res) => {
-  const fields = ['lang', 'grade', 'school', 'role', 'name']
-  fields.forEach(f => { if (req.body[f] !== undefined) req.currentUser[f] = req.body[f] })
-  await req.currentUser.save()
-  res.json({ ok: true })
+app.put('/api/user', auth, async (req, res) => {
+  const fields = ['lang', 'grade', 'school', 'name']
+  fields.forEach(f => { if (req.body[f] !== undefined) req.u[f] = req.body[f] })
+  await req.u.save(); res.json({ ok: true })
 })
 
-// ── SUBJECTS ───────────────────────────────────────────────────────
-app.get('/api/subjects', requireAuth, async (req, res) => {
-  res.json(await Subject.find({ userId: req.currentUser._id }).sort({ createdAt: 1 }))
+// ── SUBJECTS ──────────────────────────────────────────────────────
+app.get('/api/subjects', auth, async (req, res) => {
+  res.json(await Subject.find({ userId: req.u._id }).sort({ createdAt: 1 }))
 })
-app.post('/api/subjects', requireAuth, async (req, res) => {
-  const { name, type, emoji, color, examDate } = req.body
+app.post('/api/subjects', auth, async (req, res) => {
+  const { name, emoji, color, examDate } = req.body
   if (!name) return res.status(400).json({ error: 'name kerak' })
-  res.json(await Subject.create({ userId: req.currentUser._id, name, type: type || 'school', emoji: emoji || '📚', color: color || '#534AB7', examDate }))
+  res.json(await Subject.create({ userId: req.u._id, name, emoji: emoji || '📚', color: color || '#534AB7', examDate }))
 })
-app.put('/api/subjects/:id', requireAuth, async (req, res) => {
-  const s = await Subject.findOneAndUpdate({ _id: req.params.id, userId: req.currentUser._id }, req.body, { new: true })
-  if (!s) return res.status(404).json({ error: 'Topilmadi' })
-  res.json(s)
-})
-app.delete('/api/subjects/:id', requireAuth, async (req, res) => {
-  await Subject.findOneAndDelete({ _id: req.params.id, userId: req.currentUser._id })
+app.delete('/api/subjects/:id', auth, async (req, res) => {
+  await Subject.findOneAndDelete({ _id: req.params.id, userId: req.u._id })
   res.json({ ok: true })
 })
 
-// ── GRADES ─────────────────────────────────────────────────────────
-app.get('/api/grades', requireAuth, async (req, res) => {
-  const q = { userId: req.currentUser._id }
-  if (req.query.subjectId) q.subjectId = req.query.subjectId
-  res.json(await Grade.find(q).sort({ date: -1 }).limit(100))
-})
-app.post('/api/grades', requireAuth, async (req, res) => {
-  const { subjectId, score, note, date } = req.body
-  if (score === undefined) return res.status(400).json({ error: 'score kerak' })
-  const subj = await Subject.findById(subjectId)
-  const grade = await Grade.create({ userId: req.currentUser._id, subjectId, subjectName: subj?.name, score, note, date })
-  if (subj) {
-    const allGrades = await Grade.find({ userId: req.currentUser._id, subjectId })
-    const avg = allGrades.reduce((s, g) => s + g.score, 0) / allGrades.length
-    subj.progress = Math.round(avg)
-    await subj.save()
-  }
-  res.json(grade)
-})
-app.delete('/api/grades/:id', requireAuth, async (req, res) => {
-  await Grade.findOneAndDelete({ _id: req.params.id, userId: req.currentUser._id })
-  res.json({ ok: true })
+// ── AI CHAT (Asosiy funksiya) ─────────────────────────────────────
+app.get('/api/chat', auth, async (req, res) => {
+  const chats = await Chat.find({ userId: req.u._id })
+    .sort({ createdAt: -1 }).limit(30)
+  res.json(chats.reverse())
 })
 
-// ── SESSIONS ───────────────────────────────────────────────────────
-app.get('/api/sessions', requireAuth, async (req, res) => {
-  const q = { userId: req.currentUser._id }
-  if (req.query.subjectId) q.subjectId = req.query.subjectId
-  res.json(await StudySession.find(q).sort({ createdAt: -1 }).limit(50))
-})
-app.post('/api/sessions', requireAuth, async (req, res) => {
-  const { subjectId, duration, score, notes, mood } = req.body
-  if (!duration) return res.status(400).json({ error: 'duration kerak' })
-  const xpEarned = Math.floor(duration * 2) + (score ? Math.floor(score / 10) : 0) + (mood === 5 ? 10 : 0)
-  const date = new Date().toISOString().split('T')[0]
-  let subjectName = ''
-  if (subjectId) {
-    const subj = await Subject.findById(subjectId)
-    subjectName = subj?.name || ''
-    if (subj) { subj.totalXP += xpEarned; await subj.save() }
-  }
-  const session = await StudySession.create({ userId: req.currentUser._id, subjectId, subjectName, date, duration, score, notes, mood, xpEarned })
-  await BehaviorLog.findOneAndUpdate(
-    { userId: req.currentUser._id, date },
-    { $inc: { focusMinutes: duration, studySessions: 1 } },
-    { upsert: true }
-  )
-  const { user, leveledUp } = await addXP(req.currentUser._id, xpEarned)
-  res.json({ session, xpEarned, newXP: user.xp, level: user.level, streak: user.streak, leveledUp })
-})
+app.post('/api/chat', auth, async (req, res) => {
+  const { message } = req.body
+  if (!message?.trim()) return res.status(400).json({ error: 'message kerak' })
 
-// ── STATS ──────────────────────────────────────────────────────────
-app.get('/api/stats', requireAuth, async (req, res) => {
-  const userId = req.currentUser._id
-  const today = new Date().toISOString().split('T')[0]
-  const u = req.currentUser
-  const subjects = await Subject.find({ userId })
-  const weekly = []
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(Date.now() - i * 86400000).toISOString().split('T')[0]
-    const s = await StudySession.find({ userId, date: d })
-    const j = await Journal.findOne({ userId, date: d })
-    weekly.push({ date: d, minutes: s.reduce((a, x) => a + (x.duration || 0), 0), mood: j?.mood || null })
+  const u = req.u
+  const subjects = await Subject.find({ userId: u._id })
+
+  // Save user message
+  await Chat.create({ userId: u._id, role: 'user', content: message })
+
+  // Get recent history
+  const history = await Chat.find({ userId: u._id, role: { $in: ['user', 'assistant'] } })
+    .sort({ createdAt: -1 }).limit(12)
+  const messages = history.reverse().map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content }))
+
+  // AI javob
+  const rawReply = await ai(messages, buildSystem(u, subjects))
+  const extracted = extractFromAI(rawReply)
+  const cleanReply = cleanText(rawReply)
+
+  // AI chiqargan ma'lumotlarni saqlash
+  if (extracted.grade) {
+    const subj = subjects.find(s => s.name.toLowerCase().includes(extracted.grade.subjectName.toLowerCase()))
+    if (subj) {
+      subj.gradeHistory.push({ score: extracted.grade.score, date: todayStr(), note: 'AI suhbatdan' })
+      const total = subj.gradeHistory.reduce((a, g) => a + g.score, 0)
+      subj.avgGrade = Math.round(total / subj.gradeHistory.length)
+      subj.progress = subj.avgGrade
+      await subj.save()
+    }
+    await giveXP(u._id, 5)
   }
-  const todaySessions = await StudySession.find({ userId, date: today })
-  const todayMinutes = todaySessions.reduce((a, x) => a + (x.duration || 0), 0)
-  const dueCards = await Flashcard.countDocuments({ userId, nextReview: { $lte: today } })
-  const dueNotes = await TopicNote.countDocuments({ userId, nextReview: { $lte: today } })
-  const urgentSubjects = subjects.filter(s => {
-    if (!s.examDate) return false
-    const days = Math.ceil((new Date(s.examDate) - new Date()) / 86400000)
-    return days <= 7 && days >= 0
+
+  if (extracted.studyMinutes) {
+    u.totalStudyMinutes += extracted.studyMinutes
+    await giveXP(u._id, Math.floor(extracted.studyMinutes * 1.5))
+    await u.save()
+  }
+
+  if (extracted.mood) {
+    u.avgMood = Math.round((u.avgMood + extracted.mood) / 2)
+    await u.save()
+  }
+
+  // Save AI message
+  const saved = await Chat.create({
+    userId: u._id, role: 'assistant', content: cleanReply,
+    extractedData: Object.keys(extracted).length ? extracted : undefined
   })
-  const allGrades = await Grade.find({ userId }).sort({ date: -1 }).limit(50)
-  const avgGrade = allGrades.length ? Math.round(allGrades.reduce((a, g) => a + g.score, 0) / allGrades.length) : 0
-  const todayJournal = await Journal.findOne({ userId, date: today })
-  res.json({ subjects, weekly, todayMinutes, dueCards, dueNotes, urgentSubjects, xp: u.xp, level: u.level, streak: u.streak, avgGrade, todayMood: todayJournal?.mood || null })
+
+  res.json({ reply: cleanReply, extracted })
 })
 
-// ── FLASHCARDS ─────────────────────────────────────────────────────
-app.get('/api/flashcards', requireAuth, async (req, res) => {
-  const q = { userId: req.currentUser._id }
+// AI dan flashcard yaratish
+app.post('/api/chat/flashcard', auth, async (req, res) => {
+  const { subjectId, topic } = req.body
+  const subj = subjectId ? await Subject.findById(subjectId) : null
+  const u = req.u
+
+  const prompt = `${topic || subj?.name || 'o\'qilgan mavzu'} haqida 3 ta flashcard yarat.
+Format (faqat shu format, boshqa narsa yozma):
+CARD1_FRONT: savol
+CARD1_BACK: javob
+CARD2_FRONT: savol
+CARD2_BACK: javob
+CARD3_FRONT: savol
+CARD3_BACK: javob`
+
+  const reply = await ai([{ role: 'user', content: prompt }], buildSystem(u, []))
+
+  // Parse cards
+  const cards = []
+  for (let i = 1; i <= 3; i++) {
+    const front = reply.match(new RegExp(`CARD${i}_FRONT:\\s*(.+)`, 'i'))?.[1]?.trim()
+    const back = reply.match(new RegExp(`CARD${i}_BACK:\\s*(.+)`, 'i'))?.[1]?.trim()
+    if (front && back) {
+      const card = await Flashcard.create({ userId: u._id, subjectId, subjectName: subj?.name, front, back })
+      cards.push(card)
+    }
+  }
+
+  res.json({ cards })
+})
+
+// AI weekly insight
+app.post('/api/chat/insight', auth, async (req, res) => {
+  const u = req.u
+  const subjects = await Subject.find({ userId: u._id })
+  const recentChats = await Chat.find({ userId: u._id }).sort({ createdAt: -1 }).limit(50)
+
+  const prompt = `O'quvchi ma'lumotlari asosida haftalik tahlil yoz:
+Fanlar: ${JSON.stringify(subjects.map(s => ({ name: s.name, avg: s.avgGrade, weak: s.weakTopics })))}
+Jami o'qish: ${u.totalStudyMinutes} daqiqa, Streak: ${u.streak} kun, Kayfiyat: ${u.avgMood}/5
+So'nggi suhbatlar soni: ${recentChats.length}
+
+JSON format qaytarma — oddiy matnda yoz:
+XULOSA: (2-3 jumla)
+KUCHLI: (vergul bilan)
+ZAIF: (vergul bilan)
+TAVSIYA: (3 ta, raqamlangan)
+USLUB: (vizual/audial/kinestetik)
+VAQT: (eng yaxshi o'qish vaqti)`
+
+  const reply = await ai([{ role: 'user', content: prompt }], buildSystem(u, subjects), 1000)
+
+  const extract = (key) => reply.match(new RegExp(`${key}:\\s*(.+?)(?=\\n[A-Z]+:|$)`, 'si'))?.[1]?.trim() || ''
+
+  const weekNum = Math.floor(Date.now() / (7 * 86400000))
+  const insight = await Insight.findOneAndUpdate(
+    { userId: u._id, weekNumber: weekNum },
+    {
+      summary: extract('XULOSA'),
+      strengths: extract('KUCHLI').split(',').map(s => s.trim()).filter(Boolean),
+      weaknesses: extract('ZAIF').split(',').map(s => s.trim()).filter(Boolean),
+      recommendations: extract('TAVSIYA').split(/\d+\./).map(s => s.trim()).filter(Boolean),
+      learningStyle: extract('USLUB'),
+      bestStudyTime: extract('VAQT'),
+      generatedAt: new Date(), weekNumber: weekNum
+    },
+    { upsert: true, new: true }
+  )
+
+  res.json(insight)
+})
+
+// AI daily plan
+app.post('/api/chat/daily-plan', auth, async (req, res) => {
+  const u = req.u
+  const subjects = await Subject.find({ userId: u._id })
+
+  const prompt = `Bugun uchun o'quv rejasi tuz.
+Fanlar: ${subjects.map(s => `${s.emoji}${s.name}(avg:${s.avgGrade})`).join(', ')}
+Streak: ${u.streak} kun. Vaqt: 2 soat.
+
+Reja (qisqa, amaliy, raqamlangan ro'yxat):`
+
+  const plan = await ai([{ role: 'user', content: prompt }], buildSystem(u, subjects), 400)
+
+  // Save to schedule
+  const lines = plan.split('\n').filter(l => l.trim() && /^\d/.test(l.trim()))
+  const saved = []
+  for (const line of lines.slice(0, 5)) {
+    const s = await Schedule.create({
+      userId: u._id, title: line.replace(/^\d+[\.\)]\s*/, '').trim(),
+      date: todayStr(), aiGenerated: true
+    })
+    saved.push(s)
+  }
+
+  res.json({ plan, schedule: saved })
+})
+
+// ── FLASHCARDS ────────────────────────────────────────────────────
+app.get('/api/flashcards', auth, async (req, res) => {
+  const q = { userId: req.u._id }
+  if (req.query.dueOnly === 'true') q.nextReview = { $lte: todayStr() }
   if (req.query.subjectId) q.subjectId = req.query.subjectId
-  if (req.query.dueOnly === 'true') q.nextReview = { $lte: new Date().toISOString().split('T')[0] }
   res.json(await Flashcard.find(q).sort({ nextReview: 1 }))
 })
-app.post('/api/flashcards', requireAuth, async (req, res) => {
-  const { subjectId, front, back } = req.body
+app.post('/api/flashcards', auth, async (req, res) => {
+  const { front, back, subjectId, subjectName } = req.body
   if (!front || !back) return res.status(400).json({ error: 'front va back kerak' })
-  res.json(await Flashcard.create({ userId: req.currentUser._id, subjectId, front, back }))
+  res.json(await Flashcard.create({ userId: req.u._id, subjectId, subjectName, front, back }))
 })
-app.post('/api/flashcards/:id/review', requireAuth, async (req, res) => {
-  const card = await Flashcard.findOne({ _id: req.params.id, userId: req.currentUser._id })
+app.post('/api/flashcards/:id/review', auth, async (req, res) => {
+  const card = await Flashcard.findOne({ _id: req.params.id, userId: req.u._id })
   if (!card) return res.status(404).json({ error: 'Topilmadi' })
-  const updated = sm2(card, req.body.quality)
-  Object.assign(card, updated); await card.save()
+  const upd = sm2(card, req.body.quality)
+  Object.assign(card, upd); await card.save()
   const xp = req.body.quality >= 3 ? 5 : 2
-  await addXP(req.currentUser._id, xp)
-  await BehaviorLog.findOneAndUpdate({ userId: req.currentUser._id, date: new Date().toISOString().split('T')[0] }, { $inc: { questionsAsked: 1 } }, { upsert: true })
-  res.json({ ...updated, xpEarned: xp })
+  await giveXP(req.u._id, xp)
+  res.json({ ...upd, xpEarned: xp })
 })
-app.delete('/api/flashcards/:id', requireAuth, async (req, res) => {
-  await Flashcard.findOneAndDelete({ _id: req.params.id, userId: req.currentUser._id })
+app.delete('/api/flashcards/:id', auth, async (req, res) => {
+  await Flashcard.findOneAndDelete({ _id: req.params.id, userId: req.u._id })
   res.json({ ok: true })
 })
 
-// ── QUIZ (AI Generated) ────────────────────────────────────────────
-app.post('/api/quiz/generate', requireAuth, async (req, res) => {
-  const { subjectId, topicContent, count = 3 } = req.body
-  const subject = subjectId ? await Subject.findById(subjectId) : null
-  const prompt = `Generate ${count} multiple choice quiz questions about: ${topicContent || subject?.name || 'general study topic'}.
-Format as JSON array: [{"question":"...","options":["A","B","C","D"],"correctIndex":0,"explanation":"..."}]
-Only return the JSON array, nothing else.`
-  const reply = await askAI([{ role: 'user', content: prompt }],
-    `You are a quiz generator. Return only valid JSON arrays. ${req.currentUser.lang === 'uz' ? 'Generate questions in Uzbek.' : req.currentUser.lang === 'ru' ? 'Generate questions in Russian.' : 'Generate questions in English.'}`, 1000)
-  try {
-    const clean = reply.replace(/```json|```/g, '').trim()
-    const questions = JSON.parse(clean)
-    res.json({ questions })
-  } catch { res.json({ questions: [], error: 'Parsing xatolik' }) }
+// ── SCHEDULE ──────────────────────────────────────────────────────
+app.get('/api/schedule', auth, async (req, res) => {
+  const date = req.query.date || todayStr()
+  res.json(await Schedule.find({ userId: req.u._id, date }).sort({ time: 1 }))
 })
-
-app.post('/api/quiz/answer', requireAuth, async (req, res) => {
-  const { question, options, correctIndex, explanation, userAnswer, subjectId } = req.body
-  const isCorrect = userAnswer === correctIndex
-  await Quiz.create({ userId: req.currentUser._id, subjectId, question, options, correctIndex, explanation, userAnswer, isCorrect })
-  if (isCorrect) await addXP(req.currentUser._id, 10)
-  res.json({ isCorrect, xpEarned: isCorrect ? 10 : 0 })
+app.post('/api/schedule', auth, async (req, res) => {
+  const { title, subjectName, time, date } = req.body
+  res.json(await Schedule.create({ userId: req.u._id, title, subjectName, time, date: date || todayStr() }))
 })
-
-// ── JOURNAL ────────────────────────────────────────────────────────
-app.get('/api/journal', requireAuth, async (req, res) => {
-  const q = { userId: req.currentUser._id }
-  if (req.query.date) q.date = req.query.date
-  const entries = await Journal.find(q).sort({ date: -1 }).limit(30)
-  const isParent = req.query.parentView === 'true'
-  if (isParent) {
-    res.json(entries.map(e => ({ _id: e._id, date: e.date, mood: e.mood, tags: e.tags })))
-  } else {
-    res.json(entries)
-  }
-})
-app.post('/api/journal', requireAuth, async (req, res) => {
-  const { mood, content, date } = req.body
-  const today = date || new Date().toISOString().split('T')[0]
-  let entry = await Journal.findOne({ userId: req.currentUser._id, date: today })
-
-  // AI auto-tag
-  let tags = []
-  if (content) {
-    const tagPrompt = `Extract 3-5 keyword tags from this journal entry. Return only comma-separated words: "${content.slice(0, 500)}"`
-    const tagReply = await askAI([{ role: 'user', content: tagPrompt }], 'Extract tags. Return only comma-separated keywords, no other text.', 100)
-    tags = tagReply.split(',').map(t => t.trim()).filter(Boolean).slice(0, 5)
-  }
-
-  if (entry) {
-    entry.mood = mood; entry.content = content; entry.tags = tags
-    await entry.save()
-  } else {
-    entry = await Journal.create({ userId: req.currentUser._id, date: today, mood, content, tags })
-  }
-
-  await BehaviorLog.findOneAndUpdate({ userId: req.currentUser._id, date: today }, { avgMood: mood }, { upsert: true })
-  res.json(entry)
-})
-
-// ── TOPIC NOTES ────────────────────────────────────────────────────
-app.get('/api/notes', requireAuth, async (req, res) => {
-  const q = { userId: req.currentUser._id }
-  if (req.query.subjectId) q.subjectId = req.query.subjectId
-  if (req.query.dueOnly === 'true') q.nextReview = { $lte: new Date().toISOString().split('T')[0] }
-  res.json(await TopicNote.find(q).sort({ updatedAt: -1 }))
-})
-app.post('/api/notes', requireAuth, async (req, res) => {
-  const { subjectId, title, content } = req.body
-  if (!title) return res.status(400).json({ error: 'title kerak' })
-  const subj = subjectId ? await Subject.findById(subjectId) : null
-  res.json(await TopicNote.create({ userId: req.currentUser._id, subjectId, subjectName: subj?.name, title, content }))
-})
-app.put('/api/notes/:id', requireAuth, async (req, res) => {
-  const note = await TopicNote.findOne({ _id: req.params.id, userId: req.currentUser._id })
-  if (!note) return res.status(404).json({ error: 'Topilmadi' })
-  const { masteryLevel, content, title } = req.body
-  if (masteryLevel !== undefined) {
-    note.masteryLevel = masteryLevel
-    const interval = masteryLevel >= 80 ? 7 : masteryLevel >= 50 ? 3 : 1
-    note.reviewInterval = interval
-    note.nextReview = new Date(Date.now() + interval * 86400000).toISOString().split('T')[0]
-  }
-  if (content !== undefined) note.content = content
-  if (title !== undefined) note.title = title
-  note.updatedAt = new Date()
-  await note.save()
-  res.json(note)
-})
-app.delete('/api/notes/:id', requireAuth, async (req, res) => {
-  await TopicNote.findOneAndDelete({ _id: req.params.id, userId: req.currentUser._id })
-  res.json({ ok: true })
-})
-
-// ── SCHEDULE ───────────────────────────────────────────────────────
-app.get('/api/schedule', requireAuth, async (req, res) => {
-  const q = { userId: req.currentUser._id }
-  if (req.query.date) q.date = req.query.date
-  res.json(await Schedule.find(q).sort({ scheduledTime: 1 }))
-})
-app.post('/api/schedule', requireAuth, async (req, res) => {
-  const { title, subjectId, scheduledTime, dayOfWeek, date } = req.body
-  const subj = subjectId ? await Subject.findById(subjectId) : null
-  res.json(await Schedule.create({ userId: req.currentUser._id, title, subjectId, subjectName: subj?.name, scheduledTime, dayOfWeek, date }))
-})
-app.patch('/api/schedule/:id/done', requireAuth, async (req, res) => {
-  const s = await Schedule.findOneAndUpdate({ _id: req.params.id, userId: req.currentUser._id }, { isDone: req.body.isDone }, { new: true })
-  if (req.body.isDone) await addXP(req.currentUser._id, 5)
+app.patch('/api/schedule/:id', auth, async (req, res) => {
+  const s = await Schedule.findOneAndUpdate({ _id: req.params.id, userId: req.u._id }, { isDone: req.body.isDone }, { new: true })
+  if (req.body.isDone) await giveXP(req.u._id, 10)
   res.json(s)
 })
-app.delete('/api/schedule/:id', requireAuth, async (req, res) => {
-  await Schedule.findOneAndDelete({ _id: req.params.id, userId: req.currentUser._id })
+app.delete('/api/schedule/:id', auth, async (req, res) => {
+  await Schedule.findOneAndDelete({ _id: req.params.id, userId: req.u._id })
   res.json({ ok: true })
 })
 
-// ── AI ROUTES ──────────────────────────────────────────────────────
-app.post('/api/ai/chat', requireAuth, async (req, res) => {
-  const { message, subjectId, isParent } = req.body
-  if (!message) return res.status(400).json({ error: 'message kerak' })
-  const u = req.currentUser
-  const subject = subjectId ? await Subject.findById(subjectId) : null
-  await AIChat.create({ userId: u._id, role: 'user', content: message, subjectId })
-  const history = await AIChat.find({ userId: u._id }).sort({ createdAt: -1 }).limit(8)
-  const messages = history.reverse().map(m => ({ role: m.role, content: m.content }))
-  const reply = await askAI(messages, buildTutorSystem(u, subject, isParent))
-  await AIChat.create({ userId: u._id, role: 'assistant', content: reply, subjectId })
-  await BehaviorLog.findOneAndUpdate({ userId: u._id, date: new Date().toISOString().split('T')[0] }, { $inc: { questionsAsked: 1 } }, { upsert: true })
-  res.json({ reply })
-})
-
-app.post('/api/ai/weekly-insight', requireAuth, async (req, res) => {
-  const u = req.currentUser
-  const userId = u._id
-  const grades = await Grade.find({ userId }).sort({ date: -1 }).limit(30)
-  const sessions = await StudySession.find({ userId }).sort({ date: -1 }).limit(20)
-  const journals = await Journal.find({ userId }).sort({ date: -1 }).limit(7)
-  const behavior = await BehaviorLog.find({ userId }).sort({ date: -1 }).limit(7)
-  const subjects = await Subject.find({ userId })
-
-  const prompt = `Analyze this student's weekly data and generate insights:
-Grades: ${JSON.stringify(grades.slice(0, 10))}
-Study sessions: ${JSON.stringify(sessions.slice(0, 10))}
-Mood (last 7 days): ${JSON.stringify(journals.map(j => ({ date: j.date, mood: j.mood })))}
-Behavior: ${JSON.stringify(behavior)}
-Subjects: ${JSON.stringify(subjects.map(s => ({ name: s.name, progress: s.progress })))}
-
-Return JSON: {"summary":"...","strengths":["..."],"weaknesses":["..."],"recommendations":["..."],"learningStyle":"...","bestStudyTime":"...","careerSuggestions":[{"career":"...","match":85,"description":"..."}]}`
-
-  const reply = await askAI([{ role: 'user', content: prompt }],
-    `You are EduMind AI. Analyze student data. ${u.lang === 'uz' ? 'Respond in Uzbek.' : u.lang === 'ru' ? 'Respond in Russian.' : 'Respond in English.'} Return only valid JSON.`, 1500)
-
-  try {
-    const clean = reply.replace(/```json|```/g, '').trim()
-    const data = JSON.parse(clean)
-    const weekNumber = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000))
-    const insight = await AIInsight.findOneAndUpdate(
-      { userId, weekNumber },
-      { ...data, generatedAt: new Date(), weekNumber },
-      { upsert: true, new: true }
-    )
-    res.json(insight)
-  } catch { res.status(500).json({ error: 'Tahlil generatsiyada xatolik', raw: reply }) }
-})
-
-app.get('/api/ai/insights', requireAuth, async (req, res) => {
-  res.json(await AIInsight.find({ userId: req.currentUser._id }).sort({ generatedAt: -1 }).limit(4))
-})
-
-app.post('/api/ai/exam-plan', requireAuth, async (req, res) => {
-  const subject = await Subject.findById(req.body.subjectId)
-  if (!subject) return res.status(404).json({ error: 'Fan topilmadi' })
-  const daysLeft = subject.examDate ? Math.ceil((new Date(subject.examDate) - new Date()) / 86400000) : 14
-  const prompt = `Create a realistic ${daysLeft}-day exam preparation plan for: ${subject.name}.
-Progress: ${subject.progress}%. Weak topics: ${subject.weakTopics?.join(', ') || 'unknown'}.
-Format as numbered list with daily tasks. Be specific and practical.`
-  res.json({ plan: await askAI([{ role: 'user', content: prompt }], buildTutorSystem(req.currentUser, subject)) })
-})
-
-app.post('/api/ai/summarize', requireAuth, async (req, res) => {
-  const { notes, subjectId } = req.body
-  if (!notes) return res.status(400).json({ error: 'notes kerak' })
-  const subject = subjectId ? await Subject.findById(subjectId) : null
-  const prompt = `Summarize these notes. Extract: key concepts, important formulas/dates, likely exam questions:\n${notes.slice(0, 3000)}`
-  res.json({ summary: await askAI([{ role: 'user', content: prompt }], buildTutorSystem(req.currentUser, subject)) })
-})
-
-app.post('/api/ai/career', requireAuth, async (req, res) => {
-  const u = req.currentUser
+// ── STATS ─────────────────────────────────────────────────────────
+app.get('/api/stats', auth, async (req, res) => {
+  const u = req.u
   const subjects = await Subject.find({ userId: u._id })
-  const grades = await Grade.find({ userId: u._id }).sort({ date: -1 }).limit(30)
-  const prompt = `Based on this student's academic profile, suggest top 5 career paths:
-Subjects & progress: ${JSON.stringify(subjects.map(s => ({ name: s.name, progress: s.progress })))}
-Recent grades: ${JSON.stringify(grades.slice(0, 10).map(g => ({ subject: g.subjectName, score: g.score })))}
-Return JSON array: [{"career":"...","match":90,"description":"...","requiredSubjects":["..."],"avgSalary":"...","studyPath":"..."}]`
-  const reply = await askAI([{ role: 'user', content: prompt }],
-    `Career counselor AI. ${u.lang === 'uz' ? 'Respond in Uzbek.' : u.lang === 'ru' ? 'Respond in Russian.' : 'Respond in English.'} Return only valid JSON.`, 1200)
-  try {
-    const clean = reply.replace(/```json|```/g, '').trim()
-    res.json({ careers: JSON.parse(clean) })
-  } catch { res.json({ careers: [], error: 'Parsing xatolik' }) }
+  const dueCards = await Flashcard.countDocuments({ userId: u._id, nextReview: { $lte: todayStr() } })
+  const todaySchedule = await Schedule.find({ userId: u._id, date: todayStr() })
+  const doneTasks = todaySchedule.filter(s => s.isDone).length
+  const lastInsight = await Insight.findOne({ userId: u._id }).sort({ generatedAt: -1 })
+
+  res.json({
+    xp: u.xp, level: u.level, streak: u.streak,
+    totalStudyMinutes: u.totalStudyMinutes,
+    avgMood: u.avgMood,
+    subjects, dueCards,
+    todayTasks: todaySchedule.length,
+    doneTasks,
+    lastInsight,
+    urgentSubjects: subjects.filter(s => {
+      if (!s.examDate) return false
+      const d = Math.ceil((new Date(s.examDate) - new Date()) / 86400000)
+      return d >= 0 && d <= 7
+    })
+  })
 })
 
-// ── BEHAVIOR ───────────────────────────────────────────────────────
-app.get('/api/behavior', requireAuth, async (req, res) => {
-  res.json(await BehaviorLog.find({ userId: req.currentUser._id }).sort({ date: -1 }).limit(30))
+// ── INSIGHTS ─────────────────────────────────────────────────────
+app.get('/api/insights', auth, async (req, res) => {
+  res.json(await Insight.find({ userId: req.u._id }).sort({ generatedAt: -1 }).limit(4))
 })
 
-// ── PING & STATIC ─────────────────────────────────────────────────
-app.get('/ping', (req, res) => res.send('ok'))
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'app.html')))
-app.get('/app.html', (req, res) => res.sendFile(path.join(__dirname, 'app.html')))
+// ── PING & STATIC ────────────────────────────────────────────────
+app.get('/ping', (_, res) => res.send('ok'))
+app.get('/', (_, res) => res.sendFile(path.join(__dirname, 'app.html')))
+app.get('/app.html', (_, res) => res.sendFile(path.join(__dirname, 'app.html')))
 
-// ── TELEGRAM BOT ───────────────────────────────────────────────────
+// ── TELEGRAM BOT ─────────────────────────────────────────────────
 const bot = new Telegraf(BOT_TOKEN)
 
 function appBtn() {
-  return Markup.inlineKeyboard([[Markup.button.webApp('🧠 StudyMind Pro', `${DOMAIN}/app.html`)]])
+  return Markup.inlineKeyboard([[Markup.button.webApp('🧠 StudyMind', `${DOMAIN}/app.html`)]])
 }
 
 bot.start(async ctx => {
   const tid = String(ctx.from.id)
-  let user = await User.findOne({ telegramId: tid })
-  if (!user) user = await User.create({ telegramId: tid, name: ctx.from.first_name || 'Student', telegramUsername: ctx.from.username })
-  await ctx.reply(
-    `👋 Salom, *${user.name}*!\n\n🧠 *StudyMind Pro* — aqlli o'quv assistentingiz.\n\nTilni tanlang:`,
-    { parse_mode: 'Markdown', ...Markup.inlineKeyboard([[
+  let u = await User.findOne({ telegramId: tid })
+  if (!u) u = await User.create({ telegramId: tid, name: ctx.from.first_name || 'O\'quvchi', telegramUsername: ctx.from.username })
+
+  await ctx.reply(`👋 Salom, *${u.name}*!\n\n🧠 Men *StudyMind AI* — sening shaxsiy o'quv murabbiyingman.\n\nTilni tanlang:`, {
+    parse_mode: 'Markdown',
+    ...Markup.inlineKeyboard([[
       Markup.button.callback("🇺🇿 O'zbek", 'lang_uz'),
       Markup.button.callback('🇷🇺 Русский', 'lang_ru'),
       Markup.button.callback('🇬🇧 English', 'lang_en')
-    ]]) }
-  )
+    ]])
+  })
 })
 
 bot.action(/lang_(.+)/, async ctx => {
   const lang = ctx.match[1]
   await User.findOneAndUpdate({ telegramId: String(ctx.from.id) }, { lang })
   await ctx.editMessageText('✅ Saqlandi!')
-  await ctx.reply('🧠 StudyMind Pro tayyor!', {
-    ...Markup.keyboard([['📚 Fanlar', '📊 Stats'], ['🧠 AI', '🌐 App']]).resize(),
+  await ctx.reply(`Salom! Men bilan istalgan vaqt gaplash:\n\n• "Bugun matematikadan 85 oldim"\n• "Fizika tushunmayapman"\n• "Bugun 45 daqiqa o'qidim"\n\nYoki appni och 👇`, {
+    ...Markup.keyboard([['💬 Gaplash', '📊 Statistika'], ['📅 Bugungi reja', '🌐 App']]).resize(),
   })
 })
 
-bot.hears('📚 Fanlar', async ctx => {
-  const user = await User.findOne({ telegramId: String(ctx.from.id) })
-  if (!user) return ctx.reply('/start bosing')
-  const subjects = await Subject.find({ userId: user._id })
-  if (!subjects.length) return ctx.reply('Fan qoshilmagan', appBtn())
-  let text = '📚 *Fanlaringiz:*\n\n'
-  subjects.forEach(s => {
-    const days = s.examDate ? Math.ceil((new Date(s.examDate) - new Date()) / 86400000) : null
-    text += `${s.emoji} *${s.name}* — ${s.progress}%${days !== null ? ` | 📅 ${days} kun` : ''}\n`
-  })
+// Telegram orqali AI chat
+bot.hears('💬 Gaplash', async ctx => {
+  await ctx.reply('Yozing — nima bo\'ldi bugun? 🧠')
+})
+
+bot.hears('📊 Statistika', async ctx => {
+  const u = await User.findOne({ telegramId: String(ctx.from.id) })
+  if (!u) return ctx.reply('/start bosing')
+  const subjects = await Subject.find({ userId: u._id })
+  const dueCards = await Flashcard.countDocuments({ userId: u._id, nextReview: { $lte: todayStr() } })
+  let text = `📊 *${u.name} statistikasi*\n\n`
+  text += `🔥 Streak: *${u.streak}* kun | ⭐ Lv.*${u.level}* | XP: *${u.xp}*\n`
+  text += `⏱ Jami: *${u.totalStudyMinutes}* daqiqa | 🔁 Kartalar: *${dueCards}*\n\n`
+  if (subjects.length) {
+    text += `📚 *Fanlar:*\n`
+    subjects.forEach(s => { text += `${s.emoji} ${s.name} — ${s.avgGrade ? s.avgGrade+'%' : '—'}\n` })
+  }
   await ctx.reply(text, { parse_mode: 'Markdown', ...appBtn() })
 })
 
-bot.hears('📊 Stats', async ctx => {
-  const user = await User.findOne({ telegramId: String(ctx.from.id) })
-  if (!user) return ctx.reply('/start bosing')
-  const today = new Date().toISOString().split('T')[0]
-  const sessions = await StudySession.find({ userId: user._id, date: today })
-  const min = sessions.reduce((s, x) => s + (x.duration || 0), 0)
-  const dueCards = await Flashcard.countDocuments({ userId: user._id, nextReview: { $lte: today } })
-  await ctx.reply(`📊 *Bugungi statistika*\n\n🔥 Streak: *${user.streak}* kun\n⭐ XP: *${user.xp}* | Lv.*${user.level}*\n⏱ Bugun: *${min}* daqiqa\n🔁 Kartalar: *${dueCards}*`, { parse_mode: 'Markdown', ...appBtn() })
+bot.hears('📅 Bugungi reja', async ctx => {
+  const u = await User.findOne({ telegramId: String(ctx.from.id) })
+  if (!u) return ctx.reply('/start bosing')
+  const schedule = await Schedule.find({ userId: u._id, date: todayStr() })
+  if (!schedule.length) {
+    await ctx.reply('Bugun reja yo\'q. AI rejani yaratsinmi?', {
+      ...Markup.inlineKeyboard([[Markup.button.callback('✅ Ha, yaratsin', 'gen_plan')]])
+    })
+  } else {
+    let text = `📅 *Bugungi reja:*\n\n`
+    schedule.forEach(s => { text += `${s.isDone ? '✅' : '⬜'} ${s.title}\n` })
+    await ctx.reply(text, { parse_mode: 'Markdown', ...appBtn() })
+  }
 })
 
-bot.hears(['🧠 AI', '🌐 App'], async ctx => {
-  await ctx.reply('📱 StudyMind Pro:', appBtn())
+bot.action('gen_plan', async ctx => {
+  const u = await User.findOne({ telegramId: String(ctx.from.id) })
+  if (!u) return
+  await ctx.editMessageText('⏳ Reja tuzilmoqda...')
+  const subjects = await Subject.find({ userId: u._id })
+  const prompt = `Bugun uchun o'quv rejasi tuz. Fanlar: ${subjects.map(s => s.name).join(', ') || 'umumiy'}. Max 4 ta vazifa, qisqa.`
+  const plan = await ai([{ role: 'user', content: prompt }], buildSystem(u, subjects), 300)
+  const lines = plan.split('\n').filter(l => l.trim())
+  for (const line of lines.slice(0, 4)) {
+    await Schedule.create({ userId: u._id, title: line.replace(/^[\d\.\)\-]\s*/, '').trim(), date: todayStr(), aiGenerated: true })
+  }
+  await ctx.editMessageText(`✅ Reja tayyor!\n\n${plan}`)
 })
 
+bot.hears('🌐 App', async ctx => {
+  await ctx.reply('📱 StudyMind:', appBtn())
+})
+
+// AI chat via Telegram
 bot.on('text', async ctx => {
   if (ctx.message.text.startsWith('/')) return
-  const user = await User.findOne({ telegramId: String(ctx.from.id) })
-  if (!user) return ctx.reply('/start bosing')
+  const tid = String(ctx.from.id)
+  let u = await User.findOne({ telegramId: tid })
+  if (!u) return ctx.reply('/start bosing')
+
   await ctx.sendChatAction('typing')
-  const reply = await askAI([{ role: 'user', content: ctx.message.text }], buildTutorSystem(user))
-  await ctx.reply(reply)
+  const subjects = await Subject.find({ userId: u._id })
+  const history = await Chat.find({ userId: u._id, role: { $in: ['user', 'assistant'] } }).sort({ createdAt: -1 }).limit(8)
+  const messages = [...history.reverse().map(m => ({ role: m.role, content: m.content })), { role: 'user', content: ctx.message.text }]
+
+  await Chat.create({ userId: u._id, role: 'user', content: ctx.message.text })
+  const rawReply = await ai(messages, buildSystem(u, subjects))
+  const extracted = extractFromAI(rawReply)
+  const cleanReply = cleanText(rawReply)
+
+  // Save extracted data
+  if (extracted.grade) {
+    const subj = subjects.find(s => s.name.toLowerCase().includes(extracted.grade.subjectName.toLowerCase()))
+    if (subj) {
+      subj.gradeHistory.push({ score: extracted.grade.score, date: todayStr() })
+      subj.avgGrade = Math.round(subj.gradeHistory.reduce((a, g) => a + g.score, 0) / subj.gradeHistory.length)
+      await subj.save()
+    }
+    await giveXP(u._id, 5)
+  }
+  if (extracted.studyMinutes) { u.totalStudyMinutes += extracted.studyMinutes; await giveXP(u._id, Math.floor(extracted.studyMinutes * 1.5)) }
+
+  await Chat.create({ userId: u._id, role: 'assistant', content: cleanReply, extractedData: extracted })
+  await ctx.reply(cleanReply, { parse_mode: 'Markdown' })
 })
 
 // Daily reminders
@@ -763,17 +690,30 @@ setInterval(async () => {
   const hour = new Date().getHours()
   if (hour !== 8 && hour !== 21) return
   const users = await User.find({ telegramId: { $exists: true, $ne: null } })
-  const today = new Date().toISOString().split('T')[0]
   for (const u of users) {
     try {
+      const subjects = await Subject.find({ userId: u._id })
+      const dueCards = await Flashcard.countDocuments({ userId: u._id, nextReview: { $lte: todayStr() } })
       if (hour === 8) {
-        const dueCards = await Flashcard.countDocuments({ userId: u._id, nextReview: { $lte: today } })
-        await bot.telegram.sendMessage(u.telegramId, `🌅 Xayrli tong, ${u.name}!\n\n🔥 Streak: ${u.streak} kun | Lv.${u.level}\n🔁 Bugun takrorlash: ${dueCards} karta\n\nBugun ham o'qing! 💪`)
+        const urgentSubjs = subjects.filter(s => {
+          if (!s.examDate) return false
+          const d = Math.ceil((new Date(s.examDate) - new Date()) / 86400000)
+          return d >= 0 && d <= 7
+        })
+        let msg = `🌅 *Xayrli tong, ${u.name}!*\n\n🔥 Streak: *${u.streak}* kun | Lv.*${u.level}*`
+        if (dueCards > 0) msg += `\n🔁 Bugun *${dueCards}* ta karta takrorlash kerak`
+        if (urgentSubjs.length) msg += `\n⚠️ ${urgentSubjs.map(s => s.name).join(', ')} imtihoni yaqin!`
+        msg += `\n\nBugun ham bitta qadamdan boshlaylik 💪`
+        await bot.telegram.sendMessage(u.telegramId, msg, { parse_mode: 'Markdown' })
       }
       if (hour === 21) {
-        const s = await StudySession.find({ userId: u._id, date: today })
-        const min = s.reduce((a, x) => a + (x.duration || 0), 0)
-        await bot.telegram.sendMessage(u.telegramId, `🌙 Bugun ${min} daqiqa o'qidingiz!\n🔥 Streak: ${u.streak} kun\n\nAjoyib! Ertaga ham davom eting ⭐`)
+        const todaySchedule = await Schedule.find({ userId: u._id, date: todayStr() })
+        const done = todaySchedule.filter(s => s.isDone).length
+        let msg = `🌙 *Bugungi natijalar, ${u.name}!*\n\n`
+        msg += `✅ Bajarildi: *${done}/${todaySchedule.length}*\n`
+        msg += `⏱ O'qildi: *${u.totalStudyMinutes}* daqiqa jami\n`
+        msg += `🔥 Streak: *${u.streak}* kun\n\nErtaga yana davom etamiz! ⭐`
+        await bot.telegram.sendMessage(u.telegramId, msg, { parse_mode: 'Markdown' })
       }
     } catch {}
   }
@@ -783,8 +723,8 @@ bot.launch({ dropPendingUpdates: true })
 console.log('✅ Telegram bot ishga tushdi')
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`✅ Server port ${PORT} da ishlamoqda`)
-  console.log('🧠 StudyMind Pro v3.0 tayyor!')
+  console.log(`✅ Server port ${PORT}`)
+  console.log('🧠 StudyMind v4.0 tayyor!')
 })
 
 process.once('SIGINT', () => bot.stop('SIGINT'))
