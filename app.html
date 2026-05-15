@@ -4,844 +4,404 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>StudyMind</title>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --bg:#f6f7fb;
-  --white:#ffffff;
-  --card:#ffffff;
-  --sidebar:#0f1117;
-  --s2:#181b25;
-  --p:#5b4cf5;
-  --p2:#7b6ef8;
-  --p-l:#edeaff;
-  --teal:#0ea67c;
-  --tl:#e0f5ee;
-  --red:#e84545;
-  --rl:#fdeaea;
-  --amber:#d97706;
-  --al:#fef3c7;
-  --text:#0f1117;
-  --t2:#64748b;
-  --t3:#94a3b8;
-  --b:#e2e8f0;
-  --b2:rgba(91,76,245,0.15);
-  --sh:0 1px 3px rgba(0,0,0,0.07),0 1px 2px rgba(0,0,0,0.04);
-  --sh2:0 8px 24px rgba(0,0,0,0.1);
-  --r:14px;
-  --fn:'Geist',sans-serif;
-  --mono:'Geist Mono',monospace;
+  --bg:#f4f6fb;--white:#fff;--p:#5b4cf5;--p2:#7c6ff8;--pl:#edeaff;
+  --teal:#0dab76;--tl:#e0f7ee;--red:#e53e3e;--rl:#fff0f0;
+  --amber:#d97706;--al:#fffbeb;--text:#111827;--t2:#6b7280;--t3:#9ca3af;
+  --b:#e5e7eb;--fn:'Inter',system-ui,sans-serif;--mono:'SF Mono',monospace;
+  --r:16px;--r2:12px;--sh:0 1px 3px rgba(0,0,0,0.08);--sh2:0 4px 20px rgba(0,0,0,0.12);
 }
-html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--fn);overflow:hidden;font-size:14px}
-
-/* ── LAYOUT ── */
-#app{display:grid;grid-template-columns:200px 1fr;grid-template-rows:52px 1fr;height:100vh;height:100dvh;max-height:100dvh}
-#topbar{grid-column:1/-1;background:var(--white);border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;padding:0 1rem;z-index:50;box-shadow:var(--sh)}
-#sidebar{background:var(--sidebar);overflow-y:auto;display:flex;flex-direction:column}
-#sidebar::-webkit-scrollbar{display:none}
-#main{overflow-y:auto;padding:1.25rem;min-height:0}
-#main::-webkit-scrollbar{width:3px}
-#main::-webkit-scrollbar-thumb{background:var(--b);border-radius:2px}
-
-/* ── TOPBAR ── */
-.t-logo{font-size:0.95rem;font-weight:800;display:flex;align-items:center;gap:7px;letter-spacing:-0.02em}
-.t-logo-i{width:26px;height:26px;background:linear-gradient(135deg,var(--p),var(--p2));border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:0.75rem}
-.t-right{display:flex;align-items:center;gap:0.6rem}
-.t-xp{font-size:0.72rem;font-weight:700;color:var(--p);background:var(--p-l);padding:3px 10px;border-radius:100px;font-family:var(--mono)}
-.t-av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--teal));display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:white;cursor:pointer;overflow:hidden}
-.t-av img{width:100%;height:100%;object-fit:cover}
-
-/* ── SIDEBAR ── */
-.s-head{padding:1rem 0.75rem 0.5rem}
-.s-user{display:flex;align-items:center;gap:8px;padding:0.6rem 0.75rem;border-radius:8px;background:var(--s2);margin-bottom:0.75rem}
-.s-av{width:28px;height:28px;border-radius:50%;background:var(--p);display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;color:white;flex-shrink:0}
-.s-name{font-size:0.78rem;font-weight:600;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.s-level{font-size:0.65rem;color:#64748b}
-.s-xp-bar{height:2px;background:#1e2433;border-radius:1px;margin-top:4px;overflow:hidden}
-.s-xp-fill{height:100%;background:linear-gradient(90deg,var(--p),var(--p2));transition:width 1s ease}
-.s-label{font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#3d4466;padding:0 0.75rem;margin-bottom:4px}
-.nav-i{display:flex;align-items:center;gap:9px;padding:0.5rem 0.75rem;border-radius:8px;cursor:pointer;color:#6b7280;font-size:0.8rem;font-weight:500;transition:all 0.15s;margin-bottom:1px}
-.nav-i:hover{background:var(--s2);color:#c4c9e0}
-.nav-i.active{background:var(--p);color:white}
-.nav-i .ic{font-size:0.95rem;width:18px;text-align:center;flex-shrink:0}
-.nav-badge{margin-left:auto;background:var(--red);color:white;font-size:0.58rem;font-weight:700;padding:1px 6px;border-radius:100px}
-.s-streak{margin:auto 0 0;padding:0.75rem;background:var(--s2);border-radius:8px;margin:0.5rem 0.75rem 0.75rem;text-align:center}
-.s-streak-n{font-size:1.2rem;font-weight:800;color:#ff9f43}
-.s-streak-l{font-size:0.65rem;color:#4a5175;margin-top:1px}
-
-/* ── PAGE ── */
-.ph{margin-bottom:1.25rem}
-.ph-title{font-size:1.2rem;font-weight:800;letter-spacing:-0.025em;margin-bottom:2px}
-.ph-sub{color:var(--t2);font-size:0.8rem}
-
-/* ── METRIC GRID ── */
-.mg{display:grid;grid-template-columns:repeat(4,1fr);gap:0.65rem;margin-bottom:1.25rem}
-.mc{background:var(--card);border:1px solid var(--b);border-radius:var(--r);padding:0.9rem;box-shadow:var(--sh)}
-.mc-icon{font-size:1.1rem;margin-bottom:0.4rem}
-.mc-label{font-size:0.65rem;color:var(--t2);font-weight:500;margin-bottom:3px}
-.mc-val{font-size:1.35rem;font-weight:800;letter-spacing:-0.02em;line-height:1}
-.mc-sub{font-size:0.65rem;color:var(--t3);margin-top:3px}
-
-/* ── CARDS ── */
-.card{background:var(--card);border:1px solid var(--b);border-radius:var(--r);padding:1.1rem;box-shadow:var(--sh);margin-bottom:0.65rem}
-.card-t{font-size:0.78rem;font-weight:700;margin-bottom:0.9rem;display:flex;align-items:center;justify-content:space-between;gap:6px}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:0.65rem}
-
-/* ── SUBJECTS ── */
-.sc{background:var(--card);border:1px solid var(--b);border-radius:var(--r);padding:0.9rem;box-shadow:var(--sh);margin-bottom:0.5rem;position:relative;overflow:hidden;transition:all 0.2s}
-.sc:hover{transform:translateY(-1px);box-shadow:var(--sh2)}
-.sc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
-.sc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.65rem}
-.sc-left{display:flex;align-items:center;gap:8px}
-.sc-emoji{font-size:1.2rem}
-.sc-name{font-weight:700;font-size:0.88rem}
-.sc-type{font-size:0.62rem;color:var(--t3)}
-.sc-avg{font-size:1.2rem;font-weight:800;font-family:var(--mono)}
-.bt{background:var(--bg);border:none;border-radius:6px;padding:3px 9px;font-size:0.68rem;cursor:pointer;font-family:var(--fn);font-weight:600;color:var(--t2);transition:all 0.15s}
-.bt:hover{background:var(--b);color:var(--text)}
-.bt.p{background:var(--p-l);color:var(--p)}
-.btrack{background:var(--bg);border-radius:100px;height:3px;overflow:hidden;margin-bottom:5px}
-.bfill{height:100%;border-radius:100px;transition:width 1s ease}
-.sc-meta{font-size:0.65rem;color:var(--t2);display:flex;justify-content:space-between}
-
-/* ── AI CHAT ── */
-.chat-wrap{background:var(--card);border:1px solid var(--b);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);display:flex;flex-direction:column;height:calc(100vh - 180px)}
-.chat-top{padding:0.75rem 1rem;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;background:var(--bg)}
-.chat-ai-name{font-size:0.82rem;font-weight:700;display:flex;align-items:center;gap:6px}
-.chat-status{font-size:0.65rem;color:var(--teal);display:flex;align-items:center;gap:4px}
-.chat-status::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--teal)}
-.chat-tools{display:flex;gap:5px;overflow-x:auto;padding:0.6rem 1rem;border-bottom:1px solid var(--b)}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--fn);font-size:15px}
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh}
+#content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+#content::-webkit-scrollbar{display:none}
+#nav{flex-shrink:0;background:var(--white);border-top:1px solid var(--b);display:flex;padding:6px 0 max(6px,env(safe-area-inset-bottom))}
+.nb{flex:1;background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;font-family:var(--fn);color:var(--t3)}
+.nb.on{color:var(--p)}
+.nb .ni{font-size:22px;line-height:1}
+.nb .nl{font-size:10px;font-weight:600}
+.nb-wrap{position:relative}
+.nb-badge{background:var(--red);color:white;font-size:9px;font-weight:700;padding:1px 5px;border-radius:100px;position:absolute;top:-2px;right:-4px}
+.hdr{background:var(--white);padding:12px 16px 10px;border-bottom:1px solid var(--b)}
+.hdr-row{display:flex;align-items:center;justify-content:space-between}
+.hdr-title{font-size:18px;font-weight:800;letter-spacing:-0.02em}
+.hdr-sub{font-size:12px;color:var(--t2);margin-top:1px}
+.hdr-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--teal));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;cursor:pointer;overflow:hidden;flex-shrink:0}
+.hdr-av img{width:100%;height:100%;object-fit:cover}
+.xp-bar{height:3px;background:var(--b)}
+.xp-fill{height:100%;background:linear-gradient(90deg,var(--p),var(--p2));transition:width 1s ease}
+.card{background:var(--white);border-radius:var(--r);margin:0 12px 10px;box-shadow:var(--sh);overflow:hidden}
+.card-p{padding:14px}
+.mrow{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:12px;margin-bottom:0}
+.mc{background:var(--white);border-radius:var(--r2);padding:12px;box-shadow:var(--sh)}
+.mc-n{font-size:26px;font-weight:800;line-height:1;letter-spacing:-0.02em;margin-bottom:2px}
+.mc-l{font-size:11px;color:var(--t2);font-weight:500}
+.sc{margin:0 12px 8px;background:var(--white);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.sc-bar{height:3px}
+.sc-body{padding:12px}
+.sc-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.sc-emoji{font-size:22px}
+.sc-name{font-size:15px;font-weight:700;flex:1}
+.sc-avg{font-size:20px;font-weight:800;font-family:var(--mono)}
+.sc-prog{height:4px;background:var(--b);border-radius:2px;overflow:hidden;margin-bottom:6px}
+.sc-pfill{height:100%;border-radius:2px;transition:width 1s ease}
+.sc-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--t2)}
+.sc-btns{display:flex;gap:6px;margin-top:10px}
+.scb{flex:1;background:var(--bg);border:none;border-radius:8px;padding:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--fn);color:var(--t2)}
+.scb.p{background:var(--pl);color:var(--p)}
+.scb.r{background:var(--rl);color:var(--red)}
+.chat-shell{display:flex;flex-direction:column;height:calc(100dvh - 56px)}
+.chat-top{background:var(--white);padding:10px 14px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.chat-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--p2));display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.chat-info-name{font-size:14px;font-weight:700}
+.chat-info-st{font-size:11px;color:var(--teal);display:flex;align-items:center;gap:4px}
+.chat-info-st::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--teal)}
+.chat-tools{display:flex;gap:6px;padding:8px 12px;overflow-x:auto;background:var(--bg);border-bottom:1px solid var(--b);flex-shrink:0}
 .chat-tools::-webkit-scrollbar{display:none}
-.ctool{background:var(--bg);border:1px solid var(--b);border-radius:7px;padding:4px 10px;font-size:0.7rem;color:var(--t2);cursor:pointer;white-space:nowrap;transition:all 0.15s;font-family:var(--fn)}
-.ctool:hover{border-color:var(--p);color:var(--p);background:var(--p-l)}
-.chat-msgs{flex:1;overflow-y:auto;padding:0.9rem;display:flex;flex-direction:column;gap:0.65rem;min-height:0}
-.chat-msgs::-webkit-scrollbar{width:2px}
-.chat-msgs::-webkit-scrollbar-thumb{background:var(--b)}
-.msg{max-width:82%;animation:fi 0.25s ease}
-@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
-.msg.user{align-self:flex-end}
-.msg.ai{align-self:flex-start}
-.msg-b{padding:0.65rem 0.85rem;border-radius:12px;font-size:0.82rem;line-height:1.65}
-.msg.user .msg-b{background:var(--p);color:white;border-radius:12px 3px 12px 12px}
-.msg.ai .msg-b{background:var(--bg);border:1px solid var(--b);border-radius:3px 12px 12px 12px;color:var(--text)}
-.msg-t{font-size:0.6rem;color:var(--t3);margin-top:2px;padding:0 3px}
-.msg.user .msg-t{text-align:right}
-.typing{display:flex;gap:3px;padding:0.65rem 0.85rem;background:var(--bg);border:1px solid var(--b);border-radius:3px 12px 12px 12px;width:fit-content;align-self:flex-start}
-.typing span{width:5px;height:5px;border-radius:50%;background:var(--p);animation:bounce 1.2s infinite}
-.typing span:nth-child(2){animation-delay:0.2s}
-.typing span:nth-child(3){animation-delay:0.4s}
+.ct{background:var(--white);border:1px solid var(--b);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--t2);cursor:pointer;white-space:nowrap;font-family:var(--fn);font-weight:500;flex-shrink:0}
+.ct:active{background:var(--pl);color:var(--p)}
+.chat-msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;-webkit-overflow-scrolling:touch}
+.chat-msgs::-webkit-scrollbar{display:none}
+.cm{max-width:85%;animation:fi .2s ease}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.cm.u{align-self:flex-end}
+.cm.a{align-self:flex-start}
+.cmb{padding:10px 13px;border-radius:18px;font-size:14px;line-height:1.55}
+.cm.u .cmb{background:var(--p);color:white;border-radius:18px 4px 18px 18px}
+.cm.a .cmb{background:var(--white);border:1px solid var(--b);border-radius:4px 18px 18px 18px}
+.cmt{font-size:10px;color:var(--t3);margin-top:2px;padding:0 3px}
+.cm.u .cmt{text-align:right}
+.typing{display:flex;gap:4px;padding:10px 13px;background:var(--white);border:1px solid var(--b);border-radius:4px 18px 18px 18px;width:fit-content;align-self:flex-start}
+.typing span{width:6px;height:6px;border-radius:50%;background:var(--p);animation:bounce 1.2s infinite}
+.typing span:nth-child(2){animation-delay:.2s}
+.typing span:nth-child(3){animation-delay:.4s}
 @keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
-.chat-bar{padding:0.65rem 0.9rem;border-top:1px solid var(--b);background:var(--card)}
-.chat-row{display:flex;gap:7px;align-items:flex-end}
-.chat-ta{flex:1;background:var(--bg);border:1.5px solid var(--b);border-radius:10px;padding:0.55rem 0.8rem;font-size:0.82rem;font-family:var(--fn);outline:none;resize:none;color:var(--text);max-height:80px;transition:border-color 0.2s;line-height:1.5}
-.chat-ta:focus{border-color:var(--p);background:var(--white)}
-.chat-ta::placeholder{color:var(--t3)}
-.send-btn{background:var(--p);border:none;width:34px;height:34px;border-radius:9px;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0;transition:all 0.2s}
-.send-btn:hover{background:var(--p2);transform:scale(1.05)}
-.send-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none}
-
-/* ── FLASHCARD ── */
-.fc{background:var(--card);border:1px solid var(--b);border-radius:16px;padding:1.75rem;text-align:center;min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.25s;margin-bottom:0.75rem;box-shadow:var(--sh)}
-.fc.rev{background:var(--tl);border-color:rgba(14,166,124,0.25)}
-.fc-f{font-size:0.95rem;font-weight:600;line-height:1.5}
-.fc-b{font-size:0.88rem;color:var(--teal);margin-top:0.65rem;font-weight:500;line-height:1.55}
-.fc-h{font-size:0.68rem;color:var(--t3);margin-top:0.5rem}
-.fc-btns{display:grid;grid-template-columns:repeat(4,1fr);gap:0.45rem;margin-bottom:0.75rem}
-.fcb{border:none;border-radius:8px;padding:0.55rem;font-size:0.7rem;font-weight:700;cursor:pointer;font-family:var(--fn);transition:all 0.15s}
-.fcb:active{transform:scale(0.94)}
-.fcb.a{background:var(--rl);color:var(--red)}
-.fcb.h{background:var(--al);color:var(--amber)}
-.fcb.g{background:var(--p-l);color:var(--p)}
-.fcb.e{background:var(--tl);color:var(--teal)}
-
-/* ── SCHEDULE ── */
-.si{display:flex;align-items:center;gap:9px;padding:0.6rem 0;border-bottom:1px solid var(--b)}
+.chat-input{background:var(--white);border-top:1px solid var(--b);padding:8px 10px calc(8px + env(safe-area-inset-bottom));flex-shrink:0}
+.chat-input-row{display:flex;gap:8px;align-items:flex-end;background:var(--bg);border-radius:24px;padding:6px 6px 6px 14px}
+.ci{flex:1;background:none;border:none;font-size:14px;font-family:var(--fn);color:var(--text);outline:none;resize:none;max-height:80px;line-height:1.5}
+.ci::placeholder{color:var(--t3)}
+.send{background:var(--p);border:none;width:36px;height:36px;border-radius:50%;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.send:active{transform:scale(0.9)}
+.send:disabled{opacity:0.4;cursor:not-allowed}
+.fc{background:var(--white);border-radius:var(--r);margin:12px;padding:28px 20px;text-align:center;min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--sh2)}
+.fc.rev{background:var(--tl)}
+.fc-f{font-size:16px;font-weight:600;line-height:1.5}
+.fc-b{font-size:15px;color:var(--teal);margin-top:10px;font-weight:500;line-height:1.5}
+.fc-h{font-size:12px;color:var(--t3);margin-top:8px}
+.fc-rating{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 12px 12px}
+.fr{border:none;border-radius:12px;padding:10px 0;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--fn)}
+.fr:active{transform:scale(0.94)}
+.fr.a{background:var(--rl);color:var(--red)}
+.fr.h{background:var(--al);color:var(--amber)}
+.fr.g{background:var(--pl);color:var(--p)}
+.fr.e{background:var(--tl);color:var(--teal)}
+.si{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--b)}
 .si:last-child{border-bottom:none}
-.si-cb{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--b);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;font-size:0.6rem}
+.si-cb{width:22px;height:22px;border-radius:7px;border:2px solid var(--b);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px}
 .si-cb.done{background:var(--teal);border-color:var(--teal);color:white}
-.si-title{font-size:0.82rem;font-weight:500;flex:1}
+.si-title{font-size:14px;font-weight:500;flex:1}
 .si-title.done{text-decoration:line-through;color:var(--t3)}
-.si-time{font-size:0.68rem;color:var(--p);font-family:var(--mono);font-weight:600}
-
-/* ── INSIGHT ── */
-.ins-chip{display:inline-flex;align-items:center;font-size:0.7rem;padding:3px 9px;border-radius:100px;margin:2px;font-weight:500;border:1px solid}
-.ins-s{background:var(--tl);color:var(--teal);border-color:rgba(14,166,124,0.2)}
-.ins-w{background:var(--rl);color:var(--red);border-color:rgba(232,69,69,0.2)}
-.ins-r{background:var(--p-l);color:var(--p);border-color:var(--b2)}
-
-/* ── FORMS & BUTTONS ── */
-.field{margin-bottom:0.8rem}
-.field label{display:block;font-size:0.7rem;font-weight:600;color:var(--t2);margin-bottom:4px}
-.field input,.field select,.field textarea{width:100%;background:var(--bg);border:1.5px solid var(--b);border-radius:8px;color:var(--text);padding:0.55rem 0.8rem;font-size:0.82rem;font-family:var(--fn);outline:none;transition:border-color 0.2s;-webkit-appearance:none}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--p);background:var(--white)}
-.emoji-g{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin-top:4px}
-.eo{background:var(--bg);border:1px solid var(--b);border-radius:6px;padding:4px;text-align:center;font-size:0.9rem;cursor:pointer;transition:all 0.12s}
-.eo.sel{border-color:var(--p);background:var(--p-l)}
-.colors{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
-.co{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all 0.15s}
+.si-sub{font-size:11px;color:var(--t2);margin-top:1px}
+.si-time{font-size:12px;font-weight:700;color:var(--p);font-family:var(--mono)}
+.ic{display:inline-flex;align-items:center;font-size:12px;padding:4px 10px;border-radius:100px;margin:2px;font-weight:500}
+.ic.s{background:var(--tl);color:var(--teal)}
+.ic.w{background:var(--rl);color:var(--red)}
+.ic.r{background:var(--pl);color:var(--p)}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--t2);margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;background:var(--bg);border:1.5px solid var(--b);border-radius:10px;color:var(--text);padding:10px 12px;font-size:14px;font-family:var(--fn);outline:none;-webkit-appearance:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--p)}
+.emoji-g{display:grid;grid-template-columns:repeat(9,1fr);gap:5px;margin-top:5px}
+.eo{background:var(--bg);border:1.5px solid var(--b);border-radius:8px;padding:5px;text-align:center;font-size:18px;cursor:pointer}
+.eo.sel{border-color:var(--p);background:var(--pl)}
+.clrs{display:flex;gap:8px;flex-wrap:wrap;margin-top:5px}
+.co{width:28px;height:28px;border-radius:50%;cursor:pointer;border:3px solid transparent}
 .co.sel{border-color:var(--text);transform:scale(1.1)}
-.btn{padding:0.6rem 1.1rem;border:none;border-radius:8px;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:var(--fn);transition:all 0.2s}
+.btn{padding:11px 16px;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--fn);display:block;text-align:center;width:100%}
 .btn:active{transform:scale(0.97)}
 .btn-p{background:var(--p);color:white}
-.btn-p:hover{background:var(--p2)}
-.btn-s{background:var(--bg);color:var(--t2);border:1px solid var(--b)}
-.btn-d{background:var(--rl);color:var(--red)}
-.btn-f{width:100%;padding:0.7rem}
-.btn-sm{padding:0.35rem 0.8rem;font-size:0.72rem}
-.ai-bubble{background:var(--p-l);border:1px solid var(--b2);border-radius:3px 12px 12px 12px;padding:0.85rem;margin-bottom:0.85rem}
-.ai-bubble p{font-size:0.8rem;line-height:1.7;color:var(--text)}
-.bar-chart{display:flex;align-items:flex-end;gap:5px;height:72px}
-.bc-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
-.bc-bar{width:100%;border-radius:3px 3px 0 0;min-height:2px;transition:height 1s ease}
-.bc-l{font-size:0.55rem;color:var(--t3)}
-
-/* ── MODAL ── */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.35);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:flex-end;justify-content:center}
-.modal{background:var(--white);border-radius:18px 18px 0 0;padding:1.25rem 1.1rem calc(1.25rem + env(safe-area-inset-bottom));width:100%;max-width:520px;max-height:88vh;overflow-y:auto;animation:su 0.28s cubic-bezier(0.4,0,0.2,1)}
+.btn-s{background:var(--bg);color:var(--t2);border:1px solid var(--b);margin-top:6px}
+.btn-sm{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:var(--fn)}
+.btn-sm:active{transform:scale(0.95)}
+.btn-sm.p{background:var(--p);color:white}
+.btn-sm.s{background:var(--bg);color:var(--t2);border:1px solid var(--b)}
+.ai-bub{background:var(--pl);border-left:3px solid var(--p);border-radius:0 12px 12px 0;padding:12px;margin:0 12px 10px;font-size:13px;line-height:1.65}
+.wchart{display:flex;align-items:flex-end;gap:6px;height:80px;padding:0 2px}
+.wc{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.wb{width:100%;border-radius:4px 4px 0 0;min-height:3px}
+.wl{font-size:10px;color:var(--t3)}
+.urgent{background:var(--rl);border-radius:var(--r2);margin:12px 12px 0;padding:10px 12px;display:flex;align-items:center;gap:10px;font-size:13px}
+.mbg{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;display:flex;align-items:flex-end}
+.modal{background:var(--white);border-radius:20px 20px 0 0;width:100%;max-height:90vh;overflow-y:auto;animation:su .25s ease}
 @keyframes su{from{transform:translateY(100%)}to{transform:none}}
-.mh{width:32px;height:3px;background:var(--b);border-radius:2px;margin:0 auto 1.1rem}
-.mt{font-size:0.95rem;font-weight:800;margin-bottom:1.1rem;letter-spacing:-0.02em}
-
-/* ── LOGIN ── */
-.lp{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1.5rem;background:var(--bg)}
-.lc{background:var(--white);border:1px solid var(--b);border-radius:20px;padding:2.25rem 1.75rem;width:100%;max-width:360px;box-shadow:var(--sh2);text-align:center}
-.l-icon{font-size:2.5rem;margin-bottom:0.75rem}
-.l-title{font-size:1.5rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:0.35rem}
-.l-sub{color:var(--t2);font-size:0.82rem;margin-bottom:1.75rem;line-height:1.6}
-.l-btn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:0.78rem;border-radius:10px;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:var(--fn);margin-bottom:0.5rem;transition:all 0.2s;text-decoration:none;border:none}
+.modal-inner{padding:20px 16px calc(20px + env(safe-area-inset-bottom))}
+.mhandle{width:36px;height:4px;background:var(--b);border-radius:2px;margin:12px auto 16px}
+.mt{font-size:16px;font-weight:800;margin-bottom:16px}
+.lp{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;background:var(--bg)}
+.lc{background:var(--white);border-radius:24px;padding:32px 24px;width:100%;max-width:360px;box-shadow:var(--sh2);text-align:center}
+.l-icon{font-size:48px;margin-bottom:12px}
+.l-title{font-size:26px;font-weight:800;letter-spacing:-0.03em;margin-bottom:6px}
+.l-sub{color:var(--t2);font-size:13px;margin-bottom:28px;line-height:1.6}
+.l-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:13px;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--fn);margin-bottom:8px;text-decoration:none;border:none}
 .l-btn:active{transform:scale(0.97)}
-.l-g{background:#18191f;color:white}
+.l-g{background:#111;color:white}
 .l-t{background:#229ED9;color:white}
-.l-or{color:var(--t3);font-size:0.72rem;margin:0.35rem 0}
-
-/* ── UTILS ── */
-.tag{display:inline-flex;align-items:center;font-size:0.65rem;font-weight:600;padding:2px 8px;border-radius:100px;border:1px solid}
-.tag-p{background:var(--p-l);color:var(--p);border-color:var(--b2)}
-.tag-t{background:var(--tl);color:var(--teal);border-color:rgba(14,166,124,0.2)}
-.tag-r{background:var(--rl);color:var(--red);border-color:rgba(232,69,69,0.2)}
-.empty{text-align:center;padding:2.5rem 1rem;color:var(--t2);font-size:0.82rem}
-.empty-i{font-size:2rem;margin-bottom:0.6rem}
-.dv{border:none;border-top:1px solid var(--b);margin:0.65rem 0}
-.urgent{background:var(--rl);border:1px solid rgba(232,69,69,0.2);border-radius:var(--r);padding:0.75rem 0.9rem;margin-bottom:0.65rem;display:flex;align-items:center;gap:9px}
-
-/* ── MOBILE ── */
-@media(max-width:720px){
-  #app{grid-template-columns:1fr;grid-template-rows:52px 1fr 56px}
-  #sidebar{display:none}
-  #mob-nav{display:flex}
-  .mg{grid-template-columns:repeat(2,1fr)}
-  .g2{grid-template-columns:1fr}
-  .chat-wrap{height:calc(100vh - 160px)}
-}
-#mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--b);padding:5px 0 max(5px,env(safe-area-inset-bottom));z-index:100}
-.mn-btn{flex:1;background:none;border:none;color:var(--t3);display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;font-family:var(--fn)}
-.mn-btn.active{color:var(--p)}
-.mn-ic{font-size:1.15rem}
-.mn-l{font-size:0.56rem;font-weight:600}
+.l-or{color:var(--t3);font-size:12px;margin:4px 0}
+.sec-title{font-size:13px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:0.06em;padding:14px 14px 6px}
+.streak{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#ff9f43,#ff6b35);color:white;border-radius:var(--r);padding:12px 14px;margin:12px;font-size:13px;font-weight:600}
+.dv{border:none;border-top:1px solid var(--b)}
+.empty{text-align:center;padding:40px 20px;color:var(--t2);font-size:14px}
+.empty-i{font-size:40px;margin-bottom:10px}
 </style>
 </head>
 <body>
 <div id="root"></div>
 <script>
-const tg = window.Telegram?.WebApp
-if (tg) { tg.ready(); tg.expand() }
+const tg=window.Telegram?.WebApp
+if(tg){tg.ready();tg.expand();if(tg.disableVerticalSwipes)tg.disableVerticalSwipes()}
 
-// ── STATE ──────────────────────────────────────────────────────────
-let S = {
-  user: null, subjects: [], stats: null,
-  tab: 'home',
-  chatMsgs: [], aiLoading: false,
-  flashcards: [], fcIdx: 0, fcRev: false,
-  schedule: [], insights: [],
-  modal: null,
-  ns: { name:'', emoji:'📚', color:'#5b4cf5', examDate:'' },
-  nf: { front:'', back:'', subjectId:'' },
-  nsc: { title:'', subjectName:'', time:'', date:'' },
-  notesText: '',
-  planLoading: false,
-  isMobile: window.innerWidth < 720
+let S={
+  user:null,subjects:[],stats:null,tab:'home',
+  chatMsgs:[],aiLoading:false,
+  flashcards:[],fcIdx:0,fcRev:false,
+  schedule:[],insights:[],modal:null,
+  ns:{name:'',emoji:'📚',color:'#5b4cf5',examDate:''},
+  nf:{front:'',back:'',subjectId:''},
+  nsc:{title:'',time:''},
 }
 
-const EMOJIS = ['📚','📐','🔬','📖','🌍','🎨','💻','🎵','🧪','🧮','📝','🏛️','🌱','⚗️','🔭','🗺️','🎯','💡']
-const COLORS = ['#5b4cf5','#0ea67c','#e84545','#d97706','#185FA5','#7c3aed','#0891b2','#be185d']
-const TABS = [
-  {id:'home',ic:'🏠',l:'Bosh'},
-  {id:'ai',ic:'🧠',l:'AI'},
-  {id:'subjects',ic:'📚',l:'Fanlar'},
-  {id:'flashcards',ic:'🔁',l:'Karta'},
-  {id:'insights',ic:'🔍',l:'Tahlil'},
-]
+const EMOJIS=['📚','📐','🔬','📖','🌍','🎨','💻','🎵','🧪','🧮','📝','🏛','🌱','⚗','🔭','🗺','🎯','💡']
+const COLORS=['#5b4cf5','#0dab76','#e53e3e','#d97706','#185FA5','#7c3aed','#0891b2','#be185d']
+const DAYS=['Du','Se','Ch','Pa','Ju','Sh','Ya']
+const TABS=[{id:'home',i:'🏠',l:'Bosh'},{id:'ai',i:'🧠',l:'AI'},{id:'subjects',i:'📚',l:'Fanlar'},{id:'flashcards',i:'🔁',l:'Karta'},{id:'more',i:'···',l:'Ko\'proq'}]
 
-// ── API ────────────────────────────────────────────────────────────
-const req = async (m,p,b) => {
-  const r = await fetch(p,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):undefined})
-  if (!r.ok) throw new Error(await r.text())
-  return r.json()
-}
-const GET=(p)=>req('GET',p)
-const POST=(p,b)=>req('POST',p,b)
-const PUT=(p,b)=>req('PUT',p,b)
-const PATCH=(p,b)=>req('PATCH',p,b)
-const DEL=(p)=>req('DELETE',p)
-
+const req=async(m,p,b)=>{const r=await fetch(p,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):undefined});if(!r.ok)throw new Error(await r.text());return r.json()}
+const GET=p=>req('GET',p),POST=(p,b)=>req('POST',p,b),PUT=(p,b)=>req('PUT',p,b)
+const PATCH=(p,b)=>req('PATCH',p,b),DEL=p=>req('DELETE',p)
 const today=()=>new Date().toISOString().split('T')[0]
 const now=()=>new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
 
-// ── INIT ───────────────────────────────────────────────────────────
-async function init() {
-  if (tg?.initDataUnsafe?.user) {
-    const u = tg.initDataUnsafe.user
-    try { await POST('/auth/telegram',{telegramId:u.id,name:u.first_name,username:u.username}) } catch{}
+async function init(){
+  if(tg?.initDataUnsafe?.user){
+    const u=tg.initDataUnsafe.user
+    try{await POST('/auth/telegram',{telegramId:u.id,name:u.first_name,username:u.username})}catch{}
   }
-  try {
-    S.user = await GET('/api/user')
-    await loadAll()
-    render()
-  } catch { renderLogin() }
+  try{S.user=await GET('/api/user');await loadAll();render()}catch{renderLogin()}
 }
 
-async function loadAll() {
-  const [subjects, stats, flashcards, chats, schedule] = await Promise.all([
-    GET('/api/subjects'), GET('/api/stats'),
-    GET('/api/flashcards?dueOnly=true'),
-    GET('/api/chat'), GET('/api/schedule?date='+today())
-  ])
-  S.subjects = subjects; S.stats = stats
-  S.flashcards = flashcards; S.fcIdx=0; S.fcRev=false
-  S.chatMsgs = chats.map(c=>({role:c.role,content:c.content,time:''}))
-  S.schedule = schedule
+async function loadAll(){
+  const[a,b,c,d,e]=await Promise.all([GET('/api/subjects'),GET('/api/stats'),GET('/api/flashcards?dueOnly=true'),GET('/api/chat'),GET('/api/schedule?date='+today())])
+  S.subjects=a;S.stats=b;S.flashcards=c;S.fcIdx=0;S.fcRev=false
+  S.chatMsgs=d.map(m=>({role:m.role,content:m.content,time:''}));S.schedule=e
 }
 
-// ── RENDER ─────────────────────────────────────────────────────────
-function render() {
-  const root = document.getElementById('root')
-  root.innerHTML = `
-    <div id="app">
-      ${topbar()}
-      ${sidebar()}
-      <main id="main">${page()}</main>
-      ${mobNav()}
-    </div>
-    ${S.modal ? modal() : ''}
-  `
+function render(){
+  if(!S.user){renderLogin();return}
+  const root=document.getElementById('root')
+  root.innerHTML=(S.tab==='ai'?chatPage():stdPage())+bottomNav()+(S.modal?modal():'')
   afterRender()
 }
 
-function renderLogin() {
-  document.getElementById('root').innerHTML = `
-    <div class="lp"><div class="lc">
-      <div class="l-icon">🧠</div>
-      <div class="l-title">StudyMind</div>
-      <p class="l-sub">Aqlli o'quv assistentingiz. AI bilan gaplash — baho, dars, tahlil hammasi avtomatik.</p>
-      <a href="/auth/google" class="l-btn l-g">
-        <svg width="16" height="16" viewBox="0 0 24 24"><path fill="white" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="white" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="white" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="white" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-        Google bilan kirish
-      </a>
-      <div class="l-or">yoki</div>
-      <button class="l-btn l-t" onclick="loginTG()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-2.012 9.486c-.148.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.48 14.6l-2.95-.924c-.64-.2-.654-.64.135-.948l11.52-4.44c.533-.194 1 .13.377.96z"/></svg>
-        Telegram bilan kirish
-      </button>
-    </div></div>`
+function renderLogin(){
+  document.getElementById('root').innerHTML=`<div class="lp"><div class="lc">
+    <div class="l-icon">🧠</div><div class="l-title">StudyMind</div>
+    <p class="l-sub">Aqlli o'quv assistentingiz. AI bilan gaplash — hammasi avtomatik!</p>
+    <a href="/auth/google" class="l-btn l-g"><svg width="16" height="16" viewBox="0 0 24 24"><path fill="white" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="white" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="white" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="white" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Google bilan kirish</a>
+    <div class="l-or">yoki</div>
+    <button class="l-btn l-t" onclick="loginTG()"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-2.012 9.486c-.148.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.48 14.6l-2.95-.924c-.64-.2-.654-.64.135-.948l11.52-4.44c.533-.194 1 .13.377.96z"/></svg>Telegram bilan kirish</button>
+  </div></div>`
 }
 
-function loginTG() {
-  if (tg?.initDataUnsafe?.user) {
-    const u = tg.initDataUnsafe.user
+function loginTG(){
+  if(tg?.initDataUnsafe?.user){
+    const u=tg.initDataUnsafe.user
     POST('/auth/telegram',{telegramId:u.id,name:u.first_name,username:u.username}).then(()=>init()).catch(()=>alert('Xatolik'))
-  } else { alert('Telegram ichida ishlaydi.') }
+  }else alert('Telegram ichida ishlaydi.')
 }
 
-function topbar() {
-  const u = S.user
-  const init = u?.name?.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()||'SM'
-  const xpNext = nxtLvl(u?.level||1)
-  const xpPct = Math.min(100, Math.round(((u?.xp||0)/xpNext)*100))
-  return `<header id="topbar">
-    <div class="t-logo"><div class="t-logo-i">🧠</div>StudyMind</div>
-    <div class="t-right">
-      <div style="display:flex;align-items:center;gap:4px">
-        <div style="font-size:0.72rem;font-weight:700;color:var(--p);font-family:var(--mono)">Lv.${u?.level||1}</div>
-        <div style="width:60px;height:4px;background:var(--b);border-radius:2px;overflow:hidden">
-          <div style="height:100%;width:${xpPct}%;background:var(--p);border-radius:2px;transition:width 1s ease"></div>
-        </div>
-        <div style="font-size:0.65rem;color:var(--t3);font-family:var(--mono)">${u?.xp||0}xp</div>
-      </div>
-      ${S.stats?.dueCards?`<span class="tag tag-r">🔁${S.stats.dueCards}</span>`:''}
-      <div class="t-av" onclick="openModal('settings')">${u?.avatar?`<img src="${u.avatar}">`:init}</div>
+function bottomNav(){
+  const due=S.stats?.dueCards||0
+  return`<nav id="nav">${TABS.map(t=>`<button class="nb ${S.tab===t.id?'on':''}" onclick="switchTab('${t.id}')"><div class="nb-wrap"><span class="ni">${t.i}</span>${t.id==='flashcards'&&due?`<span class="nb-badge">${due}</span>`:''}</div><span class="nl">${t.l}</span></button>`).join('')}</nav>`
+}
+
+function stdPage(){
+  const u=S.user,xp=nxtLvl(u?.level||1),pct=Math.min(100,Math.round(((u?.xp||0)/xp)*100))
+  const init=(u?.name||'U').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()
+  const titles={home:new Date().getHours()<12?'🌅 Xayrli tong!':new Date().getHours()<17?'☀️ Xayrli kun!':'🌙 Xayrli kech!',subjects:'📚 Fanlar',flashcards:'🔁 Flashcard',more:'⋯ Ko\'proq'}
+  const subs={home:`Lv.${u?.level} · ${u?.xp}xp · 🔥${u?.streak}kun`,subjects:`${S.subjects.length} ta fan`,flashcards:`Bugun: ${S.flashcards.length} ta`,more:'Reja va tahlil'}
+  return`<div class="hdr"><div class="hdr-row"><div><div class="hdr-title">${titles[S.tab]||''}</div><div class="hdr-sub">${subs[S.tab]||''}</div></div><div class="hdr-av" onclick="openModal('settings')">${u?.avatar?`<img src="${u.avatar}">`:init}</div></div></div><div class="xp-bar"><div class="xp-fill" style="width:${pct}%"></div></div><div id="content">${pageCnt()}</div>`
+}
+
+function pageCnt(){
+  switch(S.tab){case'home':return home();case'subjects':return subjects();case'flashcards':return flashcards();case'more':return more()}
+  return''
+}
+
+function chatPage(){
+  return`<div class="chat-shell">
+    <div class="chat-top"><div class="chat-av">🧠</div><div><div class="chat-info-name">StudyMind AI</div><div class="chat-info-st">Online</div></div></div>
+    <div class="chat-tools">
+      <div class="ct" onclick="qp('Bugungi o\\'qishimni tahlil qil')">🔍 Tahlil</div>
+      <div class="ct" onclick="qp('Bugun uchun reja tuz')">📅 Reja</div>
+      <div class="ct" onclick="qp('Zaif fanlarim uchun flashcard yarat')">🔁 Karta</div>
+      ${S.subjects.slice(0,3).map(s=>`<div class="ct" onclick="qp('${s.name} fanidan yordam ber')">${s.emoji}${s.name}</div>`).join('')}
     </div>
-  </header>`
-}
-
-function sidebar() {
-  const u = S.user
-  const xpNext = nxtLvl(u?.level||1)
-  const xpPct = Math.min(100, Math.round(((u?.xp||0)/xpNext)*100))
-  return `<nav id="sidebar">
-    <div class="s-head">
-      <div class="s-user">
-        <div class="s-av">${u?.name?.[0]||'U'}</div>
-        <div style="flex:1;min-width:0">
-          <div class="s-name">${u?.name||''}</div>
-          <div class="s-level">${u?.grade||'O\'quvchi'}</div>
-          <div class="s-xp-bar"><div class="s-xp-fill" style="width:${xpPct}%"></div></div>
-        </div>
-      </div>
+    <div class="chat-msgs" id="cm">
+      ${!S.chatMsgs.length?`<div class="cm a"><div class="cmb">Salom! Men sizning AI murabbiyingizman 🧠<br><br>Shunchaki yozing:<br>• "Matematikadan 85 oldim"<br>• "Fizika tushunmayapman"<br>• "45 daqiqa o'qidim"<br><br>Men o'zim anglab, saqlab, tahlil qilaman!</div></div>`:S.chatMsgs.map(m=>`<div class="cm ${m.role==='user'?'u':'a'}"><div class="cmb">${m.content.replace(/\n/g,'<br>')}</div>${m.time?`<div class="cmt">${m.time}</div>`:''}</div>`).join('')}
+      ${S.aiLoading?`<div class="typing"><span></span><span></span><span></span></div>`:''}
     </div>
-    <div style="padding:0 0.75rem">
-      <div class="s-label">Asosiy</div>
-      ${TABS.map(t=>`<div class="nav-i ${S.tab===t.id?'active':''}" onclick="switchTab('${t.id}')">
-        <span class="ic">${t.ic}</span>${t.l}
-        ${t.id==='flashcards'&&S.stats?.dueCards?`<span class="nav-badge">${S.stats.dueCards}</span>`:''}
-      </div>`).join('')}
-      <div class="dv"></div>
-      <div class="s-label">Reja</div>
-      <div class="nav-i ${S.tab==='schedule'?'active':''}" onclick="switchTab('schedule')">
-        <span class="ic">📅</span>Kun tartibi
-      </div>
-    </div>
-    <div class="s-streak">
-      <div class="s-streak-n">🔥${u?.streak||0}</div>
-      <div class="s-streak-l">kunlik streak</div>
-    </div>
-  </nav>`
-}
-
-function mobNav() {
-  return `<nav id="mob-nav">
-    ${[...TABS,{id:'schedule',ic:'📅',l:'Reja'}].map(t=>`
-      <button class="mn-btn ${S.tab===t.id?'active':''}" onclick="switchTab('${t.id}')">
-        <span class="mn-ic">${t.ic}</span>
-        <span class="mn-l">${t.l}</span>
-      </button>`).join('')}
-  </nav>`
-}
-
-function page() {
-  switch(S.tab) {
-    case 'home': return home()
-    case 'ai': return aiChat()
-    case 'subjects': return subjects()
-    case 'flashcards': return flashcards()
-    case 'insights': return insights()
-    case 'schedule': return schedule()
-    default: return home()
-  }
-}
-
-// ── HOME ──────────────────────────────────────────────────────────
-function home() {
-  const u=S.user, s=S.stats
-  if (!u) return ''
-  const h = new Date().getHours()
-  const gr = h<12?'🌅 Xayrli tong':h<17?'☀️ Xayrli kun':'🌙 Xayrli kech'
-  const weekly = s?.weekly||[]
-  const maxM = Math.max(...weekly.map(d=>d.minutes),1)
-  const days = ['Du','Se','Ch','Pa','Ju','Sh','Ya']
-
-  return `
-    <div class="ph">
-      <div class="ph-title">${gr}, ${u.name}!</div>
-      <div class="ph-sub">Bugun ham bir qadamdan boshlaylik</div>
-    </div>
-
-    ${s?.urgentSubjects?.length?s.urgentSubjects.map(sub=>{
-      const d=Math.ceil((new Date(sub.examDate)-new Date())/86400000)
-      return `<div class="urgent"><span>⚠️</span><div><div style="font-weight:700;font-size:0.82rem">${sub.emoji}${sub.name} — imtihon!</div><div style="font-size:0.7rem;color:var(--red)">${d} kun qoldi</div></div></div>`
-    }).join(''):''}
-
-    <div class="mg">
-      <div class="mc"><div class="mc-icon">📊</div><div class="mc-label">O'rtacha baho</div><div class="mc-val" style="color:var(--p)">${s?.subjects?.length?Math.round(s.subjects.reduce((a,x)=>a+(x.avgGrade||0),0)/s.subjects.length)||'—':'—'}</div><div class="mc-sub">Fanlar bo'yicha</div></div>
-      <div class="mc"><div class="mc-icon">🔥</div><div class="mc-label">Streak</div><div class="mc-val" style="color:#ff9f43">${u.streak}</div><div class="mc-sub">kun uzluksiz</div></div>
-      <div class="mc"><div class="mc-icon">⏱</div><div class="mc-label">Jami o'qish</div><div class="mc-val" style="color:var(--teal)">${u.totalStudyMinutes}</div><div class="mc-sub">daqiqa</div></div>
-      <div class="mc"><div class="mc-icon">✅</div><div class="mc-label">Bugun</div><div class="mc-val" style="color:var(--amber)">${s?.doneTasks||0}/${s?.todayTasks||0}</div><div class="mc-sub">vazifa</div></div>
-    </div>
-
-    <div class="g2">
-      <div>
-        ${s?.lastInsight?.summary?`<div class="ai-bubble"><p>${s.lastInsight.summary}</p></div>`:`<div class="ai-bubble"><p>🧠 AI bilan gaplash — baholaringiz, o'qishingiz avtomatik saqlanadi. "AI" bo'limini bosing!</p></div>`}
-        <div class="card">
-          <div class="card-t">📈 Haftalik o'qish</div>
-          <div class="bar-chart">
-            ${weekly.map((d,i)=>{
-              const h=Math.max(3,Math.round((d.minutes/maxM)*65))
-              return `<div class="bc-col">
-                <div class="bc-bar" style="height:${h}px;background:${d.minutes>0?'var(--p)':'var(--b)'}"></div>
-                <div class="bc-l">${days[i]}</div>
-              </div>`
-            }).join('')}
-          </div>
-        </div>
-      </div>
-      <div>
-        <div class="card">
-          <div class="card-t">📚 Fanlar <button class="btn btn-sm btn-p" onclick="switchTab('subjects')">+</button></div>
-          ${s?.subjects?.slice(0,4).map(sub=>`
-            <div style="margin-bottom:0.65rem">
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
-                <span style="font-size:0.78rem;font-weight:500">${sub.emoji}${sub.name}</span>
-                <span style="font-size:0.72rem;font-weight:700;font-family:var(--mono);color:${(sub.avgGrade||0)>=70?'var(--teal)':(sub.avgGrade||0)>=50?'var(--amber)':'var(--red)'}">${sub.avgGrade||'—'}</span>
-              </div>
-              <div class="btrack"><div class="bfill" style="width:${sub.progress||0}%;background:${sub.color}"></div></div>
-            </div>`).join('')||'<div class="empty" style="padding:1rem">Fan qo\'shing</div>'}
-        </div>
-        <div class="card">
-          <div class="card-t">📅 Bugungi reja <button class="btn btn-sm btn-p" onclick="genPlan()">AI reja</button></div>
-          ${S.schedule.slice(0,4).map(item=>`
-            <div class="si">
-              <div class="si-cb ${item.isDone?'done':''}" onclick="toggleSched('${item._id}',${!item.isDone})">${item.isDone?'✓':''}</div>
-              <div class="si-title ${item.isDone?'done':''}">${item.title}</div>
-              ${item.time?`<div class="si-time">${item.time}</div>`:''}
-            </div>`).join('')||`<div class="empty" style="padding:1rem">Reja yo'q</div>`}
-        </div>
-      </div>
-    </div>`
-}
-
-// ── AI CHAT ───────────────────────────────────────────────────────
-function aiChat() {
-  return `
-    <div class="ph">
-      <div class="ph-title">🧠 AI Murabbiy</div>
-      <div class="ph-sub">Gaplash — AI o'zi anglaydi va saqlaydi</div>
-    </div>
-    <div class="chat-wrap">
-      <div class="chat-top">
-        <div class="chat-ai-name">🧠 StudyMind AI</div>
-        <div class="chat-status">Online</div>
-      </div>
-      <div class="chat-tools">
-        <div class="ctool" onclick="qp('Bugungi o\'qishimni tahlil qil')">🔍 Tahlil</div>
-        <div class="ctool" onclick="qp('Bugun uchun o\'quv rejasi tuz')">📅 Reja</div>
-        <div class="ctool" onclick="qp('Eng zaif fanim uchun flashcard yarat')">🔁 Flashcard</div>
-        <div class="ctool" onclick="openModal('summarize')">📝 Xulosa</div>
-        ${S.subjects.slice(0,3).map(s=>`<div class="ctool" onclick="qp('${s.name} fanidan yordam ber')">${s.emoji}${s.name}</div>`).join('')}
-      </div>
-      <div class="chat-msgs" id="cm">
-        ${!S.chatMsgs.length?`<div class="msg ai"><div class="msg-b">Salom! Men sizning shaxsiy o'quv murabbiyingizman 🧠<br><br>Menga shunchaki yozing:<br>• "Bugun matematikadan 78 oldim"<br>• "Fizika tushunmayapman"<br>• "45 daqiqa o'qidim"<br><br>Men o'zim anglab, saqlab, tahlil qilaman!</div></div>`:''}
-        ${S.chatMsgs.map(m=>`<div class="msg ${m.role}">
-          <div class="msg-b">${m.content.replace(/\n/g,'<br>')}</div>
-          ${m.time?`<div class="msg-t">${m.time}</div>`:''}
-        </div>`).join('')}
-        ${S.aiLoading?`<div class="typing"><span></span><span></span><span></span></div>`:''}
-      </div>
-      <div class="chat-bar">
-        <div class="chat-row">
-          <textarea class="chat-ta" id="ci" placeholder="Yozing... (bahongiz, o'qish vaqtingiz, savollar)" rows="1" onkeydown="chatKey(event)" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
-          <button class="send-btn" onclick="sendChat()" ${S.aiLoading?'disabled':''}>➤</button>
-        </div>
-      </div>
-    </div>`
-}
-
-// ── SUBJECTS ─────────────────────────────────────────────────────
-function subjects() {
-  return `
-    <div class="ph"><div class="ph-title">📚 Fanlar</div></div>
-    <div style="margin-bottom:1rem;display:flex;gap:0.5rem">
-      <button class="btn btn-p btn-sm" onclick="openModal('addSubject')">+ Fan qo'shish</button>
-    </div>
-    ${S.subjects.map(s=>`
-      <div class="sc" style="">
-        <style>.sc::before{background:${s.color}}</style>
-        <div class="sc-top">
-          <div class="sc-left">
-            <span class="sc-emoji">${s.emoji}</span>
-            <div>
-              <div class="sc-name">${s.name}</div>
-              <div class="sc-type">${s.gradeHistory?.length||0} ta baho kiritilgan</div>
-            </div>
-          </div>
-          <div class="sc-avg" style="color:${s.color}">${s.avgGrade||'—'}</div>
-        </div>
-        <div class="btrack"><div class="bfill" style="width:${s.progress||0}%;background:${s.color}"></div></div>
-        <div class="sc-meta">
-          <span>O'rtacha: ${s.avgGrade||'—'}</span>
-          ${s.examDate?`<span style="color:${Math.ceil((new Date(s.examDate)-new Date())/86400000)<=7?'var(--red)':'var(--t2)'}">📅 ${Math.ceil((new Date(s.examDate)-new Date())/86400000)} kun</span>`:''}
-        </div>
-        <div style="display:flex;gap:5px;margin-top:0.5rem">
-          <button class="bt p" onclick="qpAndSwitch('${s.name} fanidan test yoki flashcard yarat','ai')">🧠 AI bilan o'qi</button>
-          <button class="bt" style="color:var(--red)" onclick="delSubject('${s._id}')">🗑</button>
-        </div>
-        ${s.weakTopics?.length?`<div style="margin-top:0.4rem;font-size:0.68rem;color:var(--red)">⚠️ Zaif: ${s.weakTopics.join(', ')}</div>`:''}
-        ${s.gradeHistory?.length?`<div style="margin-top:0.4rem;font-size:0.68rem;color:var(--t2)">Baholar: ${s.gradeHistory.slice(-5).map(g=>`<span style="font-family:var(--mono);color:${g.score>=70?'var(--teal)':g.score>=50?'var(--amber)':'var(--red)'}">${g.score}</span>`).join(' ')}</div>`:''}
-      </div>`).join('')}
-    ${!S.subjects.length?`<div class="empty"><div class="empty-i">📚</div><div>Fan qo'shing — AI baholaringizni o'zi saqlab boradi</div></div>`:''}
-  `
-}
-
-// ── FLASHCARDS ───────────────────────────────────────────────────
-function flashcards() {
-  const cards=S.flashcards, card=cards[S.fcIdx]
-  return `
-    <div class="ph"><div class="ph-title">🔁 Flashcard</div><div class="ph-sub">Spaced repetition — bugun: ${cards.length} ta</div></div>
-    <div style="margin-bottom:1rem;display:flex;gap:0.5rem">
-      <button class="btn btn-p btn-sm" onclick="openModal('addFlashcard')">+ Qo'shish</button>
-      <button class="btn btn-s btn-sm" onclick="aiFlashcard()">🧠 AI yaratsin</button>
-    </div>
-    ${!cards.length?`<div class="empty"><div class="empty-i">✅</div><div>Bugungi kartalar bajarildi!<br><span style="font-size:0.72rem">AI bilan gaplashib yangi kartalar yaratasiz</span></div></div>`:`
-      <div style="text-align:center;font-size:0.75rem;color:var(--t2);margin-bottom:0.65rem">${S.fcIdx+1} / ${cards.length}</div>
-      <div class="fc ${S.fcRev?'rev':''}" onclick="revFC()">
-        <div class="fc-f">${card?.front||''}</div>
-        ${S.fcRev?`<div class="dv" style="width:100%"></div><div class="fc-b">${card?.back||''}</div>`:''}
-        ${!S.fcRev?'<div class="fc-h">👆 Ko\'rish uchun bosing</div>':''}
-      </div>
-      ${S.fcRev?`<div class="fc-btns">
-        <button class="fcb a" onclick="reviewFC(0)">🔴 Qayta</button>
-        <button class="fcb h" onclick="reviewFC(2)">🟡 Qiyin</button>
-        <button class="fcb g" onclick="reviewFC(3)">🟢 Yaxshi</button>
-        <button class="fcb e" onclick="reviewFC(5)">⚡ Oson</button>
-      </div>`:''}
-    `}
-  `
-}
-
-// ── SCHEDULE ─────────────────────────────────────────────────────
-function schedule() {
-  const done=S.schedule.filter(s=>s.isDone).length
-  return `
-    <div class="ph"><div class="ph-title">📅 Kun tartibi</div><div class="ph-sub">Bugun: ${done}/${S.schedule.length} bajarildi</div></div>
-    <div style="margin-bottom:1rem;display:flex;gap:0.5rem">
-      <button class="btn btn-p btn-sm" onclick="openModal('addSchedule')">+ Qo'shish</button>
-      <button class="btn btn-s btn-sm" onclick="genPlan()">🧠 AI reja</button>
-    </div>
-    <div class="card">
-      ${S.schedule.map(item=>`
-        <div class="si">
-          <div class="si-cb ${item.isDone?'done':''}" onclick="toggleSched('${item._id}',${!item.isDone})">${item.isDone?'✓':''}</div>
-          <div style="flex:1">
-            <div class="si-title ${item.isDone?'done':''}">${item.title}</div>
-            ${item.subjectName?`<div style="font-size:0.65rem;color:var(--t2)">${item.subjectName}</div>`:''}
-          </div>
-          ${item.time?`<div class="si-time">${item.time}</div>`:''}
-          ${item.aiGenerated?`<span class="tag tag-p" style="margin-left:4px">AI</span>`:''}
-          <button class="bt" style="color:var(--red);font-size:0.65rem" onclick="delSched('${item._id}')">×</button>
-        </div>`).join('')}
-      ${!S.schedule.length?'<div class="empty">Reja yo\'q</div>':''}
-    </div>`
-}
-
-// ── INSIGHTS ─────────────────────────────────────────────────────
-function insights() {
-  const ins=S.insights[0]
-  return `
-    <div class="ph"><div class="ph-title">🔍 AI Tahlil</div><div class="ph-sub">Haftalik xulosa va tavsiyalar</div></div>
-    <button class="btn btn-p" style="margin-bottom:1rem" onclick="genInsight()">🧠 Tahlil qilish</button>
-    ${ins?`
-      <div class="card">
-        <div class="card-t">📋 Xulosa</div>
-        <div class="ai-bubble"><p>${ins.summary}</p></div>
-        <div style="margin-bottom:0.75rem">
-          <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--t2);margin-bottom:5px">✅ Kuchli tomonlar</div>
-          ${(ins.strengths||[]).map(s=>`<span class="ins-chip ins-s">✓ ${s}</span>`).join('')}
-        </div>
-        <div style="margin-bottom:0.75rem">
-          <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--t2);margin-bottom:5px">⚠️ Zaif tomonlar</div>
-          ${(ins.weaknesses||[]).map(w=>`<span class="ins-chip ins-w">! ${w}</span>`).join('')}
-        </div>
-        <div>
-          <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--t2);margin-bottom:5px">💡 Tavsiyalar</div>
-          ${(ins.recommendations||[]).map(r=>`<span class="ins-chip ins-r">→ ${r}</span>`).join('')}
-        </div>
-        ${ins.learningStyle?`<div style="margin-top:0.75rem;font-size:0.78rem"><strong>O'qish uslubi:</strong> ${ins.learningStyle}</div>`:''}
-        ${ins.bestStudyTime?`<div style="font-size:0.78rem"><strong>Eng yaxshi vaqt:</strong> ${ins.bestStudyTime}</div>`:''}
-      </div>
-    `:`<div class="empty"><div class="empty-i">🔍</div><div>AI bilan ko'proq gaplashib, keyin tahlil qiling</div></div>`}
-  `
-}
-
-// ── MODALS ────────────────────────────────────────────────────────
-function modal() {
-  const map = {
-    addSubject:['Fan qo\'shish', addSubjectM()],
-    addFlashcard:['Karta qo\'shish', addFlashcardM()],
-    addSchedule:['Vazifa qo\'shish', addScheduleM()],
-    summarize:['Xulosa chiqarish', summarizeM()],
-    settings:['Sozlamalar', settingsM()],
-  }
-  const [t,c] = map[S.modal]||['','']
-  return `<div class="modal-bg" onclick="if(event.target===this)closeModal()">
-    <div class="modal"><div class="mh"></div><div class="mt">${t}</div>${c}</div>
+    <div class="chat-input"><div class="chat-input-row"><textarea class="ci" id="ci" placeholder="Yozing..." rows="1" onkeydown="chatKey(event)" oninput="autosize(this)"></textarea><button class="send" onclick="sendChat()" ${S.aiLoading?'disabled':''}>➤</button></div></div>
   </div>`
 }
 
-function addSubjectM() {
-  const ns=S.ns
-  return `
-    <div class="field"><label>Fan nomi *</label><input value="${ns.name}" oninput="S.ns.name=this.value" placeholder="Matematika"></div>
-    <div class="field"><label>Emoji</label><div class="emoji-g">${EMOJIS.map(e=>`<div class="eo ${ns.emoji===e?'sel':''}" onclick="S.ns.emoji='${e}';render()">${e}</div>`).join('')}</div></div>
-    <div class="field"><label>Rang</label><div class="colors">${COLORS.map(c=>`<div class="co ${ns.color===c?'sel':''}" style="background:${c}" onclick="S.ns.color='${c}';render()"></div>`).join('')}</div></div>
-    <div class="field"><label>Imtihon sanasi</label><input type="date" value="${ns.examDate}" oninput="S.ns.examDate=this.value"></div>
-    <button class="btn btn-p btn-f" onclick="saveSubject()">Saqlash</button>
-    <button class="btn btn-s btn-f" style="margin-top:0.4rem" onclick="closeModal()">Bekor</button>`
+function home(){
+  const s=S.stats,u=S.user,w=s?.weekly||[],mx=Math.max(...w.map(d=>d.minutes),1)
+  return`
+    ${s?.urgentSubjects?.length?s.urgentSubjects.map(x=>`<div class="urgent">⚠️ <div><b>${x.emoji}${x.name}</b> — ${Math.ceil((new Date(x.examDate)-new Date())/86400000)} kun!</div></div>`).join(''):''}
+    <div class="streak"><span style="font-size:20px">🔥</span><div><div style="font-size:16px;font-weight:800">${u?.streak||0} kunlik streak!</div><div style="font-size:11px;opacity:.85">Davom et, zo'r!</div></div></div>
+    <div class="mrow">
+      <div class="mc"><div class="mc-n" style="color:var(--p)">${s?.subjects?.filter(x=>x.avgGrade>0).length?Math.round(s.subjects.filter(x=>x.avgGrade>0).reduce((a,x)=>a+x.avgGrade,0)/s.subjects.filter(x=>x.avgGrade>0).length)||'—':'—'}</div><div class="mc-l">O'rtacha baho</div></div>
+      <div class="mc"><div class="mc-n" style="color:var(--teal)">${u?.totalStudyMinutes||0}</div><div class="mc-l">Jami daqiqa</div></div>
+      <div class="mc"><div class="mc-n" style="color:var(--amber)">${s?.doneTasks||0}/${s?.todayTasks||0}</div><div class="mc-l">Bugun vazifa</div></div>
+      <div class="mc"><div class="mc-n" style="color:var(--red)">${s?.dueCards||0}</div><div class="mc-l">Kartalar</div></div>
+    </div>
+    ${s?.lastInsight?.summary?`<div class="ai-bub">${s.lastInsight.summary}</div>`:`<div class="ai-bub">🧠 AI bilan gaplash — baholaringiz avtomatik saqlanadi!</div>`}
+    <div class="sec-title">📈 Haftalik o'qish</div>
+    <div class="card card-p"><div class="wchart">${w.map((d,i)=>{const h=Math.max(3,Math.round((d.minutes/mx)*72));return`<div class="wc"><div class="wb" style="height:${h}px;background:${d.minutes>0?'var(--p)':'var(--b)'}"></div><div class="wl">${DAYS[i]}</div></div>`}).join('')}</div></div>
+    <div class="sec-title">📅 Bugungi reja</div>
+    <div class="card card-p">
+      ${S.schedule.slice(0,4).map(x=>`<div class="si"><div class="si-cb ${x.isDone?'done':''}" onclick="toggleSched('${x._id}',${!x.isDone})">${x.isDone?'✓':''}</div><div style="flex:1"><div class="si-title ${x.isDone?'done':''}">${x.title}</div>${x.subjectName?`<div class="si-sub">${x.subjectName}</div>`:''}</div>${x.time?`<div class="si-time">${x.time}</div>`:''}</div>`).join('')||`<div style="text-align:center;padding:16px;color:var(--t2);font-size:13px">Reja yo'q</div>`}
+      <div style="margin-top:10px;display:flex;gap:8px"><button class="btn-sm p" onclick="genPlan()">🧠 AI reja</button><button class="btn-sm s" onclick="openModal('addSchedule')">+ Qo'shish</button></div>
+    </div>
+    <div style="height:20px"></div>`
 }
 
-function addFlashcardM() {
-  return `
-    <div class="field"><label>Fan</label><select onchange="S.nf.subjectId=this.value"><option value="">Tanlang</option>${S.subjects.map(s=>`<option value="${s._id}">${s.emoji}${s.name}</option>`).join('')}</select></div>
+function subjects(){
+  return`<div style="padding:12px 12px 4px"><button class="btn-sm p" onclick="openModal('addSubject')">+ Fan qo'shish</button></div>
+    ${S.subjects.map(s=>`<div class="sc"><div class="sc-bar" style="background:${s.color}"></div><div class="sc-body"><div class="sc-row"><span class="sc-emoji">${s.emoji}</span><div style="flex:1"><div class="sc-name">${s.name}</div><div style="font-size:11px;color:var(--t2)">${s.gradeHistory?.length||0} ta baho</div></div><div class="sc-avg" style="color:${s.color}">${s.avgGrade||'—'}</div></div><div class="sc-prog"><div class="sc-pfill" style="width:${s.progress||0}%;background:${s.color}"></div></div><div class="sc-meta"><span>${s.gradeHistory?.slice(-4).map(g=>`<span style="color:${g.score>=70?'var(--teal)':g.score>=50?'var(--amber)':'var(--red)'}">${g.score}</span>`).join(' ')||'—'}</span>${s.examDate?`<span style="color:${Math.ceil((new Date(s.examDate)-new Date())/86400000)<=7?'var(--red)':'var(--t2)'}">📅 ${Math.ceil((new Date(s.examDate)-new Date())/86400000)}k</span>`:''}</div><div class="sc-btns"><button class="scb p" onclick="qpGo('${s.name} fanidan yordam ber va zaif mavzularimni tahlil qil')">🧠 AI</button><button class="scb r" onclick="delSubject('${s._id}')">🗑</button></div></div></div>`).join('')}
+    ${!S.subjects.length?`<div class="empty"><div class="empty-i">📚</div><div>Fan qo'shing</div></div>`:''}
+    <div style="height:20px"></div>`
+}
+
+function flashcards(){
+  const cards=S.flashcards,card=cards[S.fcIdx]
+  return`<div style="padding:12px 12px 4px;display:flex;gap:8px"><button class="btn-sm p" onclick="openModal('addFlashcard')">+ Qo'shish</button><button class="btn-sm s" onclick="aiFC()">🧠 AI yaratsin</button></div>
+    ${!cards.length?`<div class="empty"><div class="empty-i">✅</div><div>Bugungi kartalar bajarildi!</div></div>`:
+    `<div style="text-align:center;font-size:12px;color:var(--t2);padding:10px 0">${S.fcIdx+1} / ${cards.length}</div>
+    <div class="fc ${S.fcRev?'rev':''}" onclick="revFC()"><div class="fc-f">${card?.front||''}</div>${S.fcRev?`<div class="dv" style="width:100%;margin:10px 0"></div><div class="fc-b">${card?.back||''}</div>`:`<div class="fc-h">👆 Ko'rish uchun bosing</div>`}</div>
+    ${S.fcRev?`<div class="fc-rating"><button class="fr a" onclick="reviewFC(0)">🔴 Qayta</button><button class="fr h" onclick="reviewFC(2)">🟡 Qiyin</button><button class="fr g" onclick="reviewFC(3)">🟢 Yaxshi</button><button class="fr e" onclick="reviewFC(5)">⚡ Oson</button></div>`:''}`}
+    <div style="height:20px"></div>`
+}
+
+function more(){
+  const ins=S.insights[0]
+  return`
+    <div class="sec-title">📅 Kun tartibi</div>
+    <div class="card card-p">
+      ${S.schedule.map(x=>`<div class="si"><div class="si-cb ${x.isDone?'done':''}" onclick="toggleSched('${x._id}',${!x.isDone})">${x.isDone?'✓':''}</div><div style="flex:1"><div class="si-title ${x.isDone?'done':''}">${x.title}</div>${x.subjectName?`<div class="si-sub">${x.subjectName}</div>`:''}</div>${x.time?`<div class="si-time">${x.time}</div>`:''}<button style="background:none;border:none;color:var(--t3);font-size:16px;cursor:pointer" onclick="delSched('${x._id}')">×</button></div>`).join('')||`<div style="text-align:center;padding:16px;color:var(--t2);font-size:13px">Reja yo'q</div>`}
+      <div style="margin-top:10px;display:flex;gap:8px"><button class="btn-sm p" onclick="genPlan()">🧠 AI reja</button><button class="btn-sm s" onclick="openModal('addSchedule')">+ Qo'shish</button></div>
+    </div>
+    <div class="sec-title">🔍 AI Tahlil</div>
+    <div class="card card-p">
+      ${ins?`<div class="ai-bub" style="margin:0 0 12px">${ins.summary}</div>${(ins.strengths||[]).map(s=>`<span class="ic s">✓ ${s}</span>`).join('')}${(ins.weaknesses||[]).map(w=>`<span class="ic w">! ${w}</span>`).join('')}`:`<div style="color:var(--t2);font-size:13px;text-align:center;padding:10px 0">AI bilan gaplashib tahlil qiling</div>`}
+      <div style="margin-top:10px"><button class="btn-sm p" onclick="genInsight()">🧠 Tahlil qilish</button></div>
+    </div>
+    <div class="sec-title">⚙️ Sozlamalar</div>
+    <div class="card card-p">
+      <div style="font-size:13px;color:var(--t2);margin-bottom:10px">${S.user?.name} · ${S.user?.grade||'Sinf belgilanmagan'}</div>
+      <div style="display:flex;gap:8px"><button class="btn-sm s" onclick="openModal('settings')">✏️ Tahrirlash</button><button class="btn-sm" style="background:var(--rl);color:var(--red);border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--fn)" onclick="logout()">Chiqish</button></div>
+    </div>
+    <div style="height:20px"></div>`
+}
+
+function modal(){
+  const map={addSubject:['Fan qo\'shish',mSubject()],addFlashcard:['Karta qo\'shish',mFC()],addSchedule:['Vazifa',mSched()],settings:['Sozlamalar',mSettings()]}
+  const[t,c]=map[S.modal]||['','']
+  return`<div class="mbg" onclick="if(event.target===this)closeModal()"><div class="modal"><div class="modal-inner"><div class="mhandle"></div><div class="mt">${t}</div>${c}</div></div></div>`
+}
+
+function mSubject(){
+  const n=S.ns
+  return`<div class="field"><label>Fan nomi *</label><input value="${n.name}" oninput="S.ns.name=this.value" placeholder="Matematika"></div>
+    <div class="field"><label>Emoji</label><div class="emoji-g">${EMOJIS.map(e=>`<div class="eo ${n.emoji===e?'sel':''}" onclick="S.ns.emoji='${e}';render()">${e}</div>`).join('')}</div></div>
+    <div class="field"><label>Rang</label><div class="clrs">${COLORS.map(c=>`<div class="co ${n.color===c?'sel':''}" style="background:${c}" onclick="S.ns.color='${c}';render()"></div>`).join('')}</div></div>
+    <div class="field"><label>Imtihon sanasi</label><input type="date" value="${n.examDate}" oninput="S.ns.examDate=this.value"></div>
+    <button class="btn btn-p" onclick="saveSubject()">Saqlash</button><button class="btn btn-s" onclick="closeModal()">Bekor</button>`
+}
+
+function mFC(){
+  return`<div class="field"><label>Fan</label><select onchange="S.nf.subjectId=this.value"><option value="">—</option>${S.subjects.map(s=>`<option value="${s._id}">${s.emoji}${s.name}</option>`).join('')}</select></div>
     <div class="field"><label>Savol *</label><textarea rows="3" oninput="S.nf.front=this.value" placeholder="Savol..."></textarea></div>
     <div class="field"><label>Javob *</label><textarea rows="3" oninput="S.nf.back=this.value" placeholder="Javob..."></textarea></div>
-    <button class="btn btn-p btn-f" onclick="saveFlashcard()">Saqlash</button>
-    <button class="btn btn-s btn-f" style="margin-top:0.4rem" onclick="closeModal()">Bekor</button>`
+    <button class="btn btn-p" onclick="saveFlashcard()">Saqlash</button><button class="btn btn-s" onclick="closeModal()">Bekor</button>`
 }
 
-function addScheduleM() {
-  return `
-    <div class="field"><label>Vazifa *</label><input oninput="S.nsc.title=this.value" placeholder="Matematika darsiga tayyorlanish"></div>
-    <div class="field"><label>Fan (ixtiyoriy)</label><select onchange="S.nsc.subjectName=this.options[this.selectedIndex].text"><option value="">—</option>${S.subjects.map(s=>`<option>${s.emoji}${s.name}</option>`).join('')}</select></div>
+function mSched(){
+  return`<div class="field"><label>Vazifa *</label><input oninput="S.nsc.title=this.value" placeholder="Matematika darsiga tayyorlanish"></div>
     <div class="field"><label>Vaqt</label><input type="time" oninput="S.nsc.time=this.value"></div>
-    <button class="btn btn-p btn-f" onclick="saveSched()">Saqlash</button>
-    <button class="btn btn-s btn-f" style="margin-top:0.4rem" onclick="closeModal()">Bekor</button>`
+    <button class="btn btn-p" onclick="saveSched()">Saqlash</button><button class="btn btn-s" onclick="closeModal()">Bekor</button>`
 }
 
-function summarizeM() {
-  return `
-    <div class="field"><label>Konspektingizni yozing</label><textarea id="sum-in" rows="6" placeholder="Matn..." oninput="S.notesText=this.value"></textarea></div>
-    <button class="btn btn-p btn-f" onclick="doSummarize()">🧠 Xulosa</button>
-    <div id="sum-res" style="margin-top:0.75rem;font-size:0.8rem;line-height:1.7"></div>
-    <button class="btn btn-s btn-f" style="margin-top:0.4rem" onclick="closeModal()">Yopish</button>`
-}
-
-function settingsM() {
+function mSettings(){
   const u=S.user
-  return `
-    <div style="text-align:center;margin-bottom:1.25rem">
-      <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--teal));display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700;color:white;margin:0 auto 0.65rem">${u?.avatar?`<img src="${u.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:u?.name?.[0]||'U'}</div>
-      <div style="font-weight:700">${u?.name}</div>
-      <div style="color:var(--t2);font-size:0.75rem">${u?.email||'Telegram foydalanuvchi'}</div>
-    </div>
-    <div class="field"><label>Sinf / Kurs</label><input value="${u?.grade||''}" placeholder="11-sinf" oninput="updUser('grade',this.value)"></div>
-    <div class="field"><label>Maktab</label><input value="${u?.school||''}" placeholder="Maktab nomi" oninput="updUser('school',this.value)"></div>
-    <div class="field"><label>Til</label><select onchange="updUser('lang',this.value)"><option value="uz" ${u?.lang==='uz'?'selected':''}>🇺🇿 O'zbek</option><option value="ru" ${u?.lang==='ru'?'selected':''}>🇷🇺 Русский</option><option value="en" ${u?.lang==='en'?'selected':''}>🇬🇧 English</option></select></div>
-    <button class="btn btn-d btn-f" onclick="logout()">Chiqish</button>
-    <button class="btn btn-s btn-f" style="margin-top:0.4rem" onclick="closeModal()">Yopish</button>`
+  return`<div class="field"><label>Ism</label><input value="${u?.name||''}" oninput="upd('name',this.value)"></div>
+    <div class="field"><label>Sinf</label><input value="${u?.grade||''}" placeholder="11-sinf" oninput="upd('grade',this.value)"></div>
+    <div class="field"><label>Maktab</label><input value="${u?.school||''}" oninput="upd('school',this.value)"></div>
+    <div class="field"><label>Til</label><select onchange="upd('lang',this.value)"><option value="uz" ${u?.lang==='uz'?'selected':''}>🇺🇿 O'zbek</option><option value="ru" ${u?.lang==='ru'?'selected':''}>🇷🇺 Русский</option><option value="en" ${u?.lang==='en'?'selected':''}>🇬🇧 English</option></select></div>
+    <button class="btn btn-p" onclick="closeModal()">Saqlash</button>
+    <button class="btn btn-s" style="background:var(--rl);color:var(--red);border:none" onclick="logout()">Chiqish</button>`
 }
 
-// ── ACTIONS ───────────────────────────────────────────────────────
-function switchTab(t){S.tab=t;render();document.getElementById('main')?.scrollTo({top:0})}
-function openModal(t){S.modal=t;if(t==='addSubject')S.ns={name:'',emoji:'📚',color:'#5b4cf5',examDate:''};if(t==='addFlashcard')S.nf={front:'',back:'',subjectId:''};if(t==='addSchedule')S.nsc={title:'',subjectName:'',time:'',date:''};render()}
+function switchTab(t){S.tab=t;render();document.getElementById('content')?.scrollTo({top:0})}
+function openModal(t,d){S.modal=t;S.modalData=d;if(t==='addSubject')S.ns={name:'',emoji:'📚',color:'#5b4cf5',examDate:''};if(t==='addFlashcard')S.nf={front:'',back:'',subjectId:''};if(t==='addSchedule')S.nsc={title:'',time:''};render()}
 function closeModal(){S.modal=null;render()}
 
-async function saveSubject() {
-  if (!S.ns.name.trim()) return alert('Fan nomi kiriting')
-  try {
-    const s=await POST('/api/subjects',S.ns); S.subjects.push(s); closeModal()
-  } catch(e){alert(e.message)}
-}
-
-async function delSubject(id) {
-  if (!confirm('O\'chirilsinmi?')) return
-  await DEL('/api/subjects/'+id); S.subjects=S.subjects.filter(s=>s._id!==id); render()
-}
-
-async function saveFlashcard() {
-  if (!S.nf.front||!S.nf.back) return alert('Savol va javob kiriting')
-  await POST('/api/flashcards',S.nf)
-  S.flashcards=await GET('/api/flashcards?dueOnly=true'); S.fcIdx=0; S.fcRev=false; closeModal()
-}
-
-async function aiFlashcard() {
-  const s=S.subjects[0]
-  if (!s) return alert('Avval fan qo\'shing')
-  showToast('⏳ AI karta yaratmoqda...')
-  const {cards}=await POST('/api/chat/flashcard',{subjectId:s._id,topic:s.name})
-  S.flashcards=await GET('/api/flashcards?dueOnly=true'); S.fcIdx=0; S.fcRev=false
-  showToast(`✅ ${cards.length} ta karta yaratildi!`); render()
-}
-
+async function saveSubject(){if(!S.ns.name.trim())return alert('Fan nomi kiriting');try{S.subjects.push(await POST('/api/subjects',S.ns));closeModal()}catch(e){alert(e.message)}}
+async function delSubject(id){if(!confirm('O\'chirilsinmi?'))return;await DEL('/api/subjects/'+id);S.subjects=S.subjects.filter(s=>s._id!==id);render()}
+async function saveFlashcard(){if(!S.nf.front||!S.nf.back)return alert('Savol va javob kiriting');await POST('/api/flashcards',S.nf);S.flashcards=await GET('/api/flashcards?dueOnly=true');S.fcIdx=0;S.fcRev=false;closeModal()}
+async function aiFC(){const s=S.subjects[0];if(!s)return alert('Fan qo\'shing');toast('⏳ AI karta yaratmoqda...');try{await POST('/api/chat/flashcard',{subjectId:s._id,topic:s.name});S.flashcards=await GET('/api/flashcards?dueOnly=true');S.fcIdx=0;S.fcRev=false;toast('✅ Kartalar tayyor!');render()}catch{toast('❌ Xatolik')}}
 function revFC(){S.fcRev=true;render()}
+async function reviewFC(q){const c=S.flashcards[S.fcIdx];if(!c)return;await POST('/api/flashcards/'+c._id+'/review',{quality:q});S.fcIdx++;S.fcRev=false;if(S.fcIdx>=S.flashcards.length){S.flashcards=await GET('/api/flashcards?dueOnly=true');S.fcIdx=0}render()}
+async function saveSched(){if(!S.nsc.title)return alert('Nomi kiriting');S.schedule.push(await POST('/api/schedule',{...S.nsc,date:today()}));closeModal()}
+async function toggleSched(id,done){await PATCH('/api/schedule/'+id,{isDone:done});const s=S.schedule.find(s=>s._id===id);if(s)s.isDone=done;render()}
+async function delSched(id){await DEL('/api/schedule/'+id);S.schedule=S.schedule.filter(s=>s._id!==id);render()}
+async function genPlan(){toast('⏳ AI reja...');try{const{schedule}=await POST('/api/chat/daily-plan',{});S.schedule=[...S.schedule,...schedule];render();toast('✅ Tayyor!')}catch{toast('❌ Xatolik')}}
+async function genInsight(){toast('⏳ Tahlil...');try{S.insights=[await POST('/api/chat/insight',{})];render()}catch{toast('❌ Xatolik')}}
 
-async function reviewFC(q) {
-  const card=S.flashcards[S.fcIdx]; if(!card) return
-  await POST(`/api/flashcards/${card._id}/review`,{quality:q})
-  S.fcIdx++; S.fcRev=false
-  if (S.fcIdx>=S.flashcards.length) { S.flashcards=await GET('/api/flashcards?dueOnly=true'); S.fcIdx=0 }
-  render()
-}
-
-async function saveSched() {
-  if (!S.nsc.title) return alert('Nomi kiriting')
-  const s=await POST('/api/schedule',{...S.nsc,date:today()}); S.schedule.push(s); closeModal()
-}
-
-async function toggleSched(id,done) {
-  await PATCH('/api/schedule/'+id,{isDone:done})
-  const s=S.schedule.find(s=>s._id===id); if(s) s.isDone=done; render()
-}
-
-async function delSched(id) {
-  await DEL('/api/schedule/'+id); S.schedule=S.schedule.filter(s=>s._id!==id); render()
-}
-
-async function genPlan() {
-  showToast('⏳ AI reja tuzmoqda...')
-  const {schedule}=await POST('/api/chat/daily-plan',{})
-  S.schedule=[...S.schedule,...schedule]; render()
-  showToast('✅ Reja tayyor!')
-}
-
-async function sendChat() {
-  const inp=document.getElementById('ci')
-  const msg=inp?.value?.trim(); if(!msg||S.aiLoading) return
-  S.chatMsgs.push({role:'user',content:msg,time:now()}); inp.value=''
-  S.aiLoading=true; render(); scrollChat()
-  try {
-    const {reply}=await POST('/api/chat',{message:msg})
+async function sendChat(){
+  const inp=document.getElementById('ci'),msg=inp?.value?.trim()
+  if(!msg||S.aiLoading)return
+  S.chatMsgs.push({role:'user',content:msg,time:now()});inp.value='';if(inp)inp.style.height='auto'
+  S.aiLoading=true;render();scrollChat()
+  try{
+    const{reply}=await POST('/api/chat',{message:msg})
     S.chatMsgs.push({role:'assistant',content:reply,time:now()})
-    // Refresh stats after chat (grades might have been extracted)
-    S.stats=await GET('/api/stats'); S.subjects=await GET('/api/subjects')
-  } catch { S.chatMsgs.push({role:'assistant',content:'❌ Xatolik. Qayta urinib koring.',time:now()}) }
-  S.aiLoading=false; render(); scrollChat()
+    S.stats=await GET('/api/stats');S.subjects=await GET('/api/subjects')
+  }catch{S.chatMsgs.push({role:'assistant',content:'❌ Xatolik. Qayta urinib koring.',time:now()})}
+  S.aiLoading=false;render();scrollChat()
 }
 
-function qp(text){const inp=document.getElementById('ci');if(inp)inp.value=text;sendChat()}
-function qpAndSwitch(text,tab){S.tab=tab;render();setTimeout(()=>qp(text),100)}
+function qp(t){const i=document.getElementById('ci');if(i)i.value=t;sendChat()}
+function qpGo(t){S.tab='ai';render();setTimeout(()=>qp(t),100)}
 function chatKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat()}}
-
-async function genInsight() {
-  showToast('⏳ AI tahlil qilmoqda...')
-  try {
-    const ins=await POST('/api/chat/insight',{})
-    S.insights=[ins]; render()
-  } catch(e){showToast('❌ Xatolik: '+e.message)}
-}
-
-async function doSummarize() {
-  const notes=S.notesText||document.getElementById('sum-in')?.value
-  if (!notes?.trim()) return alert('Matn kiriting')
-  const el=document.getElementById('sum-res'); if(el) el.innerHTML='⏳...'
-  try {
-    const {summary}=await POST('/api/ai/summarize',{notes})
-    if(el) el.innerHTML=summary.replace(/\n/g,'<br>')
-  } catch { if(el) el.innerHTML='❌ Xatolik.' }
-}
-
-async function updUser(f,v) { try{await PUT('/api/user',{[f]:v});S.user[f]=v}catch{} }
-async function logout() { await POST('/auth/logout'); location.reload() }
-
-// ── UTILS ─────────────────────────────────────────────────────────
+function autosize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,80)+'px'}
+async function upd(f,v){try{await PUT('/api/user',{[f]:v});S.user[f]=v}catch{}}
+async function logout(){await POST('/auth/logout');location.reload()}
 function nxtLvl(l){const t=[0,100,250,500,900,1400,2000,2800,3800,5000];return t[l]||5000+(l-9)*1500}
 function scrollChat(){setTimeout(()=>{const e=document.getElementById('cm');if(e)e.scrollTop=e.scrollHeight},50)}
-function showToast(msg){
-  const e=document.createElement('div')
-  e.style.cssText='position:fixed;top:1rem;left:50%;transform:translateX(-50%);background:var(--text);color:white;padding:0.5rem 1.1rem;border-radius:100px;font-size:0.78rem;font-weight:600;z-index:999;white-space:nowrap'
-  e.textContent=msg;document.body.appendChild(e);setTimeout(()=>e.remove(),2500)
-}
+function toast(msg){document.querySelectorAll('.toast').forEach(e=>e.remove());const e=document.createElement('div');e.className='toast';e.style.cssText='position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#111;color:white;padding:8px 16px;border-radius:100px;font-size:13px;font-weight:600;z-index:999;white-space:nowrap';e.textContent=msg;document.body.appendChild(e);setTimeout(()=>e.remove(),2500)}
 function afterRender(){if(S.tab==='ai')scrollChat()}
 
-// Extra API for summarize (reuse AI)
-async function fetchInsights(){S.insights=await GET('/api/insights')}
-
-// On tab change
-const _switch=switchTab
+const _sw=switchTab
 window.switchTab=async function(t){
   S.tab=t
-  if(t==='insights'&&!S.insights.length) await fetchInsights()
-  render();document.getElementById('main')?.scrollTo({top:0})
+  if(t==='more'&&!S.insights.length){try{S.insights=await GET('/api/insights')}catch{}}
+  render();document.getElementById('content')?.scrollTo({top:0})
 }
-
 init()
 </script>
 </body>
