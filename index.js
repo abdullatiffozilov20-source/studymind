@@ -1,8 +1,10 @@
 // ================================================================
-//  🧠 StudyMind — AI-First Student Assistant v4.0
-//  Olib tashlangan: manual baho kiritish, murakkab career UI
-//  Qoldirilgan: AI chat (asosiy), fanlar, streak, flashcard, schedule
-//  AI: barcha ma'lumotlarni o'zi yig'adi suhbat orqali
+//  🧠 StudyMind v5.0 — AI-First Student Assistant
+//  Yangi: Schedule (hayot+o'quv, takrorlanadigan, AI qo'shadi)
+//         Flashcard (mavzu bo'yicha AI yaratadi)
+//         Notes (tezda saqlash joyi)
+//         Motivatsiya gaplari
+//         Ovozli AI (Web Speech API)
 // ================================================================
 import express from 'express'
 import session from 'express-session'
@@ -37,7 +39,6 @@ await mongoose.connect(MONGO_URI)
 console.log('✅ MongoDB ulandi')
 
 // ── SCHEMAS ───────────────────────────────────────────────────────
-
 const UserSchema = new mongoose.Schema({
   name: String,
   email: { type: String, unique: true, sparse: true },
@@ -45,17 +46,16 @@ const UserSchema = new mongoose.Schema({
   telegramId: { type: String, unique: true, sparse: true },
   telegramUsername: String,
   lang: { type: String, default: 'uz', enum: ['uz', 'ru', 'en'] },
-  grade: String,   // "11-sinf", "2-kurs"
+  grade: String,
   school: String,
   isAdmin: { type: Boolean, default: false },
-  // Gamification
   xp: { type: Number, default: 0 },
   level: { type: Number, default: 1 },
   streak: { type: Number, default: 0 },
   lastStudyDate: String,
-  // Behavior (AI tomonidan to'ldiriladi)
   totalStudyMinutes: { type: Number, default: 0 },
   avgMood: { type: Number, default: 3 },
+  savedQuotes: [{ text: String, author: String, savedAt: Date }],
   createdAt: { type: Date, default: Date.now }
 })
 
@@ -65,25 +65,22 @@ const SubjectSchema = new mongoose.Schema({
   emoji: { type: String, default: '📚' },
   color: { type: String, default: '#534AB7' },
   examDate: String,
-  // AI tomonidan yangilanadi
   avgGrade: { type: Number, default: 0 },
-  gradeHistory: [{ score: Number, date: String, note: String }], // AI suhbatdan chiqaradi
+  gradeHistory: [{ score: Number, date: String, note: String }],
   weakTopics: [String],
   progress: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now }
 })
 
-// AI chat — asosiy
 const ChatSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  role: { type: String, enum: ['user', 'assistant', 'system'] },
+  role: { type: String, enum: ['user', 'assistant'] },
   content: String,
-  // AI suhbatdan chiqargan ma'lumotlar
   extractedData: {
-    grade: { subjectName: String, score: Number, note: String },
+    grade: { subjectName: String, score: Number },
     studyMinutes: Number,
     mood: Number,
-    completedTask: String,
+    scheduleItem: { title: String, category: String, time: String, date: String, repeat: String }
   },
   createdAt: { type: Date, default: Date.now }
 })
@@ -92,26 +89,44 @@ const FlashcardSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   subjectId: mongoose.Schema.Types.ObjectId,
   subjectName: String,
+  topic: String,
   front: String,
   back: String,
-  // SM-2
   interval: { type: Number, default: 1 },
   easeFactor: { type: Number, default: 2.5 },
   nextReview: { type: String, default: () => new Date().toISOString().split('T')[0] },
   repetitions: { type: Number, default: 0 },
+  aiGenerated: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now }
 })
 
+// Yangi: kengaytirilgan schedule
 const ScheduleSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   title: String,
+  category: { type: String, enum: ['study', 'life'], default: 'study' }, // o'quv yoki hayot
   subjectName: String,
   time: String,
-  date: String,
+  date: String, // aniq sana
+  repeat: { type: String, enum: ['none', 'daily', 'weekly', 'custom'], default: 'none' },
+  repeatDays: [Number], // 0=Du, 1=Se ... 6=Ya
   isDone: { type: Boolean, default: false },
-  // AI tomonidan yaratilgan
   aiGenerated: { type: Boolean, default: false },
+  emoji: { type: String, default: '📌' },
   createdAt: { type: Date, default: Date.now }
+})
+
+// Yangi: notes (tezda saqlash)
+const NoteSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  title: String,
+  content: String,
+  subjectName: String,
+  color: { type: String, default: '#5b4cf5' },
+  isPinned: { type: Boolean, default: false },
+  tags: [String],
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
 })
 
 const InsightSchema = new mongoose.Schema({
@@ -131,15 +146,14 @@ const Subject   = mongoose.model('Subject', SubjectSchema)
 const Chat      = mongoose.model('Chat', ChatSchema)
 const Flashcard = mongoose.model('Flashcard', FlashcardSchema)
 const Schedule  = mongoose.model('Schedule', ScheduleSchema)
+const Note      = mongoose.model('Note', NoteSchema)
 const Insight   = mongoose.model('Insight', InsightSchema)
 
 // ── MIDDLEWARE ─────────────────────────────────────────────────────
 app.use(express.json({ limit: '5mb' }))
 app.use(express.static(__dirname))
 app.use(session({
-  secret: SECRET,
-  resave: false,
-  saveUninitialized: false,
+  secret: SECRET, resave: false, saveUninitialized: false,
   store: MongoStore.create({ mongoUrl: MONGO_URI }),
   cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 }
 }))
@@ -159,10 +173,8 @@ if (GOOGLE_ID && GOOGLE_SECRET) {
     try {
       let u = await User.findOne({ email: profile.emails[0].value })
       if (!u) u = await User.create({
-        name: profile.displayName,
-        email: profile.emails[0].value,
-        avatar: profile.photos[0]?.value,
-        isAdmin: profile.emails[0].value === ADMIN_EMAIL
+        name: profile.displayName, email: profile.emails[0].value,
+        avatar: profile.photos[0]?.value, isAdmin: profile.emails[0].value === ADMIN_EMAIL
       })
       done(null, u)
     } catch (e) { done(e) }
@@ -182,20 +194,17 @@ function auth(req, res, next) {
   }).catch(() => res.status(401).json({ error: 'Unauthorized' }))
 }
 
-// ── LEVEL & XP ─────────────────────────────────────────────────────
+// ── HELPERS ────────────────────────────────────────────────────────
 function calcLevel(xp) {
-  const thresholds = [0,100,250,500,900,1400,2000,2800,3800,5000]
-  for (let i = thresholds.length - 1; i >= 0; i--) {
-    if (xp >= thresholds[i]) return i + 1
-  }
+  const t = [0,100,250,500,900,1400,2000,2800,3800,5000]
+  for (let i = t.length - 1; i >= 0; i--) if (xp >= t[i]) return i + 1
   return 1
 }
 
 async function giveXP(userId, amount) {
   const u = await User.findById(userId)
   const prev = u.level
-  u.xp += amount
-  u.level = calcLevel(u.xp)
+  u.xp += amount; u.level = calcLevel(u.xp)
   const today = todayStr()
   const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
   if (u.lastStudyDate !== today) {
@@ -208,19 +217,47 @@ async function giveXP(userId, amount) {
 
 function todayStr() { return new Date().toISOString().split('T')[0] }
 
-// ── SM-2 ──────────────────────────────────────────────────────────
 function sm2(card, q) {
   let { easeFactor: ef, interval, repetitions: rep } = card
   if (q >= 3) {
     interval = rep === 0 ? 1 : rep === 1 ? 6 : Math.round(interval * ef)
-    rep++
-    ef = Math.max(1.3, ef + 0.1 - (5 - q) * (0.08 + (5 - q) * 0.02))
+    rep++; ef = Math.max(1.3, ef + 0.1 - (5 - q) * (0.08 + (5 - q) * 0.02))
   } else { rep = 0; interval = 1 }
-  const nextReview = new Date(Date.now() + interval * 86400000).toISOString().split('T')[0]
-  return { interval, easeFactor: ef, repetitions: rep, nextReview }
+  return { interval, easeFactor: ef, repetitions: rep, nextReview: new Date(Date.now() + interval * 86400000).toISOString().split('T')[0] }
 }
 
-// ── GROQ AI ───────────────────────────────────────────────────────
+// Takrorlanadigan schedule itemlarni bugun uchun yaratish
+async function ensureRepeatingSchedules(userId) {
+  const today = todayStr()
+  const dayOfWeek = new Date().getDay() // 0=Sun, 1=Mon...
+  const uzDay = dayOfWeek === 0 ? 6 : dayOfWeek - 1 // 0=Du, 6=Ya
+
+  const templates = await Schedule.find({
+    userId,
+    repeat: { $in: ['daily', 'weekly', 'custom'] }
+  })
+
+  for (const tmpl of templates) {
+    let shouldCreate = false
+    if (tmpl.repeat === 'daily') shouldCreate = true
+    if (tmpl.repeat === 'weekly' && tmpl.repeatDays?.includes(uzDay)) shouldCreate = true
+    if (tmpl.repeat === 'custom' && tmpl.repeatDays?.includes(uzDay)) shouldCreate = true
+
+    if (shouldCreate) {
+      const exists = await Schedule.findOne({ userId, title: tmpl.title, date: today, repeat: 'none' })
+      if (!exists) {
+        await Schedule.create({
+          userId, title: tmpl.title, category: tmpl.category,
+          subjectName: tmpl.subjectName, time: tmpl.time,
+          date: today, repeat: 'none', emoji: tmpl.emoji,
+          aiGenerated: tmpl.aiGenerated
+        })
+      }
+    }
+  }
+}
+
+// ── AI ─────────────────────────────────────────────────────────────
 const groq = new Groq({ apiKey: GROQ_KEY })
 
 async function ai(messages, system, maxTokens = 700) {
@@ -236,53 +273,69 @@ async function ai(messages, system, maxTokens = 700) {
     return r.choices[0]?.message?.content || ''
   } catch (e) {
     clearTimeout(t)
-    return e.name === 'AbortError' ? 'Vaqt tugadi. Qayta urinib koring.' : 'Xatolik: ' + e.message
+    return e.name === 'AbortError' ? 'Vaqt tugadi.' : 'Xatolik: ' + e.message
   }
 }
 
-// Asosiy AI system prompt — "ota kabi" murabbiy
 function buildSystem(user, subjects = []) {
   const lang = user?.lang || 'uz'
-  const langNote = lang === 'uz' ? 'Faqat O\'zbek tilida javob ber.' : lang === 'ru' ? 'Отвечай только на русском.' : 'Respond in English only.'
-  const subjList = subjects.map(s => `${s.emoji}${s.name}(o'rtacha:${s.avgGrade||'?'}, zaif:${s.weakTopics?.join(',')||'noma\'lum'})`).join(', ')
+  const langNote = lang === 'uz' ? 'Faqat O\'zbek tilida.' : lang === 'ru' ? 'Только русский.' : 'English only.'
+  const subjList = subjects.map(s => `${s.emoji}${s.name}(avg:${s.avgGrade||'?'},zaif:${s.weakTopics?.slice(0,2).join(',')||'?'})`).join(' | ')
 
-  return `Sen StudyMind AI — ${user?.name||'o\'quvchi'}ning shaxsiy o'quv assistentisan. Ota kabi mehribon, lekin to'g'ri so'z.
-
+  return `Sen StudyMind AI — ${user?.name||'o\'quvchi'}ning ota kabi mehribon, haqiqatgo'y murabbiyisan.
 ${langNote}
-
-O'quvchi ma'lumotlari:
-- Ism: ${user?.name}, Sinf: ${user?.grade||'noma\'lum'}, Maktab: ${user?.school||'noma\'lum'}
-- Daraja: Lv.${user?.level}, XP: ${user?.xp}, Streak: ${user?.streak} kun
-- Fanlar: ${subjList || 'hali qo\'shilmagan'}
+O'quvchi: ${user?.name}, ${user?.grade||''}, ${user?.school||''}
+Lv.${user?.level}, XP:${user?.xp}, Streak:${user?.streak}kun
+Fanlar: ${subjList||'yo\'q'}
 
 Qoidalar:
-1. Qisqa va aniq yoz (max 3 qisqa paragraf)
-2. Bahoni o'quvchi aytsa — EXTRACT qil va [GRADE:FanNomi:Ball] formatda yoz (javob oxirida)
-3. Vaqtni aytsa — [STUDY:daqiqa] formatda yoz
-4. Kayfiyatni anglasang — [MOOD:1-5] yoz
-5. Flashcard yaratishni taklif et, quiz ber, ertangi plan tuz
-6. HECH QACHON to'g'ridan javob berma — o'quvchini o'ylat
-7. Doim rag'batlantir, ammo real bo'l
-
-Bugungi sana: ${todayStr()}`
+1. Javob qisqa (max 3 paragraf), oddiy til
+2. Baho aytilsa: [GRADE:FanNomi:Ball] yoz
+3. Vaqt aytilsa: [STUDY:daqiqa] yoz  
+4. Kun tartibi so'rasa: [SCHED:sarlavha:kategori:vaqt:takror] yoz
+   Kategoriya: study yoki life
+   Takror: none/daily/weekly/mon,wed,fri
+5. Flashcard yarat desa: [FC:front|back] har karta uchun
+6. Hech qachon to'g'ri javob berma — o'ylat
+7. Bugun: ${todayStr()}`
 }
 
-// AI javobidan ma'lumot chiqarish
 function extractFromAI(text) {
   const result = {}
-  const gradeMatch = text.match(/\[GRADE:([^:]+):(\d+)\]/i)
-  if (gradeMatch) result.grade = { subjectName: gradeMatch[1].trim(), score: parseInt(gradeMatch[2]) }
-  const studyMatch = text.match(/\[STUDY:(\d+)\]/i)
-  if (studyMatch) result.studyMinutes = parseInt(studyMatch[1])
-  const moodMatch = text.match(/\[MOOD:([1-5])\]/i)
-  if (moodMatch) result.mood = parseInt(moodMatch[1])
+  const gm = text.match(/\[GRADE:([^:]+):(\d+)\]/i)
+  if (gm) result.grade = { subjectName: gm[1].trim(), score: parseInt(gm[2]) }
+  const sm = text.match(/\[STUDY:(\d+)\]/i)
+  if (sm) result.studyMinutes = parseInt(sm[1])
+  const scm = text.match(/\[SCHED:([^:]+):([^:]+):([^:]*):([^\]]*)\]/i)
+  if (scm) result.scheduleItem = { title: scm[1].trim(), category: scm[2].trim(), time: scm[3].trim(), repeat: scm[4].trim() }
+  const fcMatches = [...text.matchAll(/\[FC:([^|]+)\|([^\]]+)\]/gi)]
+  if (fcMatches.length) result.flashcards = fcMatches.map(m => ({ front: m[1].trim(), back: m[2].trim() }))
   return result
 }
 
-// Clean text (teglarsiz)
 function cleanText(text) {
-  return text.replace(/\[GRADE:[^\]]+\]/gi, '').replace(/\[STUDY:[^\]]+\]/gi, '').replace(/\[MOOD:[^\]]+\]/gi, '').trim()
+  return text.replace(/\[GRADE:[^\]]+\]/gi, '')
+    .replace(/\[STUDY:[^\]]+\]/gi, '')
+    .replace(/\[SCHED:[^\]]+\]/gi, '')
+    .replace(/\[FC:[^\]]+\]/gi, '')
+    .replace(/\n{3,}/g, '\n\n').trim()
 }
+
+// Motivatsiya gaplari
+const QUOTES = [
+  { text: "Muvaffaqiyat — har kuni kichik harakatlar yig'indisi.", author: "Robert Collier" },
+  { text: "O'qish — eng kuchli qurol, dunyoni o'zgartira oladigan.", author: "Nelson Mandela" },
+  { text: "Bugun qiyin bo'lsa, ertaga oson bo'ladi.", author: "Robert Schuller" },
+  { text: "Hech qachon o'rganishni to'xtatma, hayot ham to'xtamaydi.", author: "Albert Einstein" },
+  { text: "Maqsading yo'q bo'lsa — yo'lingni yo'qotasan.", author: "Confucius" },
+  { text: "Katta natijalar kichik odatlardan boshlanadi.", author: "James Clear" },
+  { text: "Yiqilish — muvaffaqiyatsizlik emas, yiqilganda qolish — muvaffaqiyatsizlik.", author: "Mary Pickford" },
+  { text: "Vaqtingni boshqara olsang — hayotingni boshqara olasan.", author: "Peter Drucker" },
+  { text: "Qiyin yo'llar ko'pincha eng chiroyli joylarga olib boradi.", author: "Anonymous" },
+  { text: "Har bir ekspert bir vaqtlar yangi boshlovchi edi.", author: "Helen Hayes" },
+  { text: "O'z vaqtida bir soat ishlash, kechikib 3 soat ishlashdan samaraliroq.", author: "Benjamin Franklin" },
+  { text: "Orzulamasdan amalga oshirmayman, harakat qilmasdan esa erishmayman.", author: "Walt Disney" },
+]
 
 // ── AUTH ──────────────────────────────────────────────────────────
 app.get('/auth/google', (req, res, next) => {
@@ -307,12 +360,27 @@ app.post('/auth/logout', (req, res) => { req.session.destroy(); res.json({ ok: t
 // ── USER ──────────────────────────────────────────────────────────
 app.get('/api/user', auth, (req, res) => {
   const u = req.u
-  res.json({ _id: u._id, name: u.name, email: u.email, avatar: u.avatar, lang: u.lang, grade: u.grade, school: u.school, xp: u.xp, level: u.level, streak: u.streak, totalStudyMinutes: u.totalStudyMinutes, isAdmin: u.isAdmin })
+  res.json({ _id: u._id, name: u.name, email: u.email, avatar: u.avatar, lang: u.lang, grade: u.grade, school: u.school, xp: u.xp, level: u.level, streak: u.streak, totalStudyMinutes: u.totalStudyMinutes, savedQuotes: u.savedQuotes, isAdmin: u.isAdmin })
 })
 app.put('/api/user', auth, async (req, res) => {
   const fields = ['lang', 'grade', 'school', 'name']
   fields.forEach(f => { if (req.body[f] !== undefined) req.u[f] = req.body[f] })
   await req.u.save(); res.json({ ok: true })
+})
+app.post('/api/user/save-quote', auth, async (req, res) => {
+  const { text, author } = req.body
+  req.u.savedQuotes.push({ text, author, savedAt: new Date() })
+  if (req.u.savedQuotes.length > 20) req.u.savedQuotes.shift()
+  await req.u.save(); res.json({ ok: true })
+})
+app.get('/api/user/quotes', auth, (req, res) => {
+  res.json(req.u.savedQuotes || [])
+})
+
+// ── QUOTE ────────────────────────────────────────────────────────
+app.get('/api/quote', (req, res) => {
+  const q = QUOTES[Math.floor(Math.random() * QUOTES.length)]
+  res.json(q)
 })
 
 // ── SUBJECTS ──────────────────────────────────────────────────────
@@ -329,163 +397,150 @@ app.delete('/api/subjects/:id', auth, async (req, res) => {
   res.json({ ok: true })
 })
 
-// ── AI CHAT (Asosiy funksiya) ─────────────────────────────────────
+// ── AI CHAT ────────────────────────────────────────────────────────
 app.get('/api/chat', auth, async (req, res) => {
-  const chats = await Chat.find({ userId: req.u._id })
-    .sort({ createdAt: -1 }).limit(30)
+  const chats = await Chat.find({ userId: req.u._id }).sort({ createdAt: -1 }).limit(30)
   res.json(chats.reverse())
 })
 
 app.post('/api/chat', auth, async (req, res) => {
   const { message } = req.body
   if (!message?.trim()) return res.status(400).json({ error: 'message kerak' })
-
   const u = req.u
   const subjects = await Subject.find({ userId: u._id })
 
-  // Save user message
   await Chat.create({ userId: u._id, role: 'user', content: message })
+  const history = await Chat.find({ userId: u._id, role: { $in: ['user', 'assistant'] } }).sort({ createdAt: -1 }).limit(12)
+  const messages = history.reverse().map(m => ({ role: m.role, content: m.content }))
 
-  // Get recent history
-  const history = await Chat.find({ userId: u._id, role: { $in: ['user', 'assistant'] } })
-    .sort({ createdAt: -1 }).limit(12)
-  const messages = history.reverse().map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content }))
-
-  // AI javob
   const rawReply = await ai(messages, buildSystem(u, subjects))
   const extracted = extractFromAI(rawReply)
   const cleanReply = cleanText(rawReply)
 
-  // AI chiqargan ma'lumotlarni saqlash
+  // Save extracted grade
   if (extracted.grade) {
     const subj = subjects.find(s => s.name.toLowerCase().includes(extracted.grade.subjectName.toLowerCase()))
     if (subj) {
-      subj.gradeHistory.push({ score: extracted.grade.score, date: todayStr(), note: 'AI suhbatdan' })
-      const total = subj.gradeHistory.reduce((a, g) => a + g.score, 0)
-      subj.avgGrade = Math.round(total / subj.gradeHistory.length)
-      subj.progress = subj.avgGrade
-      await subj.save()
+      subj.gradeHistory.push({ score: extracted.grade.score, date: todayStr() })
+      subj.avgGrade = Math.round(subj.gradeHistory.reduce((a, g) => a + g.score, 0) / subj.gradeHistory.length)
+      subj.progress = subj.avgGrade; await subj.save()
     }
     await giveXP(u._id, 5)
   }
 
+  // Save extracted study time
   if (extracted.studyMinutes) {
     u.totalStudyMinutes += extracted.studyMinutes
     await giveXP(u._id, Math.floor(extracted.studyMinutes * 1.5))
     await u.save()
   }
 
-  if (extracted.mood) {
-    u.avgMood = Math.round((u.avgMood + extracted.mood) / 2)
-    await u.save()
+  // Save extracted schedule item
+  let savedSchedule = null
+  if (extracted.scheduleItem) {
+    const si = extracted.scheduleItem
+    const repeatDays = parseRepeatDays(si.repeat)
+    savedSchedule = await Schedule.create({
+      userId: u._id, title: si.title,
+      category: si.category === 'life' ? 'life' : 'study',
+      time: si.time, date: todayStr(),
+      repeat: si.repeat === 'daily' ? 'daily' : repeatDays.length ? 'custom' : 'none',
+      repeatDays, aiGenerated: true,
+      emoji: si.category === 'life' ? '🌟' : '📚'
+    })
   }
 
-  // Save AI message
-  const saved = await Chat.create({
-    userId: u._id, role: 'assistant', content: cleanReply,
-    extractedData: Object.keys(extracted).length ? extracted : undefined
-  })
-
-  res.json({ reply: cleanReply, extracted })
-})
-
-// AI dan flashcard yaratish
-app.post('/api/chat/flashcard', auth, async (req, res) => {
-  const { subjectId, topic } = req.body
-  const subj = subjectId ? await Subject.findById(subjectId) : null
-  const u = req.u
-
-  const prompt = `${topic || subj?.name || 'o\'qilgan mavzu'} haqida 3 ta flashcard yarat.
-Format (faqat shu format, boshqa narsa yozma):
-CARD1_FRONT: savol
-CARD1_BACK: javob
-CARD2_FRONT: savol
-CARD2_BACK: javob
-CARD3_FRONT: savol
-CARD3_BACK: javob`
-
-  const reply = await ai([{ role: 'user', content: prompt }], buildSystem(u, []))
-
-  // Parse cards
-  const cards = []
-  for (let i = 1; i <= 3; i++) {
-    const front = reply.match(new RegExp(`CARD${i}_FRONT:\\s*(.+)`, 'i'))?.[1]?.trim()
-    const back = reply.match(new RegExp(`CARD${i}_BACK:\\s*(.+)`, 'i'))?.[1]?.trim()
-    if (front && back) {
-      const card = await Flashcard.create({ userId: u._id, subjectId, subjectName: subj?.name, front, back })
-      cards.push(card)
+  // Save extracted flashcards
+  let savedCards = []
+  if (extracted.flashcards?.length) {
+    for (const fc of extracted.flashcards) {
+      const card = await Flashcard.create({ userId: u._id, front: fc.front, back: fc.back, aiGenerated: true })
+      savedCards.push(card)
     }
   }
 
-  res.json({ cards })
+  await Chat.create({ userId: u._id, role: 'assistant', content: cleanReply, extractedData: extracted })
+  res.json({ reply: cleanReply, extracted, savedSchedule, savedCards })
 })
 
-// AI weekly insight
-app.post('/api/chat/insight', auth, async (req, res) => {
+function parseRepeatDays(repeat) {
+  if (!repeat || repeat === 'none' || repeat === 'daily') return []
+  if (repeat === 'weekly') return []
+  const dayMap = { mon: 0, tue: 1, wed: 2, thu: 3, fri: 4, sat: 5, sun: 6, du: 0, se: 1, ch: 2, pa: 3, ju: 4, sh: 5, ya: 6 }
+  return repeat.split(',').map(d => dayMap[d.trim().toLowerCase()]).filter(d => d !== undefined)
+}
+
+// AI flashcard generation by topic
+app.post('/api/chat/flashcard', auth, async (req, res) => {
+  const { subjectId, topic, count = 5 } = req.body
+  const subj = subjectId ? await Subject.findById(subjectId) : null
+  const topicName = topic || subj?.name || 'umumiy mavzu'
   const u = req.u
-  const subjects = await Subject.find({ userId: u._id })
-  const recentChats = await Chat.find({ userId: u._id }).sort({ createdAt: -1 }).limit(50)
 
-  const prompt = `O'quvchi ma'lumotlari asosida haftalik tahlil yoz:
-Fanlar: ${JSON.stringify(subjects.map(s => ({ name: s.name, avg: s.avgGrade, weak: s.weakTopics })))}
-Jami o'qish: ${u.totalStudyMinutes} daqiqa, Streak: ${u.streak} kun, Kayfiyat: ${u.avgMood}/5
-So'nggi suhbatlar soni: ${recentChats.length}
+  const prompt = `"${topicName}" mavzusi bo'yicha ${count} ta flashcard yarat. 
+Format (faqat shu):
+CARD1_FRONT: savol
+CARD1_BACK: javob
+...CARD${count}_FRONT: savol
+CARD${count}_BACK: javob`
 
-JSON format qaytarma — oddiy matnda yoz:
-XULOSA: (2-3 jumla)
-KUCHLI: (vergul bilan)
-ZAIF: (vergul bilan)
-TAVSIYA: (3 ta, raqamlangan)
-USLUB: (vizual/audial/kinestetik)
-VAQT: (eng yaxshi o'qish vaqti)`
+  const reply = await ai([{ role: 'user', content: prompt }], buildSystem(u, []), 800)
 
-  const reply = await ai([{ role: 'user', content: prompt }], buildSystem(u, subjects), 1000)
-
-  const extract = (key) => reply.match(new RegExp(`${key}:\\s*(.+?)(?=\\n[A-Z]+:|$)`, 'si'))?.[1]?.trim() || ''
-
-  const weekNum = Math.floor(Date.now() / (7 * 86400000))
-  const insight = await Insight.findOneAndUpdate(
-    { userId: u._id, weekNumber: weekNum },
-    {
-      summary: extract('XULOSA'),
-      strengths: extract('KUCHLI').split(',').map(s => s.trim()).filter(Boolean),
-      weaknesses: extract('ZAIF').split(',').map(s => s.trim()).filter(Boolean),
-      recommendations: extract('TAVSIYA').split(/\d+\./).map(s => s.trim()).filter(Boolean),
-      learningStyle: extract('USLUB'),
-      bestStudyTime: extract('VAQT'),
-      generatedAt: new Date(), weekNumber: weekNum
-    },
-    { upsert: true, new: true }
-  )
-
-  res.json(insight)
+  const cards = []
+  for (let i = 1; i <= count; i++) {
+    const f = reply.match(new RegExp(`CARD${i}_FRONT:\\s*(.+?)(?=CARD\\d|$)`, 'si'))?.[1]?.trim().split('\n')[0]
+    const b = reply.match(new RegExp(`CARD${i}_BACK:\\s*(.+?)(?=CARD\\d|$)`, 'si'))?.[1]?.trim().split('\n')[0]
+    if (f && b) {
+      const card = await Flashcard.create({ userId: u._id, subjectId, subjectName: subj?.name, topic: topicName, front: f, back: b, aiGenerated: true })
+      cards.push(card)
+    }
+  }
+  res.json({ cards, topic: topicName })
 })
 
 // AI daily plan
 app.post('/api/chat/daily-plan', auth, async (req, res) => {
   const u = req.u
   const subjects = await Subject.find({ userId: u._id })
-
-  const prompt = `Bugun uchun o'quv rejasi tuz.
-Fanlar: ${subjects.map(s => `${s.emoji}${s.name}(avg:${s.avgGrade})`).join(', ')}
-Streak: ${u.streak} kun. Vaqt: 2 soat.
-
-Reja (qisqa, amaliy, raqamlangan ro'yxat):`
-
+  const prompt = `Bugun uchun o'quv rejasi tuz. Fanlar: ${subjects.map(s => s.name).join(', ') || 'yo\'q'}. Streak: ${u.streak}kun. Max 5 ta modda. Qisqa va amaliy.`
   const plan = await ai([{ role: 'user', content: prompt }], buildSystem(u, subjects), 400)
-
-  // Save to schedule
-  const lines = plan.split('\n').filter(l => l.trim() && /^\d/.test(l.trim()))
+  const lines = plan.split('\n').filter(l => l.trim() && /^[\d\-•*]/.test(l.trim()))
   const saved = []
   for (const line of lines.slice(0, 5)) {
     const s = await Schedule.create({
-      userId: u._id, title: line.replace(/^\d+[\.\)]\s*/, '').trim(),
-      date: todayStr(), aiGenerated: true
+      userId: u._id, title: line.replace(/^[\d\.\)\-•*]\s*/, '').trim(),
+      date: todayStr(), category: 'study', aiGenerated: true, emoji: '📚'
     })
     saved.push(s)
   }
-
   res.json({ plan, schedule: saved })
+})
+
+// AI weekly insight
+app.post('/api/chat/insight', auth, async (req, res) => {
+  const u = req.u
+  const subjects = await Subject.find({ userId: u._id })
+  const chats = await Chat.find({ userId: u._id }).sort({ createdAt: -1 }).limit(30)
+  const prompt = `O'quvchi tahlili (oddiy matnda, JSON emas):
+Fanlar: ${JSON.stringify(subjects.map(s => ({ n: s.name, avg: s.avgGrade })))}
+O'qish: ${u.totalStudyMinutes}min, Streak: ${u.streak}, Suhbatlar: ${chats.length}
+
+XULOSA: (2-3 jumla)
+KUCHLI: (vergul bilan)
+ZAIF: (vergul bilan)
+TAVSIYA: (3 ta, raqamlangan)
+USLUB: (bir so'z)
+VAQT: (qachon yaxshi o'qiydi)`
+
+  const reply = await ai([{ role: 'user', content: prompt }], buildSystem(u, subjects), 800)
+  const ex = (k) => reply.match(new RegExp(`${k}:\\s*(.+?)(?=\\n[A-Z]+:|$)`, 'si'))?.[1]?.trim() || ''
+  const weekNum = Math.floor(Date.now() / (7 * 86400000))
+  const ins = await Insight.findOneAndUpdate(
+    { userId: u._id, weekNumber: weekNum },
+    { summary: ex('XULOSA'), strengths: ex('KUCHLI').split(',').map(s => s.trim()).filter(Boolean), weaknesses: ex('ZAIF').split(',').map(s => s.trim()).filter(Boolean), recommendations: ex('TAVSIYA').split(/\d+\./).map(s => s.trim()).filter(Boolean), learningStyle: ex('USLUB'), bestStudyTime: ex('VAQT'), generatedAt: new Date(), weekNumber: weekNum },
+    { upsert: true, new: true }
+  )
+  res.json(ins)
 })
 
 // ── FLASHCARDS ────────────────────────────────────────────────────
@@ -493,20 +548,19 @@ app.get('/api/flashcards', auth, async (req, res) => {
   const q = { userId: req.u._id }
   if (req.query.dueOnly === 'true') q.nextReview = { $lte: todayStr() }
   if (req.query.subjectId) q.subjectId = req.query.subjectId
+  if (req.query.topic) q.topic = req.query.topic
   res.json(await Flashcard.find(q).sort({ nextReview: 1 }))
 })
 app.post('/api/flashcards', auth, async (req, res) => {
-  const { front, back, subjectId, subjectName } = req.body
+  const { front, back, subjectId, subjectName, topic } = req.body
   if (!front || !back) return res.status(400).json({ error: 'front va back kerak' })
-  res.json(await Flashcard.create({ userId: req.u._id, subjectId, subjectName, front, back }))
+  res.json(await Flashcard.create({ userId: req.u._id, subjectId, subjectName, topic, front, back }))
 })
 app.post('/api/flashcards/:id/review', auth, async (req, res) => {
   const card = await Flashcard.findOne({ _id: req.params.id, userId: req.u._id })
   if (!card) return res.status(404).json({ error: 'Topilmadi' })
-  const upd = sm2(card, req.body.quality)
-  Object.assign(card, upd); await card.save()
-  const xp = req.body.quality >= 3 ? 5 : 2
-  await giveXP(req.u._id, xp)
+  const upd = sm2(card, req.body.quality); Object.assign(card, upd); await card.save()
+  const xp = req.body.quality >= 3 ? 5 : 2; await giveXP(req.u._id, xp)
   res.json({ ...upd, xpEarned: xp })
 })
 app.delete('/api/flashcards/:id', auth, async (req, res) => {
@@ -516,21 +570,67 @@ app.delete('/api/flashcards/:id', auth, async (req, res) => {
 
 // ── SCHEDULE ──────────────────────────────────────────────────────
 app.get('/api/schedule', auth, async (req, res) => {
+  await ensureRepeatingSchedules(req.u._id)
   const date = req.query.date || todayStr()
-  res.json(await Schedule.find({ userId: req.u._id, date }).sort({ time: 1 }))
+  const category = req.query.category // 'study' | 'life' | undefined (all)
+  const q = { userId: req.u._id }
+  if (req.query.templates === 'true') {
+    q.repeat = { $in: ['daily', 'weekly', 'custom'] }
+  } else {
+    q.date = date; q.repeat = 'none'
+  }
+  if (category) q.category = category
+  res.json(await Schedule.find(q).sort({ time: 1, createdAt: 1 }))
 })
+
 app.post('/api/schedule', auth, async (req, res) => {
-  const { title, subjectName, time, date } = req.body
-  res.json(await Schedule.create({ userId: req.u._id, title, subjectName, time, date: date || todayStr() }))
+  const { title, category, subjectName, time, date, repeat, repeatDays, emoji } = req.body
+  if (!title) return res.status(400).json({ error: 'title kerak' })
+  res.json(await Schedule.create({
+    userId: req.u._id, title, category: category || 'study',
+    subjectName, time, date: date || todayStr(),
+    repeat: repeat || 'none', repeatDays: repeatDays || [],
+    emoji: emoji || (category === 'life' ? '🌟' : '📚')
+  }))
 })
+
 app.patch('/api/schedule/:id', auth, async (req, res) => {
-  const s = await Schedule.findOneAndUpdate({ _id: req.params.id, userId: req.u._id }, { isDone: req.body.isDone }, { new: true })
+  const s = await Schedule.findOneAndUpdate({ _id: req.params.id, userId: req.u._id }, req.body, { new: true })
   if (req.body.isDone) await giveXP(req.u._id, 10)
   res.json(s)
 })
+
 app.delete('/api/schedule/:id', auth, async (req, res) => {
   await Schedule.findOneAndDelete({ _id: req.params.id, userId: req.u._id })
   res.json({ ok: true })
+})
+
+// ── NOTES ─────────────────────────────────────────────────────────
+app.get('/api/notes', auth, async (req, res) => {
+  const q = { userId: req.u._id }
+  if (req.query.subjectName) q.subjectName = req.query.subjectName
+  res.json(await Note.find(q).sort({ isPinned: -1, updatedAt: -1 }))
+})
+app.post('/api/notes', auth, async (req, res) => {
+  const { title, content, subjectName, color, tags } = req.body
+  res.json(await Note.create({ userId: req.u._id, title: title || 'Yangi eslatma', content, subjectName, color: color || '#5b4cf5', tags: tags || [] }))
+})
+app.put('/api/notes/:id', auth, async (req, res) => {
+  const n = await Note.findOneAndUpdate({ _id: req.params.id, userId: req.u._id }, { ...req.body, updatedAt: new Date() }, { new: true })
+  res.json(n)
+})
+app.delete('/api/notes/:id', auth, async (req, res) => {
+  await Note.findOneAndDelete({ _id: req.params.id, userId: req.u._id })
+  res.json({ ok: true })
+})
+
+// AI note summarize
+app.post('/api/notes/summarize', auth, async (req, res) => {
+  const { content, subjectName } = req.body
+  if (!content) return res.status(400).json({ error: 'content kerak' })
+  const prompt = `Bu konspektni xulosalab ber. Asosiy tushunchalar, formulalar va imtihon savollari. Qisqa va aniq:\n${content.slice(0, 3000)}`
+  const summary = await ai([{ role: 'user', content: prompt }], buildSystem(req.u, []), 500)
+  res.json({ summary })
 })
 
 // ── STATS ─────────────────────────────────────────────────────────
@@ -538,18 +638,23 @@ app.get('/api/stats', auth, async (req, res) => {
   const u = req.u
   const subjects = await Subject.find({ userId: u._id })
   const dueCards = await Flashcard.countDocuments({ userId: u._id, nextReview: { $lte: todayStr() } })
-  const todaySchedule = await Schedule.find({ userId: u._id, date: todayStr() })
-  const doneTasks = todaySchedule.filter(s => s.isDone).length
+  await ensureRepeatingSchedules(u._id)
+  const todaySchedule = await Schedule.find({ userId: u._id, date: todayStr(), repeat: 'none' })
+  const done = todaySchedule.filter(s => s.isDone).length
+  const weekly = []
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(Date.now() - i * 86400000).toISOString().split('T')[0]
+    const daySched = await Schedule.find({ userId: u._id, date: d, repeat: 'none' })
+    weekly.push({ date: d, tasks: daySched.length, done: daySched.filter(s => s.isDone).length })
+  }
   const lastInsight = await Insight.findOne({ userId: u._id }).sort({ generatedAt: -1 })
-
+  const notesCount = await Note.countDocuments({ userId: u._id })
   res.json({
     xp: u.xp, level: u.level, streak: u.streak,
     totalStudyMinutes: u.totalStudyMinutes,
-    avgMood: u.avgMood,
     subjects, dueCards,
-    todayTasks: todaySchedule.length,
-    doneTasks,
-    lastInsight,
+    todayTasks: todaySchedule.length, doneTasks: done,
+    weekly, lastInsight, notesCount,
     urgentSubjects: subjects.filter(s => {
       if (!s.examDate) return false
       const d = Math.ceil((new Date(s.examDate) - new Date()) / 86400000)
@@ -558,17 +663,16 @@ app.get('/api/stats', auth, async (req, res) => {
   })
 })
 
-// ── INSIGHTS ─────────────────────────────────────────────────────
 app.get('/api/insights', auth, async (req, res) => {
   res.json(await Insight.find({ userId: req.u._id }).sort({ generatedAt: -1 }).limit(4))
 })
 
-// ── PING & STATIC ────────────────────────────────────────────────
+// ── PING & STATIC ─────────────────────────────────────────────────
 app.get('/ping', (_, res) => res.send('ok'))
 app.get('/', (_, res) => res.sendFile(path.join(__dirname, 'app.html')))
 app.get('/app.html', (_, res) => res.sendFile(path.join(__dirname, 'app.html')))
 
-// ── TELEGRAM BOT ─────────────────────────────────────────────────
+// ── TELEGRAM BOT ──────────────────────────────────────────────────
 const bot = new Telegraf(BOT_TOKEN)
 
 function appBtn() {
@@ -579,8 +683,7 @@ bot.start(async ctx => {
   const tid = String(ctx.from.id)
   let u = await User.findOne({ telegramId: tid })
   if (!u) u = await User.create({ telegramId: tid, name: ctx.from.first_name || 'O\'quvchi', telegramUsername: ctx.from.username })
-
-  await ctx.reply(`👋 Salom, *${u.name}*!\n\n🧠 Men *StudyMind AI* — sening shaxsiy o'quv murabbiyingman.\n\nTilni tanlang:`, {
+  await ctx.reply(`👋 Salom, *${u.name}*!\n\n🧠 Men *StudyMind AI* — murabbiyingman.\n\nTilni tanlang:`, {
     parse_mode: 'Markdown',
     ...Markup.inlineKeyboard([[
       Markup.button.callback("🇺🇿 O'zbek", 'lang_uz'),
@@ -594,14 +697,9 @@ bot.action(/lang_(.+)/, async ctx => {
   const lang = ctx.match[1]
   await User.findOneAndUpdate({ telegramId: String(ctx.from.id) }, { lang })
   await ctx.editMessageText('✅ Saqlandi!')
-  await ctx.reply(`Salom! Men bilan istalgan vaqt gaplash:\n\n• "Bugun matematikadan 85 oldim"\n• "Fizika tushunmayapman"\n• "Bugun 45 daqiqa o'qidim"\n\nYoki appni och 👇`, {
-    ...Markup.keyboard([['💬 Gaplash', '📊 Statistika'], ['📅 Bugungi reja', '🌐 App']]).resize(),
+  await ctx.reply('Tayyor! Istalgan vaqt yozing yoki appni oching 👇', {
+    ...Markup.keyboard([['📊 Statistika', '📅 Bugungi reja'], ['🧠 AI bilan gaplash', '🌐 App']]).resize()
   })
-})
-
-// Telegram orqali AI chat
-bot.hears('💬 Gaplash', async ctx => {
-  await ctx.reply('Yozing — nima bo\'ldi bugun? 🧠')
 })
 
 bot.hears('📊 Statistika', async ctx => {
@@ -609,29 +707,19 @@ bot.hears('📊 Statistika', async ctx => {
   if (!u) return ctx.reply('/start bosing')
   const subjects = await Subject.find({ userId: u._id })
   const dueCards = await Flashcard.countDocuments({ userId: u._id, nextReview: { $lte: todayStr() } })
-  let text = `📊 *${u.name} statistikasi*\n\n`
-  text += `🔥 Streak: *${u.streak}* kun | ⭐ Lv.*${u.level}* | XP: *${u.xp}*\n`
-  text += `⏱ Jami: *${u.totalStudyMinutes}* daqiqa | 🔁 Kartalar: *${dueCards}*\n\n`
-  if (subjects.length) {
-    text += `📚 *Fanlar:*\n`
-    subjects.forEach(s => { text += `${s.emoji} ${s.name} — ${s.avgGrade ? s.avgGrade+'%' : '—'}\n` })
-  }
+  let text = `📊 *${u.name}*\n\n🔥 Streak: *${u.streak}* kun | Lv.*${u.level}*\n⭐ XP: *${u.xp}*\n🔁 Kartalar: *${dueCards}*\n\n`
+  if (subjects.length) text += subjects.map(s => `${s.emoji} ${s.name}: *${s.avgGrade||'—'}*`).join('\n')
   await ctx.reply(text, { parse_mode: 'Markdown', ...appBtn() })
 })
 
 bot.hears('📅 Bugungi reja', async ctx => {
   const u = await User.findOne({ telegramId: String(ctx.from.id) })
   if (!u) return ctx.reply('/start bosing')
-  const schedule = await Schedule.find({ userId: u._id, date: todayStr() })
-  if (!schedule.length) {
-    await ctx.reply('Bugun reja yo\'q. AI rejani yaratsinmi?', {
-      ...Markup.inlineKeyboard([[Markup.button.callback('✅ Ha, yaratsin', 'gen_plan')]])
-    })
-  } else {
-    let text = `📅 *Bugungi reja:*\n\n`
-    schedule.forEach(s => { text += `${s.isDone ? '✅' : '⬜'} ${s.title}\n` })
-    await ctx.reply(text, { parse_mode: 'Markdown', ...appBtn() })
-  }
+  await ensureRepeatingSchedules(u._id)
+  const schedule = await Schedule.find({ userId: u._id, date: todayStr(), repeat: 'none' })
+  if (!schedule.length) return ctx.reply('Reja yo\'q. Yaratsinmi?', { ...Markup.inlineKeyboard([[Markup.button.callback('✅ Ha', 'gen_plan')]]) })
+  const text = `📅 *Bugungi reja:*\n\n${schedule.map(s => `${s.isDone ? '✅' : '⬜'} ${s.emoji||''} ${s.title}`).join('\n')}`
+  await ctx.reply(text, { parse_mode: 'Markdown', ...appBtn() })
 })
 
 bot.action('gen_plan', async ctx => {
@@ -639,50 +727,43 @@ bot.action('gen_plan', async ctx => {
   if (!u) return
   await ctx.editMessageText('⏳ Reja tuzilmoqda...')
   const subjects = await Subject.find({ userId: u._id })
-  const prompt = `Bugun uchun o'quv rejasi tuz. Fanlar: ${subjects.map(s => s.name).join(', ') || 'umumiy'}. Max 4 ta vazifa, qisqa.`
+  const prompt = `Bugun uchun o'quv rejasi. Fanlar: ${subjects.map(s => s.name).join(', ') || 'yo\'q'}. Max 4 ta modda.`
   const plan = await ai([{ role: 'user', content: prompt }], buildSystem(u, subjects), 300)
   const lines = plan.split('\n').filter(l => l.trim())
   for (const line of lines.slice(0, 4)) {
-    await Schedule.create({ userId: u._id, title: line.replace(/^[\d\.\)\-]\s*/, '').trim(), date: todayStr(), aiGenerated: true })
+    await Schedule.create({ userId: u._id, title: line.replace(/^[\d\.\)\-•*]\s*/, '').trim(), date: todayStr(), category: 'study', aiGenerated: true })
   }
   await ctx.editMessageText(`✅ Reja tayyor!\n\n${plan}`)
+})
+
+bot.hears('🧠 AI bilan gaplash', async ctx => {
+  await ctx.reply('Yozing — nima bo\'ldi? 🧠')
 })
 
 bot.hears('🌐 App', async ctx => {
   await ctx.reply('📱 StudyMind:', appBtn())
 })
 
-// AI chat via Telegram
 bot.on('text', async ctx => {
   if (ctx.message.text.startsWith('/')) return
   const tid = String(ctx.from.id)
   let u = await User.findOne({ telegramId: tid })
   if (!u) return ctx.reply('/start bosing')
-
   await ctx.sendChatAction('typing')
   const subjects = await Subject.find({ userId: u._id })
-  const history = await Chat.find({ userId: u._id, role: { $in: ['user', 'assistant'] } }).sort({ createdAt: -1 }).limit(8)
+  const history = await Chat.find({ userId: u._id }).sort({ createdAt: -1 }).limit(8)
   const messages = [...history.reverse().map(m => ({ role: m.role, content: m.content })), { role: 'user', content: ctx.message.text }]
-
   await Chat.create({ userId: u._id, role: 'user', content: ctx.message.text })
   const rawReply = await ai(messages, buildSystem(u, subjects))
   const extracted = extractFromAI(rawReply)
   const cleanReply = cleanText(rawReply)
-
-  // Save extracted data
   if (extracted.grade) {
     const subj = subjects.find(s => s.name.toLowerCase().includes(extracted.grade.subjectName.toLowerCase()))
-    if (subj) {
-      subj.gradeHistory.push({ score: extracted.grade.score, date: todayStr() })
-      subj.avgGrade = Math.round(subj.gradeHistory.reduce((a, g) => a + g.score, 0) / subj.gradeHistory.length)
-      await subj.save()
-    }
-    await giveXP(u._id, 5)
+    if (subj) { subj.gradeHistory.push({ score: extracted.grade.score, date: todayStr() }); subj.avgGrade = Math.round(subj.gradeHistory.reduce((a, g) => a + g.score, 0) / subj.gradeHistory.length); await subj.save() }
   }
   if (extracted.studyMinutes) { u.totalStudyMinutes += extracted.studyMinutes; await giveXP(u._id, Math.floor(extracted.studyMinutes * 1.5)) }
-
-  await Chat.create({ userId: u._id, role: 'assistant', content: cleanReply, extractedData: extracted })
-  await ctx.reply(cleanReply, { parse_mode: 'Markdown' })
+  await Chat.create({ userId: u._id, role: 'assistant', content: cleanReply })
+  await ctx.reply(cleanReply)
 })
 
 // Daily reminders
@@ -692,28 +773,13 @@ setInterval(async () => {
   const users = await User.find({ telegramId: { $exists: true, $ne: null } })
   for (const u of users) {
     try {
-      const subjects = await Subject.find({ userId: u._id })
       const dueCards = await Flashcard.countDocuments({ userId: u._id, nextReview: { $lte: todayStr() } })
       if (hour === 8) {
-        const urgentSubjs = subjects.filter(s => {
-          if (!s.examDate) return false
-          const d = Math.ceil((new Date(s.examDate) - new Date()) / 86400000)
-          return d >= 0 && d <= 7
-        })
-        let msg = `🌅 *Xayrli tong, ${u.name}!*\n\n🔥 Streak: *${u.streak}* kun | Lv.*${u.level}*`
-        if (dueCards > 0) msg += `\n🔁 Bugun *${dueCards}* ta karta takrorlash kerak`
-        if (urgentSubjs.length) msg += `\n⚠️ ${urgentSubjs.map(s => s.name).join(', ')} imtihoni yaqin!`
-        msg += `\n\nBugun ham bitta qadamdan boshlaylik 💪`
-        await bot.telegram.sendMessage(u.telegramId, msg, { parse_mode: 'Markdown' })
+        const q = QUOTES[Math.floor(Math.random() * QUOTES.length)]
+        await bot.telegram.sendMessage(u.telegramId, `🌅 *Xayrli tong, ${u.name}!*\n\n🔥 Streak: *${u.streak}* kun | Lv.*${u.level}*\n${dueCards > 0 ? `🔁 Bugun *${dueCards}* ta karta\n` : ''}💬 _"${q.text}"_\n— ${q.author}`, { parse_mode: 'Markdown' })
       }
       if (hour === 21) {
-        const todaySchedule = await Schedule.find({ userId: u._id, date: todayStr() })
-        const done = todaySchedule.filter(s => s.isDone).length
-        let msg = `🌙 *Bugungi natijalar, ${u.name}!*\n\n`
-        msg += `✅ Bajarildi: *${done}/${todaySchedule.length}*\n`
-        msg += `⏱ O'qildi: *${u.totalStudyMinutes}* daqiqa jami\n`
-        msg += `🔥 Streak: *${u.streak}* kun\n\nErtaga yana davom etamiz! ⭐`
-        await bot.telegram.sendMessage(u.telegramId, msg, { parse_mode: 'Markdown' })
+        await bot.telegram.sendMessage(u.telegramId, `🌙 *Bugungi natijalar, ${u.name}!*\n\n⏱ Jami: *${u.totalStudyMinutes}* daqiqa\n🔥 Streak: *${u.streak}* kun\n\nErtaga ham davom! ⭐`, { parse_mode: 'Markdown' })
       }
     } catch {}
   }
@@ -724,7 +790,7 @@ console.log('✅ Telegram bot ishga tushdi')
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Server port ${PORT}`)
-  console.log('🧠 StudyMind v4.0 tayyor!')
+  console.log('🧠 StudyMind v5.0 tayyor!')
 })
 
 process.once('SIGINT', () => bot.stop('SIGINT'))
