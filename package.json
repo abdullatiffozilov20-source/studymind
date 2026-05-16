@@ -1,37 +1,17 @@
 {
   "name": "studymind",
-  "version": "6.0.0",
-  "description": "StudyMind AI Learning Platform",
+  "version": "4.0.0",
   "type": "module",
   "main": "index.js",
-  "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
-  },
-  "keywords": [
-    "ai",
-    "education",
-    "telegram",
-    "groq",
-    "study"
-  ],
-  "author": "Landon",
-  "license": "MIT",
+  "scripts": { "start": "node index.js" },
   "dependencies": {
-    "connect-mongo": "^5.1.0",
-    "dotenv": "^16.5.0",
     "express": "^4.19.2",
     "express-session": "^1.18.0",
-    "groq-sdk": "^0.5.0",
+    "connect-mongo": "^5.1.0",
     "mongoose": "^8.4.0",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
-    "telegraf": "^4.16.3"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.4"
-  },
-  "engines": {
-    "node": ">=18"
+    "telegraf": "^4.16.3",
+    "groq-sdk": "^0.3.0"
   }
 }
