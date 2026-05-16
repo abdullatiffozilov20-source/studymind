@@ -310,7 +310,7 @@ const I18N={
     reveal:'👆 Ko\'rish uchun bosing',
     repeat_label:'Takrorlanish',once:'Bir marta',daily:'Har kuni',weekly:'Haftalik',custom_days:'Maxsus kunlar',
     no_cards:'Bugungi kartalar bajarildi! ✅',
-    summarize:'🧠 Xulosa',insight_btn:'🧠 Tahlil qilish',
+    summarize:'🧠 Xulosa',insight_btn:'🧠 Tahlil qilish',garden_tab:'Bog\'',
   },
   ru:{
     home:'Главная',ai:'AI Наставник',schedule:'Расписание',notes:'Заметки',more:'Ещё',
@@ -333,7 +333,7 @@ const I18N={
     reveal:'👆 Нажмите чтобы увидеть',
     repeat_label:'Повторение',once:'Один раз',daily:'Каждый день',weekly:'Еженедельно',custom_days:'Выбранные дни',
     no_cards:'Все карточки пройдены! ✅',
-    summarize:'🧠 Краткое',insight_btn:'🧠 Анализировать',
+    summarize:'🧠 Краткое',insight_btn:'🧠 Анализировать',garden_tab:'Сад',
   },
   en:{
     home:'Home',ai:'AI Coach',schedule:'Schedule',notes:'Notes',more:'More',
@@ -356,7 +356,7 @@ const I18N={
     reveal:'👆 Tap to reveal',
     repeat_label:'Repeat',once:'Once',daily:'Daily',weekly:'Weekly',custom_days:'Custom days',
     no_cards:'All cards done! ✅',
-    summarize:'🧠 Summarize',insight_btn:'🧠 Analyze',
+    summarize:'🧠 Summarize',insight_btn:'🧠 Analyze',garden_tab:'Garden',
   }
 }
 function t(k){const lang=S.user?.lang||'uz';return(I18N[lang]||I18N.uz)[k]||k}
@@ -416,8 +416,8 @@ function shell(){
   const u=S.user,xp=nxtLvl(u?.level||1),pct=Math.min(100,Math.round(((u?.xp||0)/xp)*100))
   const h=new Date().getHours()
   const gr=h<12?t('greeting_m'):h<17?t('greeting_d'):t('greeting_e')
-  const subtitles={home:`Lv.${u?.level} · ${u?.xp}xp · 🔥${u?.streak}`,schedule:`${S.schedCat==='all'?t('all_cat'):S.schedCat==='study'?t('study_type'):t('life_type')} — ${today()}`,notes:`${S.notes.length} ${t('notes').toLowerCase()}`,more:`${S.subjects.length} fan · ${S.stats?.dueCards||0} karta`}
-  const titles={home:`${gr}, ${u?.name?.split(' ')[0]}!`,schedule:t('schedule'),notes:t('notes'),more:t('more')}
+  const subtitles={home:`Lv.${u?.level} · ${u?.xp}xp · 🔥${u?.streak}`,garden:`🌿 ${S.gardenLevel||0}/7 daraja · 🔥${u?.streak} kun`,schedule:`${S.schedCat==='all'?t('all_cat'):S.schedCat==='study'?t('study_type'):t('life_type')} — ${today()}`,notes:`${S.notes.length} ${t('notes').toLowerCase()}`,more:`${S.subjects.length} fan · ${S.stats?.dueCards||0} karta`}
+  const titles={home:`${gr}, ${u?.name?.split(' ')[0]}!`,garden:t('garden_tab'),schedule:t('schedule'),notes:t('notes'),more:t('more')}
   const init=(u?.name||'U').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()
   return`<div id="app">
     <div class="hdr">
@@ -441,7 +441,7 @@ function nav(){
 }
 
 function pageCnt(){
-  switch(S.tab){case'home':return homePage();case'schedule':return schedulePage();case'notes':return notesPage();case'more':return morePage()}
+  switch(S.tab){case'home':return homePage();case'schedule':return schedulePage();case'notes':return notesPage();case'garden':return typeof gardenPage==='function'?gardenPage():'';case'more':return morePage()}
   return''
 }
 
@@ -927,6 +927,7 @@ window.switchTab=async function(tb){
 }
 init()
 </script>
+<script src="patch.js"></script>
 </body>
 </html>
 <script>
