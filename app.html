@@ -407,7 +407,11 @@ async function loadAll(){
 // ── RENDER ─────────────────────────────────────────────────────────
 function render(){
   if(!S.user){renderLogin();return}
-  document.getElementById('root').innerHTML=shell()+nav()+(S.modal?modal():'')
+  const s=shell()
+  // nav must go inside #app (flex container), before last </div>
+  const lastDiv = s.lastIndexOf('</div>')
+  const html = s.slice(0,lastDiv) + nav() + s.slice(lastDiv)
+  document.getElementById('root').innerHTML = html + (S.modal?modal():'')
   afterRender()
 }
 
