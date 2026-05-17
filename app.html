@@ -6,6 +6,7 @@
 <title>StudyMind</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="garden.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -919,7 +920,10 @@ async function logout(){await POST('/auth/logout');location.reload()}
 function nxtLvl(l){const tx=[0,100,250,500,900,1400,2000,2800,3800,5000];return tx[l]||5000+(l-9)*1500}
 function scrollChat(){setTimeout(()=>{const e=document.getElementById('cm');if(e)e.scrollTop=e.scrollHeight},60)}
 function toast(msg){document.querySelectorAll('.toast').forEach(e=>e.remove());const e=document.createElement('div');e.className='toast';e.style.cssText='position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(30,30,46,0.95);color:white;padding:9px 18px;border-radius:100px;font-size:13px;font-weight:600;z-index:999;white-space:nowrap;border:1px solid rgba(255,255,255,0.1);backdrop-filter:blur(10px)';e.textContent=msg;document.body.appendChild(e);setTimeout(()=>e.remove(),2500)}
-function afterRender(){if(S.tab==='ai')scrollChat()}
+function afterRender(){
+  if(S.tab==='ai') scrollChat()
+  if(S.tab==='garden') setTimeout(initGardenCanvas, 50)
+}
 
 const _sw=switchTab
 window.switchTab=async function(tb){
@@ -1167,85 +1171,105 @@ async function loadGardenData() {
 
 function gardenPage() {
   const u = S.user
-  const gl = S.gardenLevel || 0
   const gdata = S.gardenData || {}
   const streak = u?.streak || 0
   const xp = u?.xp || 0
   const avgG = gdata.avgGrade || 0
 
-  const nextMilestones = [
-    {label:'3 kun streak',done:streak>=3,icon:'🌿',val:`${streak}/3`},
-    {label:'14 kun streak',done:streak>=14,icon:'🌳',val:`${streak}/14`},
-    {label:'300 XP',done:xp>=300,icon:'⭐',val:`${xp}/300`},
-    {label:'1000 XP',done:xp>=1000,icon:'🌟',val:`${xp}/1000`},
-    {label:"O'rtacha 60+ baho",done:avgG>=60,icon:'📊',val:`${avgG}/60`},
-    {label:"O'rtacha 80+ baho",done:avgG>=80,icon:'🏆',val:`${avgG}/80`},
-  ]
-  const doneMilestones = nextMilestones.filter(m=>m.done).length
-  const nextMilestone = nextMilestones.find(m=>!m.done)
-
-  // Pet name by streak
-  const petName = streak<3?'🐣 Jo\'ja':streak<10?'🐱 Mushukcha':streak<30?'🦊 Tulki':'🦁 Sher'
+  // Next unlock info
+  const next = window.StudyMindGarden?.getNextUnlock?.() || { emoji:'🌟', label:'Mukammal!', hint:'' }
+  const unlocks = window.StudyMindGarden?.getUnlocks?.() || {}
+  const doneCount = Object.values(unlocks).filter(Boolean).length
 
   return `
-    <div style="padding:14px">
-      <div style="text-align:center;margin-bottom:14px">
-        ${gardenSVG(gl, streak, xp, avgG)}
-      </div>
-
-      <div style="background:var(--card);border:1px solid var(--b);border-radius:16px;padding:14px;margin-bottom:10px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-          <div>
-            <div style="font-size:20px;font-weight:800">${gardenEmoji(gl)} ${gardenName(gl)}</div>
-            <div style="font-size:12px;color:var(--t2);margin-top:2px">${doneMilestones}/6 bosqich bajarildi</div>
-          </div>
-          <div style="text-align:right">
-            <div style="font-size:13px;color:var(--t2)">Uy hayvoni</div>
-            <div style="font-size:16px;font-weight:700">${petName}</div>
-          </div>
+    <div style="position:relative">
+      <canvas id="gardenCanvas" style="width:100%;height:260px;border-radius:0;display:block"></canvas>
+      <div style="position:absolute;top:10px;left:12px;right:12px;display:flex;justify-content:space-between;pointer-events:none">
+        <div style="background:rgba(0,0,0,0.45);backdrop-filter:blur(6px);border-radius:10px;padding:5px 10px;display:flex;align-items:center;gap:6px">
+          <span style="font-size:14px">🔥</span>
+          <span style="font-size:15px;font-weight:800;color:#ff9f43">${streak}</span>
+          <span style="font-size:11px;color:rgba(255,255,255,0.7)">streak</span>
         </div>
-        <div style="display:flex;gap:8px">
-          <div style="flex:1;background:var(--bg);border-radius:10px;padding:10px;text-align:center">
-            <div style="font-size:22px;font-weight:800;color:#ff9f43">${streak}</div>
-            <div style="font-size:10px;color:var(--t2)">Streak kun</div>
-          </div>
-          <div style="flex:1;background:var(--bg);border-radius:10px;padding:10px;text-align:center">
-            <div style="font-size:22px;font-weight:800;color:var(--p)">${xp}</div>
-            <div style="font-size:10px;color:var(--t2)">XP</div>
-          </div>
-          <div style="flex:1;background:var(--bg);border-radius:10px;padding:10px;text-align:center">
-            <div style="font-size:22px;font-weight:800;color:var(--teal)">${avgG||'—'}</div>
-            <div style="font-size:10px;color:var(--t2)">O'rtacha baho</div>
-          </div>
+        <div style="background:rgba(0,0,0,0.45);backdrop-filter:blur(6px);border-radius:10px;padding:5px 10px;display:flex;align-items:center;gap:6px">
+          <span style="font-size:14px">⭐</span>
+          <span style="font-size:15px;font-weight:800;color:#a89aff">${xp}</span>
+          <span style="font-size:11px;color:rgba(255,255,255,0.7)">XP</span>
+        </div>
+        <div style="background:rgba(0,0,0,0.45);backdrop-filter:blur(6px);border-radius:10px;padding:5px 10px;display:flex;align-items:center;gap:6px">
+          <span style="font-size:14px">📊</span>
+          <span style="font-size:15px;font-weight:800;color:#00c896">${avgG||'—'}</span>
+          <span style="font-size:11px;color:rgba(255,255,255,0.7)">baho</span>
         </div>
       </div>
+    </div>
 
-      ${nextMilestone ? `<div style="background:var(--pl);border:1px solid var(--b2);border-radius:12px;padding:12px;margin-bottom:10px;display:flex;align-items:center;gap:10px">
-        <span style="font-size:24px">${nextMilestone.icon}</span>
-        <div>
-          <div style="font-size:13px;font-weight:700;color:var(--text)">Keyingi bosqich</div>
-          <div style="font-size:12px;color:var(--t2)">${nextMilestone.label} — ${nextMilestone.val}</div>
+    <div style="padding:12px 14px 0">
+      <div style="background:var(--pl);border:1px solid var(--b2);border-radius:14px;padding:12px;margin-bottom:10px;display:flex;align-items:center;gap:12px">
+        <span style="font-size:28px">${next.emoji}</span>
+        <div style="flex:1">
+          <div style="font-size:12px;color:var(--t2);margin-bottom:1px">Keyingi bosqich</div>
+          <div style="font-size:14px;font-weight:700;color:var(--text)">${next.label}</div>
+          ${next.hint?`<div style="font-size:11px;color:var(--p);margin-top:2px">${next.hint}</div>`:''}
         </div>
-      </div>` : `<div style="background:var(--tl);border-radius:12px;padding:12px;margin-bottom:10px;text-align:center;font-size:14px;color:var(--teal);font-weight:700">🌈 Barcha bosqichlar bajarildi! Mukammal bog'!</div>`}
-
-      <div style="background:var(--card);border:1px solid var(--b);border-radius:16px;padding:14px;margin-bottom:10px">
-        <div style="font-size:12px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Rivojlanish yo'li</div>
-        ${nextMilestones.map(m=>`<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--b)">
-          <div style="width:28px;height:28px;border-radius:8px;background:${m.done?'var(--tl)':'var(--bg)'};display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">${m.done?'✓':m.icon}</div>
-          <div style="flex:1;font-size:13px;color:${m.done?'var(--text)':'var(--t2)'}${m.done?';font-weight:500':''}">${m.label}</div>
-          <div style="font-size:11px;color:${m.done?'var(--teal)':'var(--t3)'}">
-            ${m.done?'✅':m.val}
-          </div>
-        </div>`).join('')}
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:20px;font-weight:800;color:var(--p)">${doneCount}</div>
+          <div style="font-size:10px;color:var(--t2)">/ 10 ochildi</div>
+        </div>
       </div>
 
-      <div style="background:var(--card2);border-radius:12px;padding:12px;text-align:center;font-size:12px;color:var(--t2);line-height:1.6">
-        🧠 AI bilan gaplashsangiz bog' o'sadi<br>
-        Streak uzilsa bog' so'liydi 🍂<br>
-        1 kun kechiriladi — Streak Freeze ❄️
+      <div style="background:var(--card);border:1px solid var(--b);border-radius:14px;padding:14px;margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">Dunyo rivojlanishi</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+          ${[
+            {key:'ground',   e:'🌿', l:'Yashil maydon'},
+            {key:'tree1',    e:'🌳', l:'Daraxt', hint:'3 streak'},
+            {key:'flowers',  e:'🌸', l:'Gullar', hint:'70 baho'},
+            {key:'ariq',     e:'💧', l:'Ariq', hint:'100 XP'},
+            {key:'tree2',    e:'🌲', l:'Qarag\'ay', hint:'7 streak'},
+            {key:'lake',     e:'🏞️', l:"Ko'l", hint:'10 streak'},
+            {key:'birds',    e:'🐦', l:'Qushlar', hint:'10 streak'},
+            {key:'house',    e:'🏠', l:'Uy', hint:'14 streak'},
+            {key:'mountain', e:'⛰️', l:"Tog'", hint:'500 XP'},
+            {key:'rainbow',  e:'🌈', l:'Kamalak', hint:'30+85'},
+          ].map(item => {
+            const done = unlocks[item.key]
+            return `<div style="display:flex;align-items:center;gap:8px;padding:7px 8px;background:${done?'var(--tl)':'var(--bg)'};border-radius:10px;border:1px solid ${done?'rgba(0,200,150,0.2)':'var(--b)'}">
+              <span style="font-size:18px;opacity:${done?1:0.35}">${item.e}</span>
+              <div>
+                <div style="font-size:12px;font-weight:600;color:${done?'var(--text)':'var(--t2)'}">${item.l}</div>
+                ${!done&&item.hint?`<div style="font-size:10px;color:var(--t3)">${item.hint}</div>`:''}
+                ${done?`<div style="font-size:10px;color:var(--teal)">✓ Ochildi</div>`:''}
+              </div>
+            </div>`
+          }).join('')}
+        </div>
+      </div>
+
+      <div style="background:var(--card2);border-radius:10px;padding:10px 12px;font-size:11px;color:var(--t2);line-height:1.7;text-align:center">
+        🧠 AI bilan gaplash → dunyo o'sadi · 🔥 Streak uzilsa → so'liydi · ❄️ 1 kun kechiriladi
       </div>
     </div>
     <div style="height:20px"></div>`
+}
+
+// Garden canvas init — sahifa render bo'lgandan keyin
+function initGardenCanvas() {
+  const canvas = document.getElementById('gardenCanvas')
+  if (!canvas || !window.StudyMindGarden) return
+  const u = S.user
+  const gdata = S.gardenData || {}
+  const dpr = window.devicePixelRatio || 1
+  const rect = canvas.getBoundingClientRect()
+  canvas.width = rect.width * dpr
+  canvas.height = rect.height * dpr
+  const ctx = canvas.getContext('2d')
+  ctx.scale(dpr, dpr)
+  window.StudyMindGarden.init(canvas, {
+    streak: u?.streak || 0,
+    xp: u?.xp || 0,
+    grade: gdata.avgGrade || 0,
+    level: u?.level || 0,
+  })
 }
 
 // Hook into switchTab to load garden data
