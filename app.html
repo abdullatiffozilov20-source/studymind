@@ -1179,7 +1179,8 @@ function gardenPage() {
   // Next unlock info
   const next = window.StudyMindGarden?.getNextUnlock?.() || { emoji:'🌟', label:'Mukammal!', hint:'' }
   const unlocks = window.StudyMindGarden?.getUnlocks?.() || {}
-  const doneCount = Object.values(unlocks).filter(Boolean).length
+  const doneCount = window.StudyMindGarden?.getDoneCount?.() ?? Object.values(unlocks).filter(Boolean).length
+  const totalCount = window.StudyMindGarden?.getTotalCount?.() ?? 10
 
   return `
     <div style="position:relative">
@@ -1213,7 +1214,7 @@ function gardenPage() {
         </div>
         <div style="text-align:right;flex-shrink:0">
           <div style="font-size:20px;font-weight:800;color:var(--p)">${doneCount}</div>
-          <div style="font-size:10px;color:var(--t2)">/ 10 ochildi</div>
+          <div style="font-size:10px;color:var(--t2)">/ ${totalCount} ochildi</div>
         </div>
       </div>
 
@@ -1258,17 +1259,10 @@ function initGardenCanvas() {
   if (!canvas || !window.StudyMindGarden) return
   const u = S.user
   const gdata = S.gardenData || {}
-  const dpr = window.devicePixelRatio || 1
-  const rect = canvas.getBoundingClientRect()
-  canvas.width = rect.width * dpr
-  canvas.height = rect.height * dpr
-  const ctx = canvas.getContext('2d')
-  ctx.scale(dpr, dpr)
   window.StudyMindGarden.init(canvas, {
     streak: u?.streak || 0,
     xp: u?.xp || 0,
     grade: gdata.avgGrade || 0,
-    level: u?.level || 0,
   })
 }
 
