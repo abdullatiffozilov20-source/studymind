@@ -1,4 +1,3 @@
-cat > /home/claude/studymind-v8/index.js << 'ENDJS'
 // StudyMind v8.0 — Full Backend
 import express from 'express'
 import session from 'express-session'
@@ -629,5 +628,3 @@ console.log('✅ Bot ishga tushdi')
 app.listen(PORT,'0.0.0.0',()=>{ console.log(`✅ Server ${PORT}`); console.log('🌿 StudyMind v8.0') })
 process.once('SIGINT',()=>bot.stop('SIGINT'))
 process.once('SIGTERM',()=>bot.stop('SIGTERM'))
-ENDJS
-echo "✅ index.js done — $(wc -l < /home/claude/studymind-v8/index.js) qator"
