@@ -13,11 +13,11 @@
   --p:#6c5fff;--p2:#a594ff;--pg:linear-gradient(135deg,#6c5fff,#a594ff);
   --teal:#00c896;--amber:#ffb347;--red:#ff6b6b;
   --text:#f0f2ff;--t2:#8892c0;--t3:#3d4870;
-  --b:rgba(255,255,255,0.06);--b2:rgba(108,95,255,0.22);
+  --b:rgba(255,255,255,0.07);--b2:rgba(108,95,255,0.22);
   --sh:0 2px 16px rgba(0,0,0,0.35);
 }
 [data-theme="light"]{
-  --bg:#f5f6fb;--bg2:#eceefa;--card:#ffffff;--card2:#f4f5ff;
+  --bg:#f0f2f8;--bg2:#e8eaf4;--card:#ffffff;--card2:#f4f5ff;
   --p:#6c5fff;--p2:#a594ff;--pg:linear-gradient(135deg,#6c5fff,#a594ff);
   --teal:#00a878;--amber:#ff8c42;--red:#ff4757;
   --text:#1a1d35;--t2:#5a6080;--t3:#a0a8c8;
@@ -26,16 +26,27 @@
 }
 html,body{height:100%;font-family:'Inter',sans-serif;font-size:15px;background:var(--bg);color:var(--text);overflow:hidden;transition:background .3s,color .3s}
 #app{display:flex;flex-direction:column;height:100vh;height:100dvh}
+#scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#scroll::-webkit-scrollbar{display:none}
 
 /* NAV */
 #nav{flex-shrink:0;background:var(--card);border-top:1px solid var(--b);display:flex;padding:6px 4px max(8px,env(safe-area-inset-bottom))}
-.nb{flex:1;background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;color:var(--t2);padding:4px 2px;border-radius:12px}
+.nb{flex:1;background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;color:var(--t2);padding:6px 2px;border-radius:12px}
 .nb.on{color:var(--p)}
-.ni-wrap{width:42px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:10px;position:relative}
+.ni-wrap{width:42px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:10px}
 .nb.on .ni-wrap{background:rgba(108,95,255,0.12)}
 .nb .ni{font-size:21px;line-height:1}
 .nb .nl{font-size:10px;font-weight:600}
-.nb-dot{width:5px;height:5px;border-radius:50%;background:var(--red);position:absolute;top:-2px;right:-2px}
+
+/* HEADER */
+.hdr{padding:14px 16px 10px;background:var(--bg);position:sticky;top:0;z-index:20;border-bottom:1px solid var(--b)}
+.hdr-row{display:flex;align-items:center;justify-content:space-between}
+.hdr-title{font-family:'Poppins',sans-serif;font-size:20px;font-weight:800;letter-spacing:-.025em}
+.hdr-sub{font-size:11px;color:var(--t2)}
+.hdr-right{display:flex;align-items:center;gap:8px}
+.icon-btn{width:34px;height:34px;border-radius:10px;background:var(--card);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;flex-shrink:0}
+.hdr-av{width:36px;height:36px;border-radius:50%;background:var(--pg);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white;cursor:pointer;overflow:hidden;flex-shrink:0}
+.hdr-av img{width:100%;height:100%;object-fit:cover}
 
 /* LOGIN */
 .login-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:28px;text-align:center}
@@ -45,50 +56,23 @@ html,body{height:100%;font-family:'Inter',sans-serif;font-size:15px;background:v
 .login-sub{font-size:14px;color:var(--t2);margin-bottom:6px}
 .login-quote{font-size:13px;font-style:italic;color:var(--t3);margin-bottom:32px;line-height:1.5;max-width:280px}
 .l-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;max-width:340px;padding:15px;border-radius:16px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;margin-bottom:10px;text-decoration:none;border:none;letter-spacing:-.01em}
-.l-btn:active{transform:scale(.97)}
 .l-google{background:#fff;color:#1a1a2e;box-shadow:0 2px 12px rgba(0,0,0,.15)}
 .l-tg{background:#229ED9;color:white}
 .l-or{color:var(--t3);font-size:12px;margin:4px 0}
 
-/* ONBOARDING */
-.ob-wrap{position:fixed;inset:0;background:var(--bg);z-index:100;display:flex;flex-direction:column;justify-content:center;padding:28px}
-.ob-title{font-family:'Poppins',sans-serif;font-size:26px;font-weight:900;letter-spacing:-.03em;margin-bottom:10px}
-.ob-sub{font-size:14px;color:var(--t2);line-height:1.6;margin-bottom:24px}
-.ob-inp{width:100%;background:var(--card);border:1.5px solid var(--b);border-radius:14px;padding:14px 16px;font-size:16px;color:var(--text);outline:none;margin-bottom:14px}
-.ob-inp:focus{border-color:var(--p)}
-.ob-btn{width:100%;background:var(--pg);border:none;border-radius:14px;padding:16px;font-size:16px;font-weight:700;color:white;cursor:pointer;font-family:'Poppins',sans-serif}
-
-/* HEADER */
-.hdr{padding:14px 16px 10px;background:var(--bg);position:sticky;top:0;z-index:20;border-bottom:1px solid var(--b);flex-shrink:0}
-.hdr-row{display:flex;align-items:center;justify-content:space-between}
-.hdr-title{font-family:'Poppins',sans-serif;font-size:19px;font-weight:800;letter-spacing:-.02em}
-.hdr-sub{font-size:11px;color:var(--t2)}
-.hdr-right{display:flex;align-items:center;gap:8px}
-.icon-btn{width:34px;height:34px;border-radius:10px;background:var(--card);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;flex-shrink:0}
-.hdr-av{width:34px;height:34px;border-radius:50%;background:var(--pg);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;cursor:pointer;overflow:hidden;flex-shrink:0}
-.hdr-av img{width:100%;height:100%;object-fit:cover}
-
-#scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
-#scroll::-webkit-scrollbar{display:none}
-
-/* ===== CHAT (asosiy ekran) ===== */
+/* CHAT SCREEN */
 .chat-shell{display:flex;flex-direction:column;height:calc(100dvh - 56px)}
-.topic-bar{display:flex;gap:6px;padding:8px 12px;overflow-x:auto;border-bottom:1px solid var(--b);flex-shrink:0;background:var(--bg)}
-.topic-bar::-webkit-scrollbar{display:none}
-.tp{background:var(--card);border:1px solid var(--b);border-radius:20px;padding:6px 13px;font-size:12px;font-weight:600;color:var(--t2);cursor:pointer;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:5px}
-.tp.on{background:var(--p);color:white;border-color:var(--p)}
-.tp-add{background:none;border:1.5px dashed var(--b2);color:var(--p);border-radius:20px;padding:6px 13px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0}
-
-.chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;-webkit-overflow-scrolling:touch}
+.chat-hdr{background:var(--card);padding:10px 14px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.chat-av{width:38px;height:38px;border-radius:50%;background:var(--pg);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.chat-name{font-size:15px;font-weight:700}
+.chat-status{font-size:11px;color:var(--teal);display:flex;align-items:center;gap:4px;margin-top:1px}
+.chat-status::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--teal)}
+.topic-pill-bar{display:flex;gap:6px;padding:8px 12px;overflow-x:auto;border-bottom:1px solid var(--b);flex-shrink:0}
+.topic-pill-bar::-webkit-scrollbar{display:none}
+.tpill{background:var(--card);border:1px solid var(--b);border-radius:20px;padding:6px 13px;font-size:12px;font-weight:600;color:var(--t2);cursor:pointer;white-space:nowrap;flex-shrink:0}
+.tpill.on{background:var(--p);color:white;border-color:var(--p)}
+.chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
 .chat-msgs::-webkit-scrollbar{display:none}
-.chat-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;padding:20px}
-.chat-empty-icon{font-size:48px;margin-bottom:14px}
-.chat-empty-title{font-family:'Poppins',sans-serif;font-size:19px;font-weight:800;margin-bottom:8px}
-.chat-empty-sub{font-size:13px;color:var(--t2);line-height:1.7;max-width:280px}
-.chat-suggestions{display:flex;flex-direction:column;gap:8px;margin-top:20px;width:100%;max-width:320px}
-.cs-btn{background:var(--card);border:1px solid var(--b);border-radius:14px;padding:12px 16px;font-size:13px;color:var(--text);cursor:pointer;text-align:left}
-.cs-btn:active{background:var(--card2)}
-
 .cm{max-width:86%;animation:cmin .22s ease}
 @keyframes cmin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .cm.u{align-self:flex-end}
@@ -97,80 +81,91 @@ html,body{height:100%;font-family:'Inter',sans-serif;font-size:15px;background:v
 .cm.u .cmb{background:var(--pg);color:white;border-radius:18px 4px 18px 18px}
 .cm.a .cmb{background:var(--card);border:1px solid var(--b);border-radius:4px 18px 18px 18px}
 .cm-img{max-width:200px;border-radius:14px;margin-bottom:6px;display:block}
-.cmt{font-size:10px;color:var(--t3);margin-top:3px;padding:0 4px}
-.cm.u .cmt{text-align:right}
-.ext-tag{background:rgba(0,200,150,.1);border:1px solid rgba(0,200,150,.2);border-radius:8px;padding:4px 10px;font-size:11px;color:var(--teal);margin-top:5px;display:inline-flex;align-items:center;gap:5px;margin-right:4px}
+.ext-tag{background:rgba(0,200,150,.1);border:1px solid rgba(0,200,150,.2);border-radius:8px;padding:4px 10px;font-size:11px;color:var(--teal);margin-top:5px;display:inline-block}
 .typing{display:flex;gap:4px;padding:11px 14px;background:var(--card);border:1px solid var(--b);border-radius:4px 18px 18px 18px;width:fit-content;align-self:flex-start}
 .typing span{width:6px;height:6px;border-radius:50%;background:var(--p);animation:ty 1.2s infinite}
 .typing span:nth-child(2){animation-delay:.2s}
 .typing span:nth-child(3){animation-delay:.4s}
 @keyframes ty{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
-
-.chat-input-area{background:var(--card);border-top:1px solid var(--b);padding:8px 10px calc(8px + env(safe-area-inset-bottom));flex-shrink:0}
-.img-preview{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg2);border-radius:12px;margin-bottom:8px}
-.img-preview img{width:40px;height:40px;border-radius:8px;object-fit:cover}
-.img-preview-remove{margin-left:auto;background:none;border:none;color:var(--t2);font-size:18px;cursor:pointer}
-.chat-input-row{display:flex;gap:6px;align-items:flex-end;background:var(--bg);border-radius:24px;padding:7px 7px 7px 14px;border:1px solid var(--b)}
+.welcome-msg{text-align:center;padding:30px 20px}
+.welcome-icon{font-size:48px;margin-bottom:14px}
+.welcome-title{font-size:18px;font-weight:700;margin-bottom:8px}
+.welcome-sub{font-size:13px;color:var(--t2);line-height:1.6;max-width:280px;margin:0 auto}
+.chat-input{background:var(--card);border-top:1px solid var(--b);padding:8px 10px calc(8px + env(safe-area-inset-bottom));flex-shrink:0}
+.img-preview{position:relative;display:inline-block;margin-bottom:8px;padding:0 10px}
+.img-preview img{max-width:120px;max-height:120px;border-radius:12px;display:block}
+.img-preview-x{position:absolute;top:-6px;right:4px;background:var(--red);color:white;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;border:2px solid var(--card)}
+.chat-input-row{display:flex;gap:8px;align-items:flex-end;background:var(--bg);border-radius:24px;padding:8px 8px 8px 14px;border:1px solid var(--b)}
 .chat-input-row:focus-within{border-color:var(--b2)}
-.ci{flex:1;background:none;border:none;font-size:14px;color:var(--text);outline:none;resize:none;max-height:100px;line-height:1.5;min-height:22px}
+.ci{flex:1;background:none;border:none;font-size:14px;color:var(--text);outline:none;resize:none;max-height:100px;line-height:1.5;min-height:22px;font-family:'Inter',sans-serif}
 .ci::placeholder{color:var(--t3)}
-.icon-action{width:34px;height:34px;border-radius:50%;background:var(--bg2);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;flex-shrink:0}
-.icon-action.rec{background:var(--red);border-color:var(--red);animation:mpulse 1s infinite}
+.chat-btns{display:flex;gap:6px;align-items:center;flex-shrink:0}
+.icon-circle{width:34px;height:34px;border-radius:50%;background:var(--bg2);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;flex-shrink:0}
+.icon-circle.rec{background:var(--red);border-color:var(--red);animation:mpulse 1s infinite}
 @keyframes mpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
 .send-btn{background:var(--pg);border:none;width:36px;height:36px;border-radius:50%;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-.send-btn:active{transform:scale(.88)}
 .send-btn:disabled{opacity:.35}
 
-/* ===== TODAY ===== */
-.section-title{font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.07em;padding:14px 16px 8px}
-.reminder-card{margin:0 14px 8px;background:var(--card);border:1px solid var(--b);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;box-shadow:var(--sh)}
-.r-check{width:22px;height:22px;border-radius:7px;border:2px solid var(--b2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
-.r-check.done{background:var(--teal);border-color:var(--teal);color:white}
-.r-info{flex:1;min-width:0}
-.r-title{font-size:14px;font-weight:500}
-.r-title.done{text-decoration:line-through;color:var(--t2)}
-.r-due{font-size:11px;color:var(--amber);margin-top:2px}
-.r-del{background:none;border:none;color:var(--t3);font-size:16px;cursor:pointer;padding:0 4px}
+/* TODAY SCREEN */
+.today-hero{margin:14px;background:var(--pg);border-radius:20px;padding:18px}
+.today-greet{font-family:'Poppins',sans-serif;font-size:19px;font-weight:800;color:white;margin-bottom:4px}
+.today-sub{font-size:12px;color:rgba(255,255,255,.8)}
+.sec{margin:0 14px 14px}
+.sec-title{font-size:12px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+.card-list{background:var(--card);border:1px solid var(--b);border-radius:16px;overflow:hidden;box-shadow:var(--sh)}
+.ritem{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--b)}
+.ritem:last-child{border-bottom:none}
+.ritem-check{width:22px;height:22px;border-radius:7px;border:2px solid var(--b2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.ritem-check.done{background:var(--teal);border-color:var(--teal);color:white}
+.ritem-info{flex:1;min-width:0}
+.ritem-title{font-size:14px;font-weight:500}
+.ritem-date{font-size:11px;color:var(--t2);margin-top:2px}
+.empty-mini{padding:18px;text-align:center;font-size:13px;color:var(--t2)}
+.topic-chip-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.topic-chip-row::-webkit-scrollbar{display:none}
+.tchip{background:var(--card);border:1px solid var(--b);border-radius:16px;padding:12px 14px;min-width:120px;flex-shrink:0;cursor:pointer;box-shadow:var(--sh)}
+.tchip-em{font-size:22px;margin-bottom:6px}
+.tchip-name{font-size:13px;font-weight:700}
+.activity-item{padding:10px 14px;border-bottom:1px solid var(--b);font-size:13px;color:var(--t2)}
+.activity-item:last-child{border-bottom:none}
 
-.fc-banner{margin:0 14px 8px;background:var(--pg);border-radius:16px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer}
-.fc-banner-icon{font-size:28px}
-.fc-banner-text{flex:1;color:white}
-.fc-banner-title{font-size:14px;font-weight:700}
-.fc-banner-sub{font-size:11px;opacity:.85}
-
-.topic-mini{margin:0 14px 8px;background:var(--card);border:1px solid var(--b);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;box-shadow:var(--sh)}
-.topic-mini-emoji{font-size:22px}
-.topic-mini-info{flex:1;min-width:0}
-.topic-mini-name{font-size:14px;font-weight:700}
-.topic-mini-sub{font-size:11px;color:var(--t2);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
-.empty{text-align:center;padding:40px 20px}
-.empty-i{font-size:44px;margin-bottom:12px}
-.empty-t{font-size:16px;font-weight:700;margin-bottom:6px}
-.empty-s{font-size:13px;color:var(--t2);line-height:1.6}
-
-/* ===== TOPICS LIST ===== */
-.topic-card{margin:0 14px 8px;background:var(--card);border:1px solid var(--b);border-radius:16px;padding:14px;box-shadow:var(--sh);cursor:pointer}
+/* TOPICS SCREEN */
+.topic-card{margin:0 14px 10px;background:var(--card);border:1px solid var(--b);border-radius:18px;padding:16px;box-shadow:var(--sh);cursor:pointer}
 .topic-card-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.topic-card-emoji{font-size:24px}
-.topic-card-name{font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;flex:1}
-.topic-card-meta{font-size:11px;color:var(--t2)}
-.topic-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
-.topic-tag{font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px}
-.topic-tag.weak{background:rgba(255,107,107,.12);color:var(--red)}
-.topic-tag.strong{background:rgba(0,200,150,.12);color:var(--teal)}
-.topic-notes{font-size:12px;color:var(--t2);line-height:1.5;margin-top:8px;font-style:italic}
+.topic-emoji{font-size:26px}
+.topic-name{font-family:'Poppins',sans-serif;font-size:16px;font-weight:700;flex:1}
+.topic-badge{font-size:10px;background:rgba(0,200,150,.12);color:var(--teal);padding:2px 8px;border-radius:6px;font-weight:600}
+.topic-summary{font-size:12px;color:var(--t2);line-height:1.6;margin-bottom:10px}
+.topic-chips{display:flex;flex-wrap:wrap;gap:5px}
+.tw-chip{font-size:10px;font-weight:600;padding:3px 9px;border-radius:12px}
+.tw-chip.s{background:rgba(0,200,150,.12);color:var(--teal)}
+.tw-chip.w{background:rgba(255,179,71,.15);color:var(--amber)}
+.add-topic-btn{margin:0 14px 14px;background:var(--card);border:1.5px dashed var(--b2);border-radius:16px;padding:16px;text-align:center;color:var(--p);font-weight:600;font-size:13px;cursor:pointer}
+
+/* FLASHCARDS within topic */
+.fc-stack{position:relative;height:200px;margin:0 14px 14px;cursor:pointer}
+.fc-shadow{position:absolute;bottom:-8px;left:8px;right:8px;height:100%;background:rgba(108,95,255,.1);border-radius:20px;transform:scale(.96)}
+.fc-main{position:absolute;inset:0;background:var(--pg);border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+.fc-main.rev{background:linear-gradient(135deg,rgba(0,200,150,.18),rgba(0,168,120,.12));border:1px solid rgba(0,200,150,.3)}
+.fc-front{font-size:17px;font-weight:700;color:white;text-align:center;line-height:1.5}
+.fc-main.rev .fc-front{font-size:14px;color:var(--text);font-weight:600;margin-bottom:10px}
+.fc-div{width:40px;height:2px;background:rgba(255,255,255,.3);margin:10px auto}
+.fc-back{font-size:16px;font-weight:600;color:var(--teal);text-align:center;line-height:1.5}
+.fc-rating{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 14px 14px}
+.fr{border:none;border-radius:14px;padding:11px 4px;font-size:12px;font-weight:700;cursor:pointer}
+.fr.a{background:rgba(255,107,107,.15);color:var(--red)}
+.fr.g{background:rgba(108,95,255,.15);color:var(--p)}
+.fr.e{background:rgba(0,200,150,.15);color:var(--teal)}
 
 /* FORMS & MODAL */
 .field{margin-bottom:14px}
 .field label{display:block;font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
-.field input,.field select,.field textarea{width:100%;background:var(--bg);border:1.5px solid var(--b);border-radius:12px;color:var(--text);padding:12px 14px;font-size:14px;outline:none;-webkit-appearance:none}
+.field input,.field textarea,.field select{width:100%;background:var(--bg);border:1.5px solid var(--b);border-radius:12px;color:var(--text);padding:12px 14px;font-size:14px;outline:none;font-family:'Inter',sans-serif}
 .field input:focus,.field textarea:focus{border-color:var(--p)}
-.emoji-g{display:grid;grid-template-columns:repeat(8,1fr);gap:5px}
-.eo{background:var(--bg);border:1.5px solid var(--b);border-radius:9px;padding:6px;text-align:center;font-size:18px;cursor:pointer}
-.eo.sel{border-color:var(--p);background:rgba(108,95,255,.1)}
-.btn{padding:14px;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;display:block;text-align:center;width:100%}
-.btn:active{transform:scale(.97)}
+.seg-pick{display:flex;background:var(--bg);border:1.5px solid var(--b);border-radius:12px;padding:3px;gap:2px}
+.sp{flex:1;background:none;border:none;border-radius:9px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;color:var(--t2)}
+.sp.on{background:var(--p);color:white}
+.btn{padding:14px;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;width:100%;letter-spacing:-.01em}
 .btn-p{background:var(--pg);color:white}
 .btn-s{background:var(--bg);color:var(--t2);border:1.5px solid var(--b);margin-top:8px}
 .mbg{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);z-index:200;display:flex;align-items:flex-end}
@@ -181,27 +176,11 @@ html,body{height:100%;font-family:'Inter',sans-serif;font-size:15px;background:v
 .m-handle{width:36px;height:4px;background:var(--b);border-radius:2px;margin:14px auto 20px}
 .m-title{font-family:'Poppins',sans-serif;font-size:18px;font-weight:800;margin-bottom:18px}
 
-/* FLASHCARD REVIEW */
-.fc-stack{position:relative;height:220px;margin-bottom:14px;cursor:pointer}
-.fc-main{position:absolute;inset:0;background:var(--pg);border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
-.fc-main.rev{background:linear-gradient(135deg,rgba(0,200,150,.18),rgba(0,168,120,.12));border:1px solid rgba(0,200,150,.3)}
-.fc-front{font-size:18px;font-weight:700;color:white;text-align:center;line-height:1.5}
-.fc-main.rev .fc-front{font-size:15px;color:var(--text);font-weight:600;margin-bottom:10px}
-.fc-div{width:40px;height:2px;background:rgba(255,255,255,.3);border-radius:1px;margin:10px auto}
-.fc-main.rev .fc-div{background:rgba(0,200,150,.4)}
-.fc-back{font-size:17px;font-weight:600;color:var(--teal);text-align:center;line-height:1.5}
-.fc-hint{font-size:12px;color:rgba(255,255,255,.55);margin-top:12px}
-.fc-rating{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.fr{border:none;border-radius:14px;padding:12px 4px;font-size:12px;font-weight:700;cursor:pointer}
-.fr.a{background:rgba(255,107,107,.15);color:var(--red)}
-.fr.h{background:rgba(255,179,71,.15);color:var(--amber)}
-.fr.g{background:rgba(108,95,255,.15);color:var(--p)}
-.fr.e{background:rgba(0,200,150,.15);color:var(--teal)}
-
 .space{height:20px}
-.btn-sm{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;border:none}
-.btn-sm.p{background:var(--p);color:white}
-.btn-sm.s{background:var(--card);color:var(--t2);border:1px solid var(--b)}
+.empty{text-align:center;padding:40px 20px}
+.empty-i{font-size:44px;margin-bottom:12px}
+.empty-t{font-size:16px;font-weight:700;margin-bottom:6px}
+.empty-s{font-size:13px;color:var(--t2);line-height:1.6}
 </style>
 </head>
 <body data-theme="dark">
@@ -211,35 +190,29 @@ const tg=window.Telegram?.WebApp
 if(tg){tg.ready();tg.expand();if(tg.disableVerticalSwipes)tg.disableVerticalSwipes()}
 
 const I18N={
-  uz:{chat:'Chat',today:'Bugun',topics:'Mavzular',
-    chat_empty_title:'Nima o\'rganmoqchisiz?',
-    chat_empty_sub:'Yozing, gapiring yoki rasm yuboring — qolganini men hal qilaman.',
-    placeholder:'Yozing yoki gapiring...',
-    today_title:'Bugun',no_reminders:'Eslatma yo\'q',
-    due_cards:'ta karta takrorlash kutmoqda',
-    no_topics:'Hali mavzu yo\'q',no_topics_sub:'Birinchi suhbatdan boshlang — men avtomatik mavzu ochaman',
-    new_topic:'+ Yangi mavzu',settings:'Sozlamalar',logout:'Chiqish',language:'Til',
-    save:'Saqlash',cancel:'Bekor',weak_spots:'Qiynalayotgan joylar',strengths:'Kuchli tomonlar',
+  uz:{chat:'Suhbat',today:'Bugun',topics:'Mavzular',
+    welcome_title:'Salom! Men Twin',welcome_sub:'Nimani o\'rganayotgan bo\'lsangiz — yozing, gapiring, yoki rasmga oling. Qolganini men qilaman.',
+    placeholder:'Yozing yoki gapiring...',today_greet:'Bugun nima bor?',
+    reminders:'Eslatmalar',due_cards:'Takrorlash kerak',recent_topics:'Faol mavzular',recent_activity:'So\'nggi faollik',
+    no_reminders:'Hozircha eslatma yo\'q',no_topics:'Hali mavzu yo\'q — gaplashing, men o\'zim yarataman',
+    add_topic:'+ Mavzu qo\'shish',topic_name:'Mavzu nomi',save:'Saqlash',cancel:'Bekor',
+    settings:'Sozlamalar',language:'Til',logout:'Chiqish',all_topics:'Hammasi',
   },
   ru:{chat:'Чат',today:'Сегодня',topics:'Темы',
-    chat_empty_title:'Что хотите изучить?',
-    chat_empty_sub:'Пишите, говорите или отправьте фото — остальное сделаю я.',
-    placeholder:'Пишите или говорите...',
-    today_title:'Сегодня',no_reminders:'Нет напоминаний',
-    due_cards:'карточек ждут повторения',
-    no_topics:'Пока нет тем',no_topics_sub:'Начните с разговора — я автоматически создам тему',
-    new_topic:'+ Новая тема',settings:'Настройки',logout:'Выйти',language:'Язык',
-    save:'Сохранить',cancel:'Отмена',weak_spots:'Слабые места',strengths:'Сильные стороны',
+    welcome_title:'Привет! Я Twin',welcome_sub:'Что бы вы ни изучали — пишите, говорите, или сфотографируйте. Остальное сделаю я.',
+    placeholder:'Напишите или скажите...',today_greet:'Что сегодня?',
+    reminders:'Напоминания',due_cards:'Нужно повторить',recent_topics:'Активные темы',recent_activity:'Недавняя активность',
+    no_reminders:'Пока нет напоминаний',no_topics:'Тем пока нет — просто говорите, я сам создам',
+    add_topic:'+ Добавить тему',topic_name:'Название темы',save:'Сохранить',cancel:'Отмена',
+    settings:'Настройки',language:'Язык',logout:'Выйти',all_topics:'Все',
   },
   en:{chat:'Chat',today:'Today',topics:'Topics',
-    chat_empty_title:'What do you want to learn?',
-    chat_empty_sub:'Type, talk, or send a photo — I\'ll handle the rest.',
-    placeholder:'Type or talk...',
-    today_title:'Today',no_reminders:'No reminders',
-    due_cards:'cards waiting for review',
-    no_topics:'No topics yet',no_topics_sub:'Start a conversation — I\'ll create a topic automatically',
-    new_topic:'+ New topic',settings:'Settings',logout:'Sign out',language:'Language',
-    save:'Save',cancel:'Cancel',weak_spots:'Struggling with',strengths:'Strong at',
+    welcome_title:'Hi! I\'m Twin',welcome_sub:'Whatever you\'re learning — type, speak, or snap a photo. I\'ll handle the rest.',
+    placeholder:'Type or speak...',today_greet:'What\'s up today?',
+    reminders:'Reminders',due_cards:'Due for review',recent_topics:'Active topics',recent_activity:'Recent activity',
+    no_reminders:'No reminders yet',no_topics:'No topics yet — just talk to me, I\'ll create them',
+    add_topic:'+ Add topic',topic_name:'Topic name',save:'Save',cancel:'Cancel',
+    settings:'Settings',language:'Language',logout:'Sign out',all_topics:'All',
   }
 }
 function t(k){const l=S.user?.lang||'uz';return(I18N[l]||I18N.uz)[k]||k}
@@ -249,12 +222,11 @@ let S={
   topics:[],activeTopicId:null,
   chatMsgs:[],aiLoading:false,
   pendingImage:null,
-  today:null,
+  todayData:null,
   flashcards:[],fcIdx:0,fcRev:false,
   modal:null,
-  nt:{name:'',emoji:'📘'},
+  newTopicName:'',
   isRecording:false,recognition:null,
-  onboarding:false,obName:'',
 }
 
 const req=async(m,p,b)=>{const r=await fetch(p,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):undefined});if(!r.ok)throw new Error(await r.text());return r.json()}
@@ -267,24 +239,17 @@ async function init(){
   try{
     S.user=await GET('/api/user')
     applyTheme(S.user.theme||'dark')
-    if(!S.user.name){S.onboarding=true;render();return}
-    await loadChat();await loadTopics();await loadToday();render()
+    S.topics=await GET('/api/topics')
+    render()
   }catch{renderLogin()}
 }
-
-async function loadChat(){
-  S.chatMsgs=(await GET('/api/chat'+(S.activeTopicId?'?topicId='+S.activeTopicId:''))).map(m=>({role:m.role,content:m.content,extracted:m.extractedData,imageUrl:m.imageUrl}))
-}
-async function loadTopics(){ S.topics=await GET('/api/topics') }
-async function loadToday(){ S.today=await GET('/api/today') }
 
 function applyTheme(th){document.body.setAttribute('data-theme',th)}
 
 function render(){
   if(!S.user){renderLogin();return}
-  if(S.onboarding){renderOnboarding();return}
   const root=document.getElementById('root')
-  root.innerHTML=shell()+nav()+(S.modal?modal():'')
+  root.innerHTML=(S.tab==='chat'?chatShell():stdShell())+nav()+(S.modal?modal():'')
   afterRender()
 }
 
@@ -292,8 +257,8 @@ function renderLogin(){
   document.getElementById('root').innerHTML=`<div class="login-wrap">
     <div class="login-logo">🧠</div>
     <div class="login-title">Twin</div>
-    <div class="login-sub">Shaxsiy o'rganish hamrohingiz</div>
-    <div class="login-quote">"Nima o'rgansangiz ham — men sizning yo'lingizni eslab boraman."</div>
+    <div class="login-sub">Sizning shaxsiy o'rganish hamrohingiz</div>
+    <div class="login-quote">"Nimani o'rgansangiz ham — men yoningizdaman."</div>
     <a href="/auth/google" class="l-btn l-google">
       <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
       Google bilan kirish
@@ -310,136 +275,288 @@ function loginTG(){
   else toast('Telegram ichida ishlaydi.')
 }
 
-function renderOnboarding(){
-  document.getElementById('root').innerHTML=`<div class="ob-wrap">
-    <div style="font-size:48px;margin-bottom:16px">👋</div>
-    <div class="ob-title">Salom! Men Twin.</div>
-    <div class="ob-sub">Sizning shaxsiy o'rganish hamrohingizman. Ismingiz nima?</div>
-    <input class="ob-inp" id="ob-name" placeholder="Ismingiz..." value="${S.obName}" oninput="S.obName=this.value" autofocus>
-    <button class="ob-btn" onclick="obFinish()">Boshlaymiz →</button>
-  </div>`
-}
-async function obFinish(){
-  if(!S.obName.trim()){toast('Ismingizni kiriting');return}
-  await PUT('/api/user',{name:S.obName.trim()})
-  S.user.name=S.obName.trim();S.onboarding=false
-  await loadChat();await loadTopics();render()
-}
-
-function shell(){
+function stdShell(){
   const u=S.user
   const init2=(u?.name||'U').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()
-  const titles={chat:activeTopicObj()?`${activeTopicObj().emoji} ${activeTopicObj().name}`:'Twin',today:t('today_title'),topics:t('topics')}
-  return `<div id="app">
+  const titles={today:t('today'),topics:t('topics')}
+  return`<div id="app">
     <div class="hdr">
       <div class="hdr-row">
-        <div><div class="hdr-title">${titles[S.tab]}</div></div>
+        <div><div class="hdr-title">${titles[S.tab]||''}</div></div>
         <div class="hdr-right">
           <div class="icon-btn" onclick="toggleTheme()">${document.body.getAttribute('data-theme')==='dark'?'☀️':'🌙'}</div>
           <div class="hdr-av" onclick="openModal('settings')">${u?.avatar?`<img src="${u.avatar}">`:init2}</div>
         </div>
       </div>
     </div>
-    ${S.tab==='chat'?chatPage():`<div id="scroll">${S.tab==='today'?todayPage():topicsPage()}</div>`}
+    <div id="scroll">${pageCnt()}</div>
   </div>`
 }
 
-function activeTopicObj(){ return S.topics.find(t=>t._id===S.activeTopicId) }
+function pageCnt(){
+  switch(S.tab){
+    case'today':return todayPage()
+    case'topics':return topicsPage()
+  }
+  return''
+}
 
 function nav(){
   const TABS=[{id:'chat',i:'💬',l:t('chat')},{id:'today',i:'☀️',l:t('today')},{id:'topics',i:'📚',l:t('topics')}]
-  const due=S.today?.dueCards||0
   return`<nav id="nav">${TABS.map(tb=>`<button class="nb ${S.tab===tb.id?'on':''}" onclick="switchTab('${tb.id}')">
-    <div class="ni-wrap"><span class="ni">${tb.i}</span>${tb.id==='today'&&due?`<span class="nb-dot"></span>`:''}</div>
+    <div class="ni-wrap"><span class="ni">${tb.i}</span></div>
     <span class="nl">${tb.l}</span>
   </button>`).join('')}</nav>`
 }
 
-// ===== CHAT =====
-function chatPage(){
-  return `<div class="chat-shell">
-    <div class="topic-bar">
-      <div class="tp ${!S.activeTopicId?'on':''}" onclick="selectTopic(null)">💬 Umumiy</div>
-      ${S.topics.map(tp=>`<div class="tp ${S.activeTopicId===tp._id?'on':''}" onclick="selectTopic('${tp._id}')">${tp.emoji} ${tp.name}</div>`).join('')}
-      <div class="tp-add" onclick="openModal('addTopic')">+ Mavzu</div>
+// ── CHAT ─────────────────────────────────────────────────────────
+function chatShell(){
+  const activeTopic = S.topics.find(tp=>tp._id===S.activeTopicId)
+  return`<div id="app"><div class="chat-shell">
+    <div class="chat-hdr">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="chat-av">🧠</div>
+        <div><div class="chat-name">${activeTopic?activeTopic.emoji+' '+activeTopic.name:'Twin'}</div><div class="chat-status">${S.aiLoading?'Yozmoqda...':'Tayyor'}</div></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <div class="icon-btn" onclick="toggleTheme()">${document.body.getAttribute('data-theme')==='dark'?'☀️':'🌙'}</div>
+        <div class="hdr-av" onclick="openModal('settings')" style="width:34px;height:34px;font-size:12px">${(S.user?.name||'U')[0]}</div>
+      </div>
+    </div>
+    <div class="topic-pill-bar">
+      <div class="tpill ${!S.activeTopicId?'on':''}" onclick="setActiveTopic(null)">💬 Umumiy</div>
+      ${S.topics.map(tp=>`<div class="tpill ${S.activeTopicId===tp._id?'on':''}" onclick="setActiveTopic('${tp._id}')">${tp.emoji} ${tp.name}</div>`).join('')}
     </div>
     <div class="chat-msgs" id="cm">
-      ${!S.chatMsgs.length?chatEmptyState():''}
+      ${!S.chatMsgs.length?`<div class="welcome-msg">
+        <div class="welcome-icon">🧠</div>
+        <div class="welcome-title">${t('welcome_title')}</div>
+        <div class="welcome-sub">${t('welcome_sub')}</div>
+      </div>`:''}
       ${S.chatMsgs.map(m=>`<div class="cm ${m.role==='user'?'u':'a'}">
-        ${m.imageUrl?(m.imageUrl.startsWith('data:')?`<div class="cmb" style="padding:8px"><img class="cm-img" src="${m.imageUrl}">${msg_text_or_empty(m.content)}</div>`:`<div class="cmb" style="padding:8px"><div style="font-size:12px;color:var(--t2);padding:4px 6px">📷 rasm yuborilgan edi</div></div>`):`
-        <div class="cmb">${escapeHtml(m.content).replace(/\\n/g,'<br>')}</div>`}
-        ${m.extracted?.reminder?`<div class="ext-tag">⏰ Eslatma saqlandi</div>`:''}
-        ${m.extracted?.flashcards?.length?`<div class="ext-tag">🔁 ${m.extracted.flashcards.length} karta yaratildi</div>`:''}
-        ${m.extracted?.newTopic?`<div class="ext-tag">📘 Yangi mavzu ochildi</div>`:''}
+        ${m.imageUrl?`<img class="cm-img" src="${m.imageUrl}">`:''}
+        <div class="cmb">${m.content.replace(/\n/g,'<br>')}</div>
+        ${m.savedReminder?`<div class="ext-tag">⏰ Eslatma saqlandi: ${m.savedReminder.title}</div>`:''}
+        ${m.savedCards?.length?`<div class="ext-tag">🔁 ${m.savedCards.length} ta karta yaratildi</div>`:''}
       </div>`).join('')}
       ${S.aiLoading?`<div class="typing"><span></span><span></span><span></span></div>`:''}
     </div>
-    <div class="chat-input-area">
-      ${S.pendingImage?`<div class="img-preview"><img src="${S.pendingImage}"><span style="font-size:12px;color:var(--t2)">Rasm tayyor — yozing yoki to'g'ridan yuboring</span><button class="img-preview-remove" onclick="S.pendingImage=null;render()">×</button></div>`:''}
+    <div class="chat-input">
+      ${S.pendingImage?`<div class="img-preview"><img src="${S.pendingImage}"><div class="img-preview-x" onclick="clearImage()">×</div></div>`:''}
       <div class="chat-input-row">
-        <input type="file" id="img-input" accept="image/*" capture="environment" style="display:none" onchange="handleImageSelect(event)">
-        <button class="icon-action" onclick="document.getElementById('img-input').click()">📷</button>
         <textarea class="ci" id="ci" placeholder="${t('placeholder')}" rows="1" onkeydown="chatKey(event)" oninput="autosize(this)"></textarea>
-        <button class="icon-action ${S.isRecording?'rec':''}" onclick="toggleVoice()">${S.isRecording?'⏹':'🎤'}</button>
-        <button class="send-btn" onclick="sendChat()" ${S.aiLoading?'disabled':''}>➤</button>
+        <div class="chat-btns">
+          <input type="file" id="fileInput" accept="image/*" capture="environment" style="display:none" onchange="handleImageSelect(event)">
+          <div class="icon-circle" onclick="document.getElementById('fileInput').click()">📷</div>
+          <div class="icon-circle ${S.isRecording?'rec':''}" onclick="toggleVoice()">${S.isRecording?'⏹':'🎤'}</div>
+          <button class="send-btn" onclick="sendChat()" ${S.aiLoading?'disabled':''}>➤</button>
+        </div>
       </div>
     </div>
-  </div>`
+  </div></div>`
 }
 
-function chatEmptyState(){
-  return `<div class="chat-empty">
-    <div class="chat-empty-icon">🧠</div>
-    <div class="chat-empty-title">${t('chat_empty_title')}</div>
-    <div class="chat-empty-sub">${t('chat_empty_sub')}</div>
-    <div class="chat-suggestions">
-      <div class="cs-btn" onclick="qp('Frantsuz tilini o‘rganmoqchiman, qayerdan boshlasam bo‘ladi?')">🇫🇷 "Frantsuz tilini o'rganmoqchiman..."</div>
-      <div class="cs-btn" onclick="qp('Matematikadan integral mavzusini tushuntir')">📐 "Integral mavzusini tushuntir"</div>
-      <div class="cs-btn" onclick="document.getElementById('img-input').click()">📷 Uy vazifasi rasmini yuborish</div>
+// ── TODAY ────────────────────────────────────────────────────────
+function todayPage(){
+  const d=S.todayData
+  const h=new Date().getHours()
+  const greet=h<12?'🌅':h<17?'☀️':'🌙'
+  return`
+    <div class="today-hero">
+      <div class="today-greet">${greet} ${t('today_greet')}</div>
+      <div class="today-sub">${S.user?.name||''}</div>
     </div>
-  </div>`
+
+    ${d?.recentTopics?.length?`<div class="sec">
+      <div class="sec-title">${t('recent_topics')}</div>
+      <div class="topic-chip-row">
+        ${d.recentTopics.map(tp=>`<div class="tchip" onclick="openTopicChat('${tp._id}')">
+          <div class="tchip-em">${tp.emoji}</div>
+          <div class="tchip-name">${tp.name}</div>
+        </div>`).join('')}
+      </div>
+    </div>`:''}
+
+    <div class="sec">
+      <div class="sec-title">${t('reminders')}</div>
+      <div class="card-list">
+        ${(d?.reminders||[]).map(r=>`<div class="ritem">
+          <div class="ritem-check ${r.isDone?'done':''}" onclick="toggleReminder('${r._id}',${!r.isDone})">${r.isDone?'✓':''}</div>
+          <div class="ritem-info"><div class="ritem-title">${r.title}</div>${r.dueDate?`<div class="ritem-date">${r.dueDate}</div>`:''}</div>
+        </div>`).join('')||`<div class="empty-mini">${t('no_reminders')}</div>`}
+      </div>
+    </div>
+
+    ${d?.dueCards>0?`<div class="sec">
+      <div class="sec-title">${t('due_cards')}</div>
+      <div class="card-list">
+        <div class="ritem" onclick="switchTab('topics')" style="cursor:pointer">
+          <span style="font-size:20px">🔁</span>
+          <div class="ritem-info"><div class="ritem-title">${d.dueCards} ta karta kutmoqda</div></div>
+          <span style="color:var(--t2)">›</span>
+        </div>
+      </div>
+    </div>`:''}
+
+    ${d?.recentActivity?.length?`<div class="sec">
+      <div class="sec-title">${t('recent_activity')}</div>
+      <div class="card-list">
+        ${d.recentActivity.map(a=>`<div class="activity-item">${a.content.slice(0,80)}${a.content.length>80?'...':''}</div>`).join('')}
+      </div>
+    </div>`:''}
+    <div class="space"></div>`
 }
 
-function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML }
-function msg_text_or_empty(c){ return c&&c.trim()?`<div style="font-size:13px;margin-top:6px;color:var(--text)">${escapeHtml(c)}</div>`:'' }
+// ── TOPICS ───────────────────────────────────────────────────────
+function topicsPage(){
+  return`
+    <div style="padding:14px 14px 0">
+      <div class="add-topic-btn" onclick="openModal('addTopic')">${t('add_topic')}</div>
+    </div>
+    ${S.topics.map(tp=>`<div class="topic-card" onclick="openTopicChat('${tp._id}')">
+      <div class="topic-card-top">
+        <span class="topic-emoji">${tp.emoji}</span>
+        <div class="topic-name">${tp.name}</div>
+        ${tp.isDone?`<span class="topic-badge">Tugadi</span>`:''}
+      </div>
+      ${tp.understanding?.summary?`<div class="topic-summary">${tp.understanding.summary}</div>`:`<div class="topic-summary" style="color:var(--t3)">Hali gaplashilmagan</div>`}
+      <div class="topic-chips">
+        ${(tp.understanding?.strengths||[]).slice(0,2).map(s=>`<span class="tw-chip s">💪 ${s}</span>`).join('')}
+        ${(tp.understanding?.weakSpots||[]).slice(0,2).map(s=>`<span class="tw-chip w">📌 ${s}</span>`).join('')}
+      </div>
+    </div>`).join('')}
+    ${!S.topics.length?`<div class="empty"><div class="empty-i">📚</div><div class="empty-t">${t('no_topics')}</div><div class="empty-s">${t('no_topics')}</div></div>`:''}
+    <div class="space"></div>`
+}
 
-async function selectTopic(id){
-  S.activeTopicId=id; await loadChat(); render(); scrollChat()
+async function openTopicChat(topicId){
+  S.activeTopicId=topicId
+  S.tab='chat'
+  await loadTopicChat(topicId)
+  render()
+}
+
+// ── MODAL ────────────────────────────────────────────────────────
+function modal(){
+  const MAP={
+    addTopic:['Yangi mavzu',mAddTopic()],
+    settings:['Sozlamalar',mSettings()],
+  }
+  const[title,content]=MAP[S.modal]||['','']
+  return`<div class="mbg" onclick="if(event.target===this)closeModal()">
+    <div class="modal"><div class="m-inner">
+      <div class="m-handle"></div>
+      <div class="m-title">${title}</div>
+      ${content}
+    </div></div>
+  </div>`
+}
+function mAddTopic(){return`
+  <div class="field"><label>${t('topic_name')}</label><input id="nt-name" placeholder="Masalan: Frantsuz tili, Shaxmat, React.js..." oninput="S.newTopicName=this.value"></div>
+  <button class="btn btn-p" onclick="saveNewTopic()">${t('save')}</button>
+  <button class="btn btn-s" onclick="closeModal()">${t('cancel')}</button>`}
+function mSettings(){const u=S.user;return`
+  <div class="field"><label>Ism</label><input value="${u?.name||''}" oninput="upd('name',this.value)"></div>
+  <div class="field"><label>${t('language')}</label><div class="seg-pick">
+    <button class="sp ${u?.lang==='uz'?'on':''}" onclick="changeLang('uz')">🇺🇿 O'z</button>
+    <button class="sp ${u?.lang==='ru'?'on':''}" onclick="changeLang('ru')">🇷🇺 Рус</button>
+    <button class="sp ${u?.lang==='en'?'on':''}" onclick="changeLang('en')">🇬🇧 Eng</button>
+  </div></div>
+  <button class="btn btn-p" onclick="closeModal()">${t('save')}</button>
+  <button class="btn btn-s" style="background:rgba(255,107,107,.1);color:var(--red);border-color:rgba(255,107,107,.2)" onclick="logout()">${t('logout')}</button>`}
+
+function openModal(m){S.modal=m;render()}
+function closeModal(){S.modal=null;render()}
+
+async function saveNewTopic(){
+  if(!S.newTopicName?.trim()){toast('Nom kiriting');return}
+  try{
+    const tp=await POST('/api/topics',{name:S.newTopicName})
+    S.topics.unshift(tp);S.newTopicName='';closeModal()
+  }catch{toast('❌ Xatolik')}
+}
+
+// ── ACTIONS ──────────────────────────────────────────────────────
+async function switchTab(tb){
+  S.tab=tb
+  if(tb==='today')S.todayData=await GET('/api/today').catch(()=>null)
+  if(tb==='topics')S.topics=await GET('/api/topics').catch(()=>S.topics)
+  if(tb==='chat'&&!S.activeTopicId)S.chatMsgs=[]
+  render();document.getElementById('scroll')?.scrollTo({top:0})
+}
+
+async function setActiveTopic(topicId){
+  S.activeTopicId=topicId
+  await loadTopicChat(topicId)
+  render()
+}
+async function loadTopicChat(topicId){
+  if(!topicId){S.chatMsgs=[];return}
+  try{
+    const chats=await GET('/api/topics/'+topicId+'/chat')
+    S.chatMsgs=chats.map(c=>({role:c.role,content:c.content,imageUrl:c.imageUrl==='[rasm yuborildi]'?null:c.imageUrl}))
+  }catch{S.chatMsgs=[]}
+}
+
+function toggleTheme(){const th=document.body.getAttribute('data-theme')==='dark'?'light':'dark';applyTheme(th);upd('theme',th)}
+async function upd(f,v){try{await PUT('/api/user',{[f]:v});if(S.user)S.user[f]=v}catch{}}
+async function changeLang(lang){await upd('lang',lang);S.user.lang=lang;closeModal();render()}
+async function logout(){await POST('/auth/logout');location.reload()}
+
+async function toggleReminder(id,done){
+  await PATCH('/api/reminders/'+id,{isDone:done})
+  if(S.todayData)S.todayData.reminders=S.todayData.reminders.map(r=>r._id===id?{...r,isDone:done}:r).filter(r=>!r.isDone)
+  render()
 }
 
 function handleImageSelect(e){
-  const file=e.target.files[0]; if(!file) return
+  const file=e.target.files[0]
+  if(!file)return
   const reader=new FileReader()
-  reader.onload=()=>{ S.pendingImage=reader.result; render() }
+  reader.onload=ev=>{S.pendingImage=ev.target.result;render()}
   reader.readAsDataURL(file)
 }
+function clearImage(){S.pendingImage=null;render()}
 
 async function sendChat(){
-  const inp=document.getElementById('ci'),msg=inp?.value?.trim()
-  if(!msg&&!S.pendingImage) return
-  if(S.aiLoading) return
-  const imageToSend=S.pendingImage
-  S.chatMsgs.push({role:'user',content:msg||'',imageUrl:imageToSend||undefined})
+  const inp=document.getElementById('ci')
+  const msg=inp?.value?.trim()
+  if(!msg&&!S.pendingImage)return
+  if(S.aiLoading)return
+
+  if(S.pendingImage){
+    const imgToSend=S.pendingImage
+    S.chatMsgs.push({role:'user',content:msg||'Rasm yubordim',imageUrl:imgToSend})
+    S.pendingImage=null
+    if(inp)inp.value=''
+    S.aiLoading=true;render();scrollChat()
+    try{
+      const r=await POST('/api/chat/image',{imageBase64:imgToSend,message:msg,topicId:S.activeTopicId})
+      S.chatMsgs.push({role:'assistant',content:r.reply,savedReminder:r.savedReminder,savedCards:r.savedCards})
+      if(r.topic&&!S.activeTopicId){S.activeTopicId=r.topic._id;S.topics=await GET('/api/topics')}
+    }catch{S.chatMsgs.push({role:'assistant',content:'❌ Xatolik yuz berdi.'})}
+    S.aiLoading=false;render();scrollChat()
+    return
+  }
+
+  S.chatMsgs.push({role:'user',content:msg})
   if(inp){inp.value='';inp.style.height='auto'}
-  S.pendingImage=null
   S.aiLoading=true;render();scrollChat()
   try{
-    const r=await POST('/api/chat',{message:msg,topicId:S.activeTopicId,imageBase64:imageToSend})
-    S.chatMsgs.push({role:'assistant',content:r.reply,extracted:r.extracted})
-    if(r.newTopic){ S.topics.unshift(r.newTopic); if(!S.activeTopicId) S.activeTopicId=r.newTopic._id }
-    if(r.topicId && r.topicId!==S.activeTopicId && !S.activeTopicId){} // keep general view consistent
-    await loadTopics()
-  }catch{S.chatMsgs.push({role:'assistant',content:'❌ Xatolik yuz berdi, qaytadan urinib ko\u2019ring.'})}
+    const r=await POST('/api/chat',{message:msg,topicId:S.activeTopicId})
+    S.chatMsgs.push({role:'assistant',content:r.reply,savedReminder:r.savedReminder,savedCards:r.savedCards})
+    if(r.topic&&!S.activeTopicId){S.activeTopicId=r.topic._id;S.topics=await GET('/api/topics')}
+    else if(r.topic){S.topics=await GET('/api/topics')}
+  }catch{S.chatMsgs.push({role:'assistant',content:'❌ Xatolik yuz berdi.'})}
   S.aiLoading=false;render();scrollChat()
 }
 
-function qp(text){const inp=document.getElementById('ci');if(inp)inp.value=text;sendChat()}
 function chatKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat()}}
 function autosize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px'}
 function scrollChat(){setTimeout(()=>{const e=document.getElementById('cm');if(e)e.scrollTop=e.scrollHeight},60)}
 
 function toggleVoice(){
-  if(!('webkitSpeechRecognition'in window||'SpeechRecognition'in window)){toast('❌ Bu brauzerda ovozli kiritish yo‘q');return}
+  if(!('webkitSpeechRecognition'in window||'SpeechRecognition'in window)){toast('❌ Chrome ishlatng');return}
   if(S.isRecording){if(S.recognition){S.recognition.stop();S.recognition=null}S.isRecording=false;render();return}
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition
   S.recognition=new SR()
@@ -456,148 +573,6 @@ function toggleVoice(){
   try{S.recognition.start();S.isRecording=true;render();toast('🎤 Gapiring...')}catch{toast('❌ Mikrofon ishlamadi')}
 }
 
-// ===== TODAY =====
-function todayPage(){
-  const d=S.today
-  if(!d) return `<div class="empty"><div class="empty-i">☀️</div><div class="empty-t">Yuklanmoqda...</div></div>`
-  return `
-    ${d.dueCards>0?`<div class="fc-banner" onclick="switchTab('chat');openFlashcardReview()">
-      <span class="fc-banner-icon">🔁</span>
-      <div class="fc-banner-text"><div class="fc-banner-title">${d.dueCards} ${t('due_cards')}</div><div class="fc-banner-sub">Bosing va takrorlang</div></div>
-    </div>`:''}
-    <div class="section-title">Eslatmalar</div>
-    ${d.activeReminders.length?d.activeReminders.map(r=>`<div class="reminder-card">
-      <div class="r-check ${r.isDone?'done':''}" onclick="toggleReminder('${r._id}',${!r.isDone})">${r.isDone?'✓':''}</div>
-      <div class="r-info"><div class="r-title ${r.isDone?'done':''}">${r.title}</div>${r.dueDate?`<div class="r-due">📅 ${r.dueDate}</div>`:''}</div>
-      <button class="r-del" onclick="delReminder('${r._id}')">×</button>
-    </div>`).join(''):`<div style="padding:0 14px 14px;font-size:13px;color:var(--t2)">${t('no_reminders')}</div>`}
-
-    <div class="section-title">So'nggi mavzular</div>
-    ${d.recentTopics.length?d.recentTopics.map(tp=>`<div class="topic-mini" onclick="switchTab('chat');selectTopic('${tp._id}')">
-      <span class="topic-mini-emoji">${tp.emoji}</span>
-      <div class="topic-mini-info"><div class="topic-mini-name">${tp.name}</div><div class="topic-mini-sub">${tp.messageCount||0} ta xabar</div></div>
-    </div>`).join(''):`<div style="padding:0 14px 14px;font-size:13px;color:var(--t2)">Hali mavzu yo'q</div>`}
-    <div class="space"></div>`
-}
-
-async function toggleReminder(id,done){
-  await PATCH('/api/reminders/'+id,{isDone:done})
-  const r=S.today.activeReminders.find(x=>x._id===id); if(r)r.isDone=done
-  render()
-}
-async function delReminder(id){
-  await DEL('/api/reminders/'+id)
-  S.today.activeReminders=S.today.activeReminders.filter(x=>x._id!==id)
-  render()
-}
-
-// ===== TOPICS =====
-function topicsPage(){
-  if(!S.topics.length) return `<div class="empty"><div class="empty-i">📚</div><div class="empty-t">${t('no_topics')}</div><div class="empty-s">${t('no_topics_sub')}</div>
-    <button class="btn-sm p" style="margin-top:14px" onclick="switchTab('chat')">💬 Suhbatni boshlash</button>
-  </div>`
-  return `<div style="padding:12px 14px 0"><button class="btn-sm p" onclick="openModal('addTopic')">${t('new_topic')}</button></div>
-    ${S.topics.map(tp=>`<div class="topic-card" onclick="switchTab('chat');selectTopic('${tp._id}')">
-      <div class="topic-card-top">
-        <span class="topic-card-emoji">${tp.emoji}</span>
-        <div class="topic-card-name">${tp.name}</div>
-        <div class="topic-card-meta">${tp.messageCount||0} xabar</div>
-      </div>
-      ${tp.understanding?.notes?`<div class="topic-notes">"${tp.understanding.notes}"</div>`:''}
-      <div class="topic-tags">
-        ${(tp.understanding?.strengths||[]).slice(0,2).map(s=>`<span class="topic-tag strong">✓ ${s}</span>`).join('')}
-        ${(tp.understanding?.weakSpots||[]).slice(0,2).map(s=>`<span class="topic-tag weak">⚠ ${s}</span>`).join('')}
-      </div>
-    </div>`).join('')}
-    <div class="space"></div>`
-}
-
-// ===== MODAL =====
-function modal(){
-  const MAP={
-    addTopic:['Yangi mavzu',mAddTopic()],
-    settings:['Sozlamalar',mSettings()],
-    flashcardReview:['🔁 Takrorlash',mFlashcardReview()],
-  }
-  const[title,content]=MAP[S.modal]||['','']
-  return `<div class="mbg" onclick="if(event.target===this)closeModal()">
-    <div class="modal"><div class="m-inner">
-      <div class="m-handle"></div>
-      <div class="m-title">${title}</div>
-      ${content}
-    </div></div>
-  </div>`
-}
-function openModal(m){ S.modal=m; if(m==='addTopic')S.nt={name:'',emoji:'📘'}; render() }
-function closeModal(){ S.modal=null; render() }
-
-const TOPIC_EMOJIS=['📘','🎸','💻','🗣️','🔬','📐','🎨','🏃','🧪','🌍','📖','🎵','⚛️','💡','🧮','🎯']
-function mAddTopic(){
-  return `<div class="field"><label>Mavzu nomi</label><input value="${S.nt.name}" oninput="S.nt.name=this.value" placeholder="Masalan: Gitara, Frantsuz tili, Matematika..."></div>
-    <div class="field"><label>Emoji</label><div class="emoji-g">${TOPIC_EMOJIS.map(e=>`<div class="eo ${S.nt.emoji===e?'sel':''}" onclick="S.nt.emoji='${e}';render()">${e}</div>`).join('')}</div></div>
-    <button class="btn btn-p" onclick="saveTopic()">Saqlash</button>
-    <button class="btn btn-s" onclick="closeModal()">${t('cancel')}</button>`
-}
-async function saveTopic(){
-  if(!S.nt.name.trim()){toast('Nom kiriting');return}
-  const tp=await POST('/api/topics',S.nt)
-  S.topics.unshift(tp); closeModal(); selectTopic(tp._id)
-}
-
-function mSettings(){
-  const u=S.user
-  return `<div class="field"><label>Ism</label><input value="${u?.name||''}" oninput="upd('name',this.value)"></div>
-    <div class="field"><label>${t('language')}</label><div style="display:flex;gap:6px">
-      <button class="btn-sm ${u?.lang==='uz'?'p':'s'}" onclick="changeLang('uz')">🇺🇿 O'z</button>
-      <button class="btn-sm ${u?.lang==='ru'?'p':'s'}" onclick="changeLang('ru')">🇷🇺 Рус</button>
-      <button class="btn-sm ${u?.lang==='en'?'p':'s'}" onclick="changeLang('en')">🇬🇧 Eng</button>
-    </div></div>
-    <button class="btn btn-p" onclick="closeModal()">${t('save')}</button>
-    <button class="btn btn-s" style="background:rgba(255,107,107,.1);color:var(--red)" onclick="logout()">${t('logout')}</button>`
-}
-async function upd(f,v){try{await PUT('/api/user',{[f]:v});if(S.user)S.user[f]=v}catch{}}
-async function changeLang(lang){await upd('lang',lang);S.user.lang=lang;closeModal();render()}
-async function logout(){await POST('/auth/logout');location.reload()}
-function toggleTheme(){const th=document.body.getAttribute('data-theme')==='dark'?'light':'dark';applyTheme(th);upd('theme',th);render()}
-
-// ===== FLASHCARD REVIEW =====
-async function openFlashcardReview(){
-  S.flashcards=await GET('/api/flashcards?dueOnly=true')
-  S.fcIdx=0;S.fcRev=false
-  S.modal='flashcardReview'; render()
-}
-function mFlashcardReview(){
-  const cards=S.flashcards,card=cards[S.fcIdx]
-  if(!card) return `<div style="text-align:center;padding:20px 0"><div style="font-size:36px;margin-bottom:10px">✅</div><div style="font-weight:700;margin-bottom:14px">Hammasi tugadi!</div><button class="btn btn-s" onclick="closeModal()">Yopish</button></div>`
-  return `<div style="font-size:12px;color:var(--t2);margin-bottom:10px">${S.fcIdx+1} / ${cards.length}${card.topicName?' · '+card.topicName:''}</div>
-    <div class="fc-stack" onclick="revFC()">
-      <div class="fc-main ${S.fcRev?'rev':''}">
-        <div class="fc-front">${card.front}</div>
-        ${S.fcRev?`<div class="fc-div"></div><div class="fc-back">${card.back}</div>`:`<div class="fc-hint">👆 Ko'rish uchun bosing</div>`}
-      </div>
-    </div>
-    ${S.fcRev?`<div class="fc-rating">
-      <button class="fr a" onclick="reviewFC(0)">🔴 Qayta</button>
-      <button class="fr h" onclick="reviewFC(2)">🟡 Qiyin</button>
-      <button class="fr g" onclick="reviewFC(3)">🟢 Yaxshi</button>
-      <button class="fr e" onclick="reviewFC(5)">⚡ Oson</button>
-    </div>`:''}`
-}
-function revFC(){S.fcRev=true;render()}
-async function reviewFC(q){
-  const c=S.flashcards[S.fcIdx];if(!c) return
-  await POST('/api/flashcards/'+c._id+'/review',{quality:q})
-  S.fcIdx++;S.fcRev=false;render()
-}
-
-function switchTab(tb){
-  S.tab=tb
-  if(tb==='today') loadToday().then(render)
-  else if(tb==='topics') loadTopics().then(render)
-  else render()
-  document.getElementById('scroll')?.scrollTo({top:0,behavior:'smooth'})
-}
-
 function toast(msg){
   document.querySelectorAll('.toast-el').forEach(e=>e.remove())
   const el=document.createElement('div');el.className='toast-el'
@@ -605,9 +580,7 @@ function toast(msg){
   el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),2500)
 }
 
-function afterRender(){
-  if(S.tab==='chat')scrollChat()
-}
+function afterRender(){ if(S.tab==='chat')scrollChat() }
 
 init()
 </script>
