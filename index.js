@@ -32,6 +32,8 @@ const UserSchema = new mongoose.Schema({
   telegramId: { type: String, unique: true, sparse: true }, telegramUsername: String,
   lang: { type: String, default: 'uz', enum: ['uz', 'ru', 'en'] },
   theme: { type: String, default: 'dark', enum: ['dark', 'light'] },
+  role: { type: String, default: 'student', enum: ['student','parent'] },
+  familyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Family' },
   grade: String, school: String, gender: { type: String, default: 'female' },
   isAdmin: { type: Boolean, default: false },
   xp: { type: Number, default: 0 }, level: { type: Number, default: 1 },
@@ -103,6 +105,54 @@ const InsightSchema = new mongoose.Schema({
   generatedAt: { type: Date, default: Date.now }
 })
 
+// ── JOURNAL & WELLBEING (privacy-first, ota-ona xom matnni hech qachon ko'rmaydi) ──
+const JournalSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  content: String, mood: { type: Number, min: 1, max: 5 },
+  createdAt: { type: Date, default: Date.now }
+})
+
+const WellbeingSummarySchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  weekStart: String,
+  moodTrend: { type: String, enum: ['barqaror','pasaymoqda','yaxshilanmoqda'], default: 'barqaror' },
+  stressLevel: { type: String, enum: ['past','orta','yuqori'], default: 'orta' },
+  motivationLevel: { type: String, enum: ['past','orta','yuqori'], default: 'orta' },
+  entriesCount: { type: Number, default: 0 },
+  updatedAt: { type: Date, default: Date.now }
+})
+WellbeingSummarySchema.index({ userId: 1, weekStart: 1 }, { unique: true })
+
+// Xavf signali — faqat aniq xavf holatlarida. Xom matn HECH QACHON saqlanmaydi bu yerda.
+const RiskAlertSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  severity: { type: String, enum: ['medium','high'], default: 'high' },
+  message: String,
+  isRead: { type: Boolean, default: false },
+  createdAt: { type: Date, default: Date.now }
+})
+
+// ── CAREER SUGGESTIONS ───────────────────────────────────────────
+const CareerSuggestionSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  careers: [{
+    careerName: String,
+    matchLevel: { type: String, enum: ['yuqori','orta','past'] },
+    reasoning: String,
+    roadmap: [{ year: Number, milestone: String }]
+  }],
+  generatedAt: { type: Date, default: Date.now }
+})
+
+// ── FAMILY / PARENT LINK ─────────────────────────────────────────
+const FamilySchema = new mongoose.Schema({
+  inviteCode: { type: String, unique: true },
+  parentUserId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  studentUserId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  studentName: String,
+  createdAt: { type: Date, default: Date.now }
+})
+
 const User = mongoose.model('User', UserSchema)
 const Subject = mongoose.model('Subject', SubjectSchema)
 const Chat = mongoose.model('Chat', ChatSchema)
@@ -110,6 +160,11 @@ const Flashcard = mongoose.model('Flashcard', FlashcardSchema)
 const Schedule = mongoose.model('Schedule', ScheduleSchema)
 const Note = mongoose.model('Note', NoteSchema)
 const Insight = mongoose.model('Insight', InsightSchema)
+const Journal = mongoose.model('Journal', JournalSchema)
+const WellbeingSummary = mongoose.model('WellbeingSummary', WellbeingSummarySchema)
+const RiskAlert = mongoose.model('RiskAlert', RiskAlertSchema)
+const CareerSuggestion = mongoose.model('CareerSuggestion', CareerSuggestionSchema)
+const Family = mongoose.model('Family', FamilySchema)
 
 // ── MIDDLEWARE ───────────────────────────────────────────────────
 app.use(express.json({ limit: '5mb' }))
@@ -267,6 +322,61 @@ function cleanText(t) {
   return t.replace(/\[GRADE:[^\]]+\]/gi,'').replace(/\[STUDY:[^\]]+\]/gi,'').replace(/\[SCHED:[^\]]+\]/gi,'').replace(/\[FC:[^\]]+\]/gi,'').replace(/\n{3,}/g,'\n\n').trim()
 }
 
+// ── WELLBEING ANALYSIS (privacy-first) ──────────────────────────
+// Xom journal matni HECH QACHON qaytarilmaydi yoki boshqa joyga yozilmaydi.
+// Faqat agregat trend + juda ehtiyotkor xavf signali chiqariladi.
+async function analyzeWellbeing(journalText, mood) {
+  const system = `Sen journal yozuvini tahlil qiluvchi maxfiy AI tizimisan.
+Faqat quyidagi JSON formatda javob ber, hech qanday boshqa matn yozma:
+{
+  "mood_trend": "barqaror" | "pasaymoqda" | "yaxshilanmoqda",
+  "stress_level": "past" | "orta" | "yuqori",
+  "motivation_level": "past" | "orta" | "yuqori",
+  "crisis_detected": false
+}
+crisis_detected FAQAT haqiqiy, aniq va to'g'ridan-to'g'ri xavf belgilari bo'lsa true bo'ladi:
+o'z joniga qasd qilish haqida aniq fikr/niyat, og'ir o'zini-o'zi jarohatlash haqida yozuv,
+yoki boshqa kishi tomonidan jiddiy zo'ravonlik haqida aniq yozuv.
+Bu juda yuqori chegara — oddiy stress, xafagarchilik, charchoq, imtihon qo'rquvi,
+do'stlar bilan janjal kabi narsalar crisis EMAS. Shubha bo'lsa ham false qaytar —
+faqat 100% aniq bo'lganda true qil.`
+  const user = `Kayfiyat balli (1-5): ${mood}\nYozuv: ${journalText}`
+  const reply = await ai([{role:'user',content:user}], system, 200)
+  const text = reply.replace(/```json|```/g,'').trim()
+  try {
+    const parsed = JSON.parse(text)
+    return {
+      mood_trend: ['barqaror','pasaymoqda','yaxshilanmoqda'].includes(parsed.mood_trend) ? parsed.mood_trend : 'barqaror',
+      stress_level: ['past','orta','yuqori'].includes(parsed.stress_level) ? parsed.stress_level : 'orta',
+      motivation_level: ['past','orta','yuqori'].includes(parsed.motivation_level) ? parsed.motivation_level : 'orta',
+      crisis_detected: parsed.crisis_detected === true
+    }
+  } catch {
+    return { mood_trend:'barqaror', stress_level:'orta', motivation_level:'orta', crisis_detected:false }
+  }
+}
+
+function getWeekStart() {
+  const d = new Date()
+  const day = d.getDay() || 7
+  d.setDate(d.getDate() - day + 1)
+  return d.toISOString().split('T')[0]
+}
+
+// ── CAREER SUGGESTIONS ───────────────────────────────────────────
+async function generateCareerSuggestions(user, subjects) {
+  const system = `Sen karyera maslahatchisi AI'san. O'quvchi ma'lumotlari asosida 5 ta kasb
+tavsiya qil. FAQAT JSON massiv qaytar, boshqa hech narsa yozma:
+[{"career_name":"...","match_level":"yuqori"|"orta"|"past","reasoning":"qisqa bir jumla","roadmap":[{"year":2026,"milestone":"..."}]}]
+match_level uchun aniq foiz ishlatma. O'zbek tilida yoz.`
+  const user2 = `O'quvchi: ${user.name}, ${user.grade}
+Baholar: ${JSON.stringify(subjects.map(s=>({fan:s.name,bal:s.avgGrade})))}
+Kuchli fanlar: ${subjects.filter(s=>s.avgGrade>=75).map(s=>s.name).join(', ')||'aniqlanmagan'}`
+  const reply = await ai([{role:'user',content:user2}], system, 900)
+  const text = reply.replace(/```json|```/g,'').trim()
+  try { return JSON.parse(text) } catch { return [] }
+}
+
 const QUOTES = {
   uz:[
     {text:"Muvaffaqiyat — har kuni kichik harakatlar yig'indisi.",author:"Robert Collier"},
@@ -299,10 +409,10 @@ app.post('/auth/logout', (req,res) => { req.session.destroy(); res.json({ok:true
 // ── USER ────────────────────────────────────────────────────────
 app.get('/api/user', auth, (req,res) => {
   const u=req.u
-  res.json({_id:u._id,name:u.name,email:u.email,avatar:u.avatar,lang:u.lang,theme:u.theme,grade:u.grade,school:u.school,gender:u.gender,xp:u.xp,level:u.level,streak:u.streak,streakFreezeCount:u.streakFreezeCount,totalStudyMinutes:u.totalStudyMinutes,focusScore:u.focusScore,gardenLevel:u.gardenLevel,achievements:u.achievements,savedQuotes:u.savedQuotes,isAdmin:u.isAdmin})
+  res.json({_id:u._id,name:u.name,email:u.email,avatar:u.avatar,lang:u.lang,theme:u.theme,role:u.role,familyId:u.familyId,grade:u.grade,school:u.school,gender:u.gender,xp:u.xp,level:u.level,streak:u.streak,streakFreezeCount:u.streakFreezeCount,totalStudyMinutes:u.totalStudyMinutes,focusScore:u.focusScore,gardenLevel:u.gardenLevel,achievements:u.achievements,savedQuotes:u.savedQuotes,isAdmin:u.isAdmin})
 })
 app.put('/api/user', auth, async (req,res) => {
-  const fields=['lang','grade','school','name','theme','gender','notifEnabled']
+  const fields=['lang','grade','school','name','theme','gender','notifEnabled','role']
   fields.forEach(f=>{ if(req.body[f]!==undefined) req.u[f]=req.body[f] })
   await req.u.save(); res.json({ok:true})
 })
@@ -480,7 +590,108 @@ app.post('/api/notes/summarize', auth, async (req,res) => {
   res.json({summary:await ai([{role:'user',content:`Xulosalab ber:\n${content.slice(0,3000)}`}],buildSystem(req.u,[]),500)})
 })
 
-// ── GARDEN ──────────────────────────────────────────────────────
+// ── JOURNAL & WELLBEING ───────────────────────────────────────────
+app.get('/api/journal', auth, async (req,res) => {
+  res.json(await Journal.find({userId:req.u._id}).sort({createdAt:-1}).limit(30))
+})
+app.post('/api/journal', auth, async (req,res) => {
+  const {content,mood}=req.body
+  if(!content?.trim()) return res.status(400).json({error:'Yozuv kerak'})
+  await Journal.create({userId:req.u._id,content,mood:mood||3})
+
+  // AI tahlil — xom matn faqat shu yerda ko'rinadi, boshqa joyga yozilmaydi
+  const analysis = await analyzeWellbeing(content, mood||3)
+  const weekStart = getWeekStart()
+  const prevCount = await Journal.countDocuments({userId:req.u._id})
+  await WellbeingSummary.findOneAndUpdate(
+    {userId:req.u._id,weekStart},
+    {moodTrend:analysis.mood_trend,stressLevel:analysis.stress_level,motivationLevel:analysis.motivation_level,entriesCount:prevCount,updatedAt:new Date()},
+    {upsert:true,new:true}
+  )
+
+  let alertCreated=false
+  if(analysis.crisis_detected) {
+    await RiskAlert.create({
+      userId:req.u._id, severity:'high',
+      message:"Farzandingizning so'nggi yozuvlarida ehtiyot bo'lish kerak bo'lgan belgilar aniqlandi. Bu tibbiy tashxis emas — uning bilan yaqindan gaplashishni va zarur bo'lsa mutaxassisga (psixolog) murojaat qilishni tavsiya qilamiz."
+    })
+    alertCreated=true
+  }
+  await giveXP(req.u._id, 4)
+  res.json({ok:true,crisisDetected:alertCreated})
+})
+
+app.get('/api/wellbeing', auth, async (req,res) => {
+  const summaries = await WellbeingSummary.find({userId:req.u._id}).sort({weekStart:-1}).limit(8)
+  res.json(summaries)
+})
+
+// ── CAREER ──────────────────────────────────────────────────────
+app.get('/api/career', auth, async (req,res) => {
+  const latest = await CareerSuggestion.findOne({userId:req.u._id}).sort({generatedAt:-1})
+  res.json(latest)
+})
+app.post('/api/career/generate', auth, async (req,res) => {
+  const subjects = await Subject.find({userId:req.u._id})
+  if(!subjects.length) return res.status(400).json({error:'Avval fan qo\'shing'})
+  const careers = await generateCareerSuggestions(req.u, subjects)
+  const saved = await CareerSuggestion.create({
+    userId:req.u._id,
+    careers:careers.map(c=>({careerName:c.career_name,matchLevel:c.match_level,reasoning:c.reasoning,roadmap:c.roadmap||[]}))
+  })
+  await giveXP(req.u._id, 8)
+  res.json(saved)
+})
+
+// ── FAMILY / PARENT LINK ──────────────────────────────────────────
+function genInviteCode() {
+  return Math.random().toString(36).substring(2,8).toUpperCase()
+}
+app.post('/api/family/create', auth, async (req,res) => {
+  if(req.u.role!=='parent') return res.status(403).json({error:'Faqat ota-ona uchun'})
+  const existing = await Family.findOne({parentUserId:req.u._id})
+  if(existing) return res.json(existing)
+  const fam = await Family.create({inviteCode:genInviteCode(),parentUserId:req.u._id})
+  req.u.familyId=fam._id; await req.u.save()
+  res.json(fam)
+})
+app.post('/api/family/join', auth, async (req,res) => {
+  const {inviteCode}=req.body
+  const fam = await Family.findOne({inviteCode:inviteCode?.toUpperCase()})
+  if(!fam) return res.status(404).json({error:'Kod topilmadi'})
+  fam.studentUserId=req.u._id; fam.studentName=req.u.name; await fam.save()
+  req.u.familyId=fam._id; await req.u.save()
+  res.json(fam)
+})
+app.get('/api/family/me', auth, async (req,res) => {
+  if(!req.u.familyId) return res.json(null)
+  res.json(await Family.findById(req.u.familyId))
+})
+app.get('/api/family/student-overview', auth, async (req,res) => {
+  // Faqat ota-ona, faqat agregat ma'lumot — xom journal yo'q
+  if(req.u.role!=='parent') return res.status(403).json({error:'Ruxsat yo\'q'})
+  const fam = await Family.findById(req.u.familyId)
+  if(!fam?.studentUserId) return res.json(null)
+  const student = await User.findById(fam.studentUserId)
+  if(!student) return res.json(null)
+  const subjects = await Subject.find({userId:student._id})
+  const wellbeing = await WellbeingSummary.find({userId:student._id}).sort({weekStart:-1}).limit(4)
+  const alerts = await RiskAlert.find({userId:student._id}).sort({createdAt:-1}).limit(10)
+  const lastInsight = await Insight.findOne({userId:student._id}).sort({generatedAt:-1})
+  const avgGrade = subjects.filter(s=>s.avgGrade>0).length ? Math.round(subjects.filter(s=>s.avgGrade>0).reduce((a,s)=>a+s.avgGrade,0)/subjects.filter(s=>s.avgGrade>0).length) : 0
+  res.json({
+    studentName:student.name, grade:student.grade, level:student.level, xp:student.xp,
+    streak:student.streak, totalStudyMinutes:student.totalStudyMinutes, focusScore:student.focusScore,
+    avgGrade, subjects:subjects.map(s=>({name:s.name,emoji:s.emoji,avgGrade:s.avgGrade})),
+    wellbeing, alerts, lastInsight
+  })
+})
+app.patch('/api/family/alerts/:id/read', auth, async (req,res) => {
+  await RiskAlert.findByIdAndUpdate(req.params.id,{isRead:true})
+  res.json({ok:true})
+})
+
+
 app.get('/api/garden', auth, async (req,res) => {
   const u=req.u, subjects=await Subject.find({userId:u._id})
   const gl=calcGardenLevel(u,subjects)
