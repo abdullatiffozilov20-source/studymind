@@ -435,7 +435,8 @@ let S={
   fcTopic:'',fcCount:5,
   isRecording:false,recognition:null,
   celebration:null,
-  onboarding:false,obStep:0,obName:'',obGrade:'',
+  onboarding:false,obStep:0,obName:'',obGrade:'',obRole:'student',obInvite:'',
+  journal:[],wellbeing:[],career:null,family:null,parentOverview:null,moreView:'main',
 }
 
 const req=async(m,p,b)=>{const r=await fetch(p,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):undefined});if(!r.ok)throw new Error(await r.text());return r.json()}
@@ -449,9 +450,15 @@ async function init(){
   try{
     S.user=await GET('/api/user')
     applyTheme(S.user.theme||'dark')
-    if(!S.user.grade){S.onboarding=true;S.obStep=0;render();return}
+    if(!S.user.grade&&S.user.role!=='parent'){S.onboarding=true;S.obStep=0;render();return}
+    if(S.user.role==='parent'){await loadParent();render();return}
     await loadAll();render()
   }catch{renderLogin()}
+}
+
+async function loadParent(){
+  try{S.family=await GET('/api/family/me')}catch{}
+  try{S.parentOverview=await GET('/api/family/student-overview')}catch{}
 }
 
 async function loadAll(){
@@ -463,6 +470,7 @@ async function loadAll(){
   S.chatMsgs=d.map(m=>({role:m.role,content:m.content,time:'',extracted:m.extractedData}))
   S.schedule=e;S.notes=f;S.quote=g
   try{const gd=await GET('/api/garden');S.gardenData=gd}catch{}
+  try{S.family=await GET('/api/family/me')}catch{}
 }
 
 function applyTheme(th){document.body.setAttribute('data-theme',th)}
@@ -471,6 +479,7 @@ function render(){
   if(!S.user){renderLogin();return}
   if(S.onboarding){renderOnboarding();return}
   if(S.celebration){renderCelebration();return}
+  if(S.user.role==='parent'){renderParent();return}
   const root=document.getElementById('root')
   root.innerHTML=(S.tab==='ai'?chatShell():stdShell())+nav()+(S.modal?modal():'')
   afterRender()
@@ -504,9 +513,11 @@ function renderOnboarding(){
   const steps=[
     {title:t('ob1_t'),sub:t('ob1_s'),cta:t('lets_start'),type:'info',skip:true},
     {title:t('ob2_t'),sub:t('ob2_s'),cta:'Keyingi →',type:'info',skip:true},
+    {title:'Siz kimsiz?',sub:'Bu StudyMind tajribangizni belgilaydi.',cta:'Keyingi →',type:'role',skip:false},
     {title:t('ob3_t'),sub:t('ob3_s'),cta:'Keyingi →',type:'name',skip:false},
-    {title:t('ob4_t'),sub:'',cta:t('lets_start'),type:'grade',skip:false},
+    {title:S.obRole==='parent'?'Farzandingiz sinfi?':t('ob4_t'),sub:S.obRole==='parent'?"Bu ixtiyoriy — keyin ham o'rnatishingiz mumkin":'',cta:S.obRole==='parent'?'Keyingi →':t('lets_start'),type:'grade',skip:false},
   ]
+  if(S.obRole==='parent') steps.push({title:'Oilani ulang',sub:"Farzandingiz bergan taklif kodini kiriting, yoki keyinroq ulang.",cta:t('lets_start'),type:'family',skip:false})
   const step=steps[S.obStep]
   document.getElementById('root').innerHTML=`<div class="ob-wrap">
     <div class="ob-canvas-wrap"><canvas id="ob-canvas"></canvas><div class="ob-fade"></div></div>
@@ -514,10 +525,17 @@ function renderOnboarding(){
       <div class="ob-dots">${steps.map((_,i)=>`<div class="ob-dot ${i===S.obStep?'on':''}"></div>`).join('')}</div>
       <div class="ob-title">${step.title}</div>
       ${step.sub?`<div class="ob-sub">${step.sub}</div>`:''}
+      ${step.type==='role'?`<div class="ob-grade-grid" style="grid-template-columns:1fr 1fr">
+        <div class="ob-grade ${S.obRole==='student'?'sel':''}" style="padding:18px 12px" onclick="S.obRole='student';render()">🎓<br><br>O'quvchi</div>
+        <div class="ob-grade ${S.obRole==='parent'?'sel':''}" style="padding:18px 12px" onclick="S.obRole='parent';render()">👪<br><br>Ota-ona</div>
+      </div>`:''}
       ${step.type==='name'?`<input class="ob-inp" id="ob-name" placeholder="Ismingiz..." value="${S.obName}" oninput="S.obName=this.value" autofocus>`:''}
       ${step.type==='grade'?`<div class="ob-grade-grid">
         ${['8-sinf','9-sinf','10-sinf','11-sinf','1-kurs','2-kurs'].map(g=>`<div class="ob-grade ${S.obGrade===g?'sel':''}" onclick="S.obGrade='${g}';render()">${g}</div>`).join('')}
       </div>`:''}
+      ${step.type==='family'?`
+        <div class="field"><label>Taklif kodi (bo'lsa)</label><input class="ob-inp" id="ob-invite" placeholder="ABC123" style="text-transform:uppercase" oninput="S.obInvite=this.value.toUpperCase()" value="${S.obInvite||''}"></div>
+      `:''}
       <button class="ob-btn" onclick="obNext()">${step.cta}</button>
       ${step.skip?`<div class="ob-skip" onclick="obSkip()">${t('already')}</div>`:''}
     </div>
@@ -529,11 +547,23 @@ function renderOnboarding(){
 }
 
 async function obNext(){
-  if(S.obStep===2&&!S.obName.trim()){toast('Ismingizni kiriting');return}
-  if(S.obStep===3){
-    if(!S.obGrade){toast('Sinfni tanlang');return}
-    await PUT('/api/user',{name:S.obName||S.user.name,grade:S.obGrade})
-    S.user.name=S.obName||S.user.name;S.user.grade=S.obGrade
+  const totalSteps=S.obRole==='parent'?6:5
+  const isNameStep=S.obStep===3
+  const isLastStep=S.obStep===totalSteps-1
+  if(isNameStep&&!S.obName.trim()){toast('Ismingizni kiriting');return}
+  if(S.obStep===2&&!S.obRole){toast('Tanlang');return}
+
+  if(isLastStep){
+    await PUT('/api/user',{name:S.obName||S.user.name,grade:S.obGrade||'',role:S.obRole||'student'})
+    S.user.name=S.obName||S.user.name;S.user.grade=S.obGrade||'';S.user.role=S.obRole||'student'
+    if(S.obRole==='parent'){
+      if(S.obInvite?.trim()){
+        try{await POST('/api/family/join',{inviteCode:S.obInvite.trim()})}catch{toast('⚠️ Kod topilmadi, keyinroq urinib ko\'ring')}
+      } else {
+        try{await POST('/api/family/create',{})}catch{}
+      }
+      S.onboarding=false;await loadParent();render();return
+    }
     S.onboarding=false;await loadAll();render();return
   }
   S.obStep++;render()
@@ -829,6 +859,103 @@ function notes(){
 }
 
 // MORE
+// ── PARENT DASHBOARD (alohida shell — faqat agregat ma'lumot) ──────
+function renderParent(){
+  const o=S.parentOverview, fam=S.family
+  const init2=(S.user?.name||'U').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()
+  const unreadAlerts=(o?.alerts||[]).filter(a=>!a.isRead)
+  document.getElementById('root').innerHTML=`<div id="app">
+    <div class="hdr">
+      <div class="hdr-row">
+        <div><div class="hdr-title">👪 Ota-ona paneli</div><div class="hdr-sub">${o?.studentName?`${o.studentName} kuzatuvi`:'Farzandingizni ulang'}</div></div>
+        <div class="hdr-right">
+          <div class="icon-btn" onclick="toggleTheme()">${document.body.getAttribute('data-theme')==='dark'?'☀️':'🌙'}</div>
+          <div class="hdr-av" onclick="openModal('parentSettings')">${init2}</div>
+        </div>
+      </div>
+    </div>
+    <div id="scroll">
+      ${!fam?.studentUserId?`
+        <div style="margin:14px;background:var(--card);border:1px solid var(--b);border-radius:18px;padding:24px;text-align:center;box-shadow:var(--sh)">
+          <div style="font-size:40px;margin-bottom:10px">👪</div>
+          <div style="font-size:16px;font-weight:700;margin-bottom:6px">Farzandingizni ulang</div>
+          <div style="font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:16px">Quyidagi kodni farzandingizga bering — u shu kodni o'z appida kiritadi.</div>
+          ${fam?.inviteCode?`<div style="background:var(--pg);border-radius:14px;padding:16px;margin-bottom:14px">
+            <div style="font-size:11px;color:rgba(255,255,255,.7);margin-bottom:4px">TAKLIF KODI</div>
+            <div style="font-family:'Poppins',sans-serif;font-size:28px;font-weight:900;color:white;letter-spacing:.1em">${fam.inviteCode}</div>
+          </div>
+          <button class="btn-sm s" onclick="copyInvite('${fam.inviteCode}')">📋 Nusxalash</button>`:`<button class="btn btn-p" onclick="createFamily()">Kod yaratish</button>`}
+        </div>`
+      :`
+        ${unreadAlerts.length?`<div style="margin:14px;background:rgba(255,107,107,.1);border:1.5px solid rgba(255,107,107,.3);border-radius:18px;padding:16px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+            <span style="font-size:20px">⚠️</span><div style="font-size:14px;font-weight:700;color:var(--red)">E'tibor talab qiladi</div>
+          </div>
+          ${unreadAlerts.map(a=>`<div style="background:var(--card);border-radius:12px;padding:12px;margin-bottom:8px;font-size:13px;line-height:1.6">
+            ${a.message}
+            <div style="margin-top:8px;display:flex;gap:8px;align-items:center;justify-content:space-between">
+              <span style="font-size:11px;color:var(--t2)">${new Date(a.createdAt).toLocaleDateString()}</span>
+              <button class="btn-sm s" onclick="markAlertRead('${a._id}')">Ko'rdim</button>
+            </div>
+          </div>`).join('')}
+        </div>`:''}
+
+        <div class="profile-hero">
+          <div class="profile-av">${(o?.studentName||'?')[0]}</div>
+          <div class="profile-name">${o?.studentName||'—'}</div>
+          <div class="profile-level">${o?.grade||''} · Lv.${o?.level||1} · 🔥${o?.streak||0} kun</div>
+        </div>
+
+        <div class="metrics">
+          <div class="mc"><div class="mc-val" style="color:var(--p)">${o?.avgGrade||'—'}</div><div class="mc-lbl">O'rtacha baho</div></div>
+          <div class="mc"><div class="mc-val" style="color:var(--teal)">${o?.totalStudyMinutes||0}</div><div class="mc-lbl">Daqiqa o'qigan</div></div>
+          <div class="mc"><div class="mc-val" style="color:var(--amber)">${o?.focusScore||0}</div><div class="mc-lbl">Focus Score</div></div>
+          <div class="mc"><div class="mc-val" style="color:var(--pink)">🔥${o?.streak||0}</div><div class="mc-lbl">Streak</div></div>
+        </div>
+
+        ${o?.lastInsight?`<div class="ai-bubble">
+          <span class="ai-badge">AI Haftalik xulosa</span>
+          <div class="ai-bubble-text">${o.lastInsight.strengths?.length?`💪 Kuchli: ${o.lastInsight.strengths.join(', ')}`:''}${o.lastInsight.needsFocus?.length?`<br>📌 E'tibor: ${o.lastInsight.needsFocus.join(', ')}`:''}</div>
+        </div>`:''}
+
+        <div style="padding:0 14px"><div class="sec-title" style="margin-bottom:10px">${t('subjects')}</div></div>
+        ${(o?.subjects||[]).map(s=>`<div class="subj-card"><div class="subj-body" style="padding:12px 14px;display:flex;align-items:center;gap:10px">
+          <span style="font-size:20px">${s.emoji}</span>
+          <div style="flex:1;font-size:14px;font-weight:600">${s.name}</div>
+          <div style="font-family:'Poppins',sans-serif;font-weight:800;color:var(--p)">${s.avgGrade||'—'}</div>
+        </div></div>`).join('')||`<div class="empty"><div class="empty-s">Hali fan qo'shilmagan</div></div>`}
+
+        <div style="padding:12px 14px 4px"><div class="sec-title">🌤️ His-tuyg'u holati (haftalik)</div></div>
+        <div class="ins-section">
+          ${(o?.wellbeing||[]).length?o.wellbeing.map(w=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--b)">
+            <span style="font-size:12px;color:var(--t2)">${w.weekStart}</span>
+            <div style="display:flex;gap:6px">
+              <span class="chip ${w.moodTrend==='yaxshilanmoqda'?'s':w.moodTrend==='pasaymoqda'?'f':''}" style="font-size:10px">${w.moodTrend}</span>
+              <span class="chip ${w.stressLevel==='yuqori'?'f':'s'}" style="font-size:10px">stress: ${w.stressLevel}</span>
+            </div>
+          </div>`).join(''):`<div style="text-align:center;color:var(--t2);font-size:13px;padding:10px 0">Farzandingiz hali journal yozmagan.<br><span style="font-size:11px;color:var(--t3)">Eslatma: shaxsiy yozuvlar maxfiy — faqat umumiy trend ko'rsatiladi.</span></div>`}
+        </div>
+        <div style="margin:0 14px 10px;background:var(--card2);border-radius:12px;padding:10px 14px;font-size:11px;color:var(--t2);line-height:1.6;text-align:center">
+          🔒 Farzandingizning shaxsiy yozuvlari va AI suhbatlari maxfiy qoladi. Faqat umumiy trend va xavfsizlik signallari ko'rsatiladi.
+        </div>
+      `}
+    </div>
+  </div>` + (S.modal?modal():'')
+}
+
+async function createFamily(){
+  try{S.family=await POST('/api/family/create',{});render()}catch{toast('❌ Xatolik')}
+}
+function copyInvite(code){
+  navigator.clipboard?.writeText(code);toast('📋 Nusxalandi: '+code)
+}
+async function markAlertRead(id){
+  await PATCH('/api/family/alerts/'+id+'/read',{})
+  if(S.parentOverview)S.parentOverview.alerts=S.parentOverview.alerts.map(a=>a._id===id?{...a,isRead:true}:a)
+  render()
+}
+
+
 function more(){
   const u=S.user,xp=nxtLvl(u?.level||1),pct=Math.min(100,Math.round(((u?.xp||0)/xp)*100))
   const init2=(u?.name||'U').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()
@@ -943,6 +1070,21 @@ function more(){
 
     <!-- MORE LIST -->
     <div class="more-section" style="margin-top:12px">
+      <div class="mi" onclick="openModal('journal')">
+        <div class="mi-icon" style="background:rgba(165,148,255,.15)">📔</div>
+        <div class="mi-info"><div class="mi-label">Journal</div><div class="mi-sub">Kunlik kayfiyat va fikrlaringiz — maxfiy</div></div>
+        <div class="mi-right">›</div>
+      </div>
+      <div class="mi" onclick="openModal('career')">
+        <div class="mi-icon" style="background:rgba(0,200,150,.15)">🧭</div>
+        <div class="mi-info"><div class="mi-label">Karyera yo'nalishi</div><div class="mi-sub">${S.career?.careers?.length?'AI tavsiyalari tayyor':'AI tahlil qiladi'}</div></div>
+        <div class="mi-right">›</div>
+      </div>
+      <div class="mi" onclick="openModal('familyLink')">
+        <div class="mi-icon" style="background:rgba(255,179,71,.15)">👪</div>
+        <div class="mi-info"><div class="mi-label">Ota-onani ulash</div><div class="mi-sub">${S.family?.parentUserId?'Ulangan':'Taklif kodi yarating'}</div></div>
+        <div class="mi-right">›</div>
+      </div>
       <div class="mi" onclick="openModal('settings')">
         <div class="mi-icon" style="background:rgba(108,95,255,.12)">⚙️</div>
         <div class="mi-info"><div class="mi-label">${t('settings')}</div><div class="mi-sub">${t('language')}, sinf, ism</div></div>
@@ -1007,6 +1149,10 @@ function modal(){
     settings:['Sozlamalar',mSettings()],
     noteEdit:['Eslatmani tahrirlash',mNoteEdit()],
     savedQuotes:['Saqlangan gaplar',mSavedQuotes()],
+    journal:['📔 Journal',mJournal()],
+    career:['🧭 Karyera yo\'nalishi',mCareer()],
+    familyLink:['👪 Ota-onani ulash',mFamilyLink()],
+    parentSettings:['Sozlamalar',mParentSettings()],
   }
   const[title,content]=MAP[S.modal]||['','']
   return`<div class="mbg" onclick="if(event.target===this)closeModal()">
@@ -1098,7 +1244,108 @@ function mSavedQuotes(){const u=S.user;return`
   </div>`).join('')||'<div style="color:var(--t2);text-align:center;padding:20px">Hali saqlanmagan</div>'}
   <button class="btn btn-s" onclick="closeModal()" style="margin-top:10px">Yopish</button>`}
 
-// CELEBRATION
+function mJournal(){
+  const entries=S.journal||[]
+  return`
+  <div style="background:rgba(108,95,255,.08);border:1px solid var(--b2);border-radius:12px;padding:10px 12px;font-size:11px;color:var(--t2);line-height:1.6;margin-bottom:14px">
+    🔒 Bu yerda yozganlaringiz to'liq maxfiy — ota-onangiz xom matnni hech qachon ko'rmaydi. Faqat umumiy kayfiyat trendi ko'rsatiladi.
+  </div>
+  <div class="field"><label>Bugun o'zingizni qanday his qilyapsiz?</label>
+    <div style="display:flex;gap:6px;justify-content:space-between">
+      ${[1,2,3,4,5].map(m=>`<div onclick="S.journalMood=${m};render()" style="flex:1;text-align:center;padding:10px 4px;border-radius:10px;cursor:pointer;font-size:22px;background:${(S.journalMood||3)===m?'var(--p)':'var(--card2)'};border:1.5px solid ${(S.journalMood||3)===m?'var(--p)':'var(--b)'}">${['😔','😕','😐','🙂','😄'][m-1]}</div>`).join('')}
+    </div>
+  </div>
+  <div class="field"><label>Bugun nima bo'ldi?</label>
+    <textarea id="j-content" rows="5" placeholder="Hech kim bu yerni ko'rmaydi — erkin yozing..."></textarea>
+  </div>
+  <button class="btn btn-p" onclick="saveJournal()">Saqlash</button>
+  <button class="btn btn-s" onclick="closeModal()">Bekor</button>
+  ${entries.length?`<div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--b)">
+    <div class="sec-title" style="margin-bottom:8px">Oldingi yozuvlar</div>
+    ${entries.slice(0,5).map(e=>`<div style="padding:8px 0;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:8px">
+      <span style="font-size:18px">${['😔','😕','😐','🙂','😄'][(e.mood||3)-1]}</span>
+      <div style="flex:1;font-size:12px;color:var(--t2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.content}</div>
+      <span style="font-size:10px;color:var(--t3)">${new Date(e.createdAt).toLocaleDateString()}</span>
+    </div>`).join('')}
+  </div>`:''}`
+}
+
+async function saveJournal(){
+  const content=document.getElementById('j-content')?.value
+  if(!content?.trim()){toast('Yozing...');return}
+  toast('⏳ Saqlanmoqda...')
+  try{
+    const r=await POST('/api/journal',{content,mood:S.journalMood||3})
+    S.journal=await GET('/api/journal')
+    closeModal()
+    toast('✅ Saqlandi — bu maxfiy qoladi')
+  }catch{toast('❌ Xatolik')}
+}
+
+function mCareer(){
+  const c=S.career
+  if(!c?.careers?.length) return`
+    <div style="text-align:center;padding:10px 0 16px">
+      <div style="font-size:36px;margin-bottom:10px">🧭</div>
+      <div style="font-size:14px;color:var(--t2);line-height:1.6;margin-bottom:16px">Baholaringiz va kuchli fanlaringiz asosida AI sizga mos kasblarni tavsiya qiladi.</div>
+      <button class="btn btn-p" onclick="genCareer()">🧠 Tahlil qilish</button>
+    </div>`
+  return`
+    <div style="font-size:12px;color:var(--t2);margin-bottom:14px">Yangilangan: ${new Date(c.generatedAt).toLocaleDateString()}</div>
+    ${c.careers.map(ca=>`<div style="background:var(--card2);border:1px solid var(--b);border-radius:14px;padding:14px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div style="font-size:15px;font-weight:700">${ca.careerName}</div>
+        <span class="chip ${ca.matchLevel==='yuqori'?'s':ca.matchLevel==='past'?'f':''}" style="font-size:10px">${ca.matchLevel}</span>
+      </div>
+      <div style="font-size:12px;color:var(--t2);line-height:1.5;margin-bottom:8px">${ca.reasoning}</div>
+      ${ca.roadmap?.length?`<div style="display:flex;flex-direction:column;gap:4px">
+        ${ca.roadmap.map(r=>`<div style="display:flex;gap:8px;font-size:11px;color:var(--t2)"><b style="color:var(--p)">${r.year}</b> ${r.milestone}</div>`).join('')}
+      </div>`:''}
+    </div>`).join('')}
+    <button class="btn btn-s" onclick="genCareer()">🔄 Qayta tahlil qilish</button>
+    <button class="btn btn-s" onclick="closeModal()">Yopish</button>`
+}
+
+async function genCareer(){
+  toast('⏳ AI tahlil qilmoqda...')
+  try{S.career=await POST('/api/career/generate',{});render()}catch(e){toast('❌ '+e.message)}
+}
+
+function mFamilyLink(){
+  const fam=S.family
+  if(fam?.parentUserId) return`
+    <div style="text-align:center;padding:10px 0">
+      <div style="font-size:36px;margin-bottom:10px">✅</div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:6px">Ota-ona ulangan</div>
+      <div style="font-size:12px;color:var(--t2)">Ota-onangiz umumiy ko'rsatkichlaringizni kuzatib boradi. Shaxsiy journal va AI suhbatlaringiz maxfiy qoladi.</div>
+    </div>
+    <button class="btn btn-s" onclick="closeModal()" style="margin-top:14px">Yopish</button>`
+  return`
+    <div style="font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:14px">Ota-onangizga taklif kodi bering — ular shu kodni o'z appida kiritib, umumiy ko'rsatkichlaringizni ko'ra oladi.</div>
+    ${fam?.inviteCode?`<div style="background:var(--pg);border-radius:14px;padding:18px;text-align:center;margin-bottom:14px">
+      <div style="font-size:11px;color:rgba(255,255,255,.7);margin-bottom:6px">TAKLIF KODI</div>
+      <div style="font-family:'Poppins',sans-serif;font-size:30px;font-weight:900;color:white;letter-spacing:.12em">${fam.inviteCode}</div>
+    </div>
+    <button class="btn-sm s" onclick="copyInvite('${fam.inviteCode}')" style="width:100%;justify-content:center;margin-bottom:10px">📋 Nusxalash</button>`
+    :`<button class="btn btn-p" onclick="genFamilyCode()">Kod yaratish</button>`}
+    <button class="btn btn-s" onclick="closeModal()">Yopish</button>`
+}
+
+async function genFamilyCode(){
+  try{S.family=await POST('/api/family/create',{});render()}catch{toast('❌ Xatolik')}
+}
+
+function mParentSettings(){const u=S.user;return`
+  <div class="field"><label>Ism</label><input value="${u?.name||''}" oninput="upd('name',this.value)"></div>
+  <div class="field"><label>Til</label><div class="seg-pick">
+    <button class="sp ${u?.lang==='uz'?'on':''}" onclick="changeLang('uz')">🇺🇿 O'z</button>
+    <button class="sp ${u?.lang==='ru'?'on':''}" onclick="changeLang('ru')">🇷🇺 Рус</button>
+    <button class="sp ${u?.lang==='en'?'on':''}" onclick="changeLang('en')">🇬🇧 Eng</button>
+  </div></div>
+  <button class="btn btn-p" onclick="closeModal()">Saqlash</button>
+  <button class="btn btn-s" style="background:rgba(255,107,107,.1);color:var(--red);border-color:rgba(255,107,107,.2)" onclick="logout()">Chiqish</button>`}
+
+
 function renderCelebration(){
   const c=S.celebration
   document.getElementById('root').innerHTML=`<div class="celeb-wrap">
@@ -1145,6 +1392,9 @@ function openModal(m,d){
   if(m==='addSchedule')S.nsc={title:'',category:'study',subjectName:'',time:'',date:today(),repeat:'none',repeatDays:[],emoji:'📌'}
   if(m==='addNote')S.nn={title:'',content:'',subjectName:'',color:'#6c5fff'}
   render()
+  if(m==='journal')GET('/api/journal').then(j=>{S.journal=j;render()}).catch(()=>{})
+  if(m==='career')GET('/api/career').then(c=>{S.career=c;render()}).catch(()=>{})
+  if(m==='familyLink')GET('/api/family/me').then(f=>{S.family=f;render()}).catch(()=>{})
 }
 function closeModal(){S.modal=null;S.editNote=null;render()}
 function toggleRD(i){const idx=S.nsc.repeatDays.indexOf(i);if(idx>=0)S.nsc.repeatDays.splice(idx,1);else S.nsc.repeatDays.push(i);render()}
@@ -1309,6 +1559,8 @@ window.switchTab=async function(tb){
     try{
       S.achievements=await GET('/api/achievements')
       if(!S.insights){S.insights=await POST('/api/chat/insight',{}).catch(()=>null)}
+      if(!S.career){S.career=await GET('/api/career').catch(()=>null)}
+      if(!S.family){S.family=await GET('/api/family/me').catch(()=>null)}
     }catch{}
   }
   render();document.getElementById('scroll')?.scrollTo({top:0,behavior:'smooth'})
