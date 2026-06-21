@@ -29,7 +29,6 @@ html,body{height:100%;font-family:'Inter',sans-serif;font-size:15px;background:v
 #scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
 #scroll::-webkit-scrollbar{display:none}
 
-/* NAV */
 #nav{flex-shrink:0;background:var(--card);border-top:1px solid var(--b);display:flex;padding:6px 4px max(8px,env(safe-area-inset-bottom))}
 .nb{flex:1;background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;color:var(--t2);padding:6px 2px;border-radius:12px}
 .nb.on{color:var(--p)}
@@ -38,17 +37,15 @@ html,body{height:100%;font-family:'Inter',sans-serif;font-size:15px;background:v
 .nb .ni{font-size:21px;line-height:1}
 .nb .nl{font-size:10px;font-weight:600}
 
-/* HEADER */
 .hdr{padding:14px 16px 10px;background:var(--bg);position:sticky;top:0;z-index:20;border-bottom:1px solid var(--b)}
 .hdr-row{display:flex;align-items:center;justify-content:space-between}
 .hdr-title{font-family:'Poppins',sans-serif;font-size:20px;font-weight:800;letter-spacing:-.025em}
-.hdr-sub{font-size:11px;color:var(--t2)}
 .hdr-right{display:flex;align-items:center;gap:8px}
 .icon-btn{width:34px;height:34px;border-radius:10px;background:var(--card);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;flex-shrink:0}
 .hdr-av{width:36px;height:36px;border-radius:50%;background:var(--pg);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white;cursor:pointer;overflow:hidden;flex-shrink:0}
 .hdr-av img{width:100%;height:100%;object-fit:cover}
+.back-btn{width:34px;height:34px;border-radius:10px;background:var(--card);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;flex-shrink:0}
 
-/* LOGIN */
 .login-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:28px;text-align:center}
 .login-logo{font-size:56px;margin-bottom:14px;animation:float 3s ease-in-out infinite}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
@@ -60,7 +57,7 @@ html,body{height:100%;font-family:'Inter',sans-serif;font-size:15px;background:v
 .l-tg{background:#229ED9;color:white}
 .l-or{color:var(--t3);font-size:12px;margin:4px 0}
 
-/* CHAT SCREEN */
+/* CHAT */
 .chat-shell{display:flex;flex-direction:column;height:calc(100dvh - 56px)}
 .chat-hdr{background:var(--card);padding:10px 14px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .chat-av{width:38px;height:38px;border-radius:50%;background:var(--pg);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
@@ -73,15 +70,16 @@ html,body{height:100%;font-family:'Inter',sans-serif;font-size:15px;background:v
 .tpill.on{background:var(--p);color:white;border-color:var(--p)}
 .chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
 .chat-msgs::-webkit-scrollbar{display:none}
-.cm{max-width:86%;animation:cmin .22s ease}
+.cm{max-width:88%;animation:cmin .22s ease}
 @keyframes cmin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .cm.u{align-self:flex-end}
 .cm.a{align-self:flex-start}
 .cmb{padding:11px 14px;font-size:14px;line-height:1.6;border-radius:18px}
 .cm.u .cmb{background:var(--pg);color:white;border-radius:18px 4px 18px 18px}
 .cm.a .cmb{background:var(--card);border:1px solid var(--b);border-radius:4px 18px 18px 18px}
-.cm-img{max-width:200px;border-radius:14px;margin-bottom:6px;display:block}
-.ext-tag{background:rgba(0,200,150,.1);border:1px solid rgba(0,200,150,.2);border-radius:8px;padding:4px 10px;font-size:11px;color:var(--teal);margin-top:5px;display:inline-block}
+.cm-img{max-width:220px;border-radius:14px;margin-bottom:6px;display:block}
+.ext-tag{background:rgba(0,200,150,.1);border:1px solid rgba(0,200,150,.2);border-radius:8px;padding:4px 10px;font-size:11px;color:var(--teal);margin-top:5px;display:inline-block;margin-right:5px}
+.yt-tag{background:rgba(255,0,0,.08);border:1px solid rgba(255,0,0,.2);border-radius:8px;padding:6px 10px;font-size:12px;color:#ff5050;margin-top:6px;display:flex;align-items:center;gap:6px;cursor:pointer;text-decoration:none;width:fit-content}
 .typing{display:flex;gap:4px;padding:11px 14px;background:var(--card);border:1px solid var(--b);border-radius:4px 18px 18px 18px;width:fit-content;align-self:flex-start}
 .typing span{width:6px;height:6px;border-radius:50%;background:var(--p);animation:ty 1.2s infinite}
 .typing span:nth-child(2){animation-delay:.2s}
@@ -106,7 +104,23 @@ html,body{height:100%;font-family:'Inter',sans-serif;font-size:15px;background:v
 .send-btn{background:var(--pg);border:none;width:36px;height:36px;border-radius:50%;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
 .send-btn:disabled{opacity:.35}
 
-/* TODAY SCREEN */
+/* MATERIAL ANALYSIS CARD (rasm tahlil natijasi) */
+.material-card{background:var(--card);border:1px solid var(--b2);border-radius:16px;padding:14px;margin-top:8px;max-width:300px}
+.material-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.material-icon{width:28px;height:28px;border-radius:8px;background:var(--pg);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.material-title{font-size:13px;font-weight:700}
+.material-rows{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.material-row{display:flex;gap:6px;font-size:12px}
+.material-row-label{color:var(--t2);min-width:60px;flex-shrink:0}
+.material-row-val{font-weight:600}
+.confidence-bar{height:4px;background:var(--b);border-radius:2px;overflow:hidden;margin-top:4px}
+.confidence-fill{height:100%;background:var(--teal);border-radius:2px}
+.material-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.ma-btn{border:none;border-radius:10px;padding:9px 6px;font-size:11px;font-weight:700;cursor:pointer;text-align:center}
+.ma-btn.p{background:var(--p);color:white}
+.ma-btn.s{background:var(--card2);color:var(--text);border:1px solid var(--b)}
+
+/* TODAY */
 .today-hero{margin:14px;background:var(--pg);border-radius:20px;padding:18px}
 .today-greet{font-family:'Poppins',sans-serif;font-size:19px;font-weight:800;color:white;margin-bottom:4px}
 .today-sub{font-size:12px;color:rgba(255,255,255,.8)}
@@ -129,12 +143,12 @@ html,body{height:100%;font-family:'Inter',sans-serif;font-size:15px;background:v
 .activity-item{padding:10px 14px;border-bottom:1px solid var(--b);font-size:13px;color:var(--t2)}
 .activity-item:last-child{border-bottom:none}
 
-/* TOPICS SCREEN */
+/* TOPICS LIST */
 .topic-card{margin:0 14px 10px;background:var(--card);border:1px solid var(--b);border-radius:18px;padding:16px;box-shadow:var(--sh);cursor:pointer}
 .topic-card-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
 .topic-emoji{font-size:26px}
 .topic-name{font-family:'Poppins',sans-serif;font-size:16px;font-weight:700;flex:1}
-.topic-badge{font-size:10px;background:rgba(0,200,150,.12);color:var(--teal);padding:2px 8px;border-radius:6px;font-weight:600}
+.topic-progress-ring{font-size:11px;font-weight:700;color:var(--p)}
 .topic-summary{font-size:12px;color:var(--t2);line-height:1.6;margin-bottom:10px}
 .topic-chips{display:flex;flex-wrap:wrap;gap:5px}
 .tw-chip{font-size:10px;font-weight:600;padding:3px 9px;border-radius:12px}
@@ -142,7 +156,24 @@ html,body{height:100%;font-family:'Inter',sans-serif;font-size:15px;background:v
 .tw-chip.w{background:rgba(255,179,71,.15);color:var(--amber)}
 .add-topic-btn{margin:0 14px 14px;background:var(--card);border:1.5px dashed var(--b2);border-radius:16px;padding:16px;text-align:center;color:var(--p);font-weight:600;font-size:13px;cursor:pointer}
 
-/* FLASHCARDS within topic */
+/* TOPIC DETAIL */
+.topic-detail-hero{margin:14px;background:var(--pg);border-radius:20px;padding:18px}
+.td-emoji{font-size:36px;margin-bottom:8px}
+.td-name{font-family:'Poppins',sans-serif;font-size:20px;font-weight:800;color:white;margin-bottom:4px}
+.td-progress-track{background:rgba(255,255,255,.2);border-radius:100px;height:6px;overflow:hidden;margin-top:10px}
+.td-progress-fill{height:100%;background:white;border-radius:100px}
+.td-progress-label{font-size:11px;color:rgba(255,255,255,.8);margin-top:4px}
+.tab-row{display:flex;gap:6px;padding:0 14px 10px;overflow-x:auto}
+.tab-row::-webkit-scrollbar{display:none}
+.ttab{background:var(--card);border:1px solid var(--b);border-radius:20px;padding:7px 15px;font-size:12px;font-weight:600;color:var(--t2);cursor:pointer;white-space:nowrap}
+.ttab.on{background:var(--p);color:white;border-color:var(--p)}
+.material-thumb{margin:0 14px 8px;background:var(--card);border:1px solid var(--b);border-radius:14px;padding:12px;display:flex;gap:10px;align-items:center;box-shadow:var(--sh)}
+.material-thumb img{width:48px;height:48px;border-radius:8px;object-fit:cover;flex-shrink:0}
+.material-thumb-info{flex:1;min-width:0}
+.material-thumb-title{font-size:13px;font-weight:600}
+.material-thumb-date{font-size:11px;color:var(--t2)}
+
+/* FLASHCARDS */
 .fc-stack{position:relative;height:200px;margin:0 14px 14px;cursor:pointer}
 .fc-shadow{position:absolute;bottom:-8px;left:8px;right:8px;height:100%;background:rgba(108,95,255,.1);border-radius:20px;transform:scale(.96)}
 .fc-main{position:absolute;inset:0;background:var(--pg);border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
@@ -156,6 +187,21 @@ html,body{height:100%;font-family:'Inter',sans-serif;font-size:15px;background:v
 .fr.a{background:rgba(255,107,107,.15);color:var(--red)}
 .fr.g{background:rgba(108,95,255,.15);color:var(--p)}
 .fr.e{background:rgba(0,200,150,.15);color:var(--teal)}
+
+/* QUIZ */
+.quiz-intro{margin:14px;background:var(--card);border:1px solid var(--b);border-radius:18px;padding:20px;text-align:center;box-shadow:var(--sh)}
+.quiz-q{margin:0 14px 14px;background:var(--card);border:1px solid var(--b);border-radius:18px;padding:16px;box-shadow:var(--sh)}
+.quiz-q-num{font-size:11px;color:var(--t2);font-weight:700;margin-bottom:6px}
+.quiz-q-text{font-size:15px;font-weight:600;margin-bottom:14px;line-height:1.5}
+.quiz-opt{background:var(--bg);border:1.5px solid var(--b);border-radius:12px;padding:12px 14px;margin-bottom:8px;cursor:pointer;font-size:13px;font-weight:500}
+.quiz-opt.sel{border-color:var(--p);background:rgba(108,95,255,.08)}
+.quiz-opt.correct{border-color:var(--teal);background:rgba(0,200,150,.1)}
+.quiz-opt.wrong{border-color:var(--red);background:rgba(255,107,107,.1)}
+.quiz-fillblank input{width:100%;background:var(--bg);border:1.5px solid var(--b);border-radius:12px;padding:12px 14px;font-size:14px;color:var(--text);outline:none}
+.quiz-explain{margin-top:10px;padding:10px;background:var(--card2);border-radius:10px;font-size:12px;color:var(--t2);line-height:1.5}
+.quiz-result{margin:14px;background:var(--pg);border-radius:20px;padding:24px;text-align:center}
+.quiz-result-score{font-family:'Poppins',sans-serif;font-size:42px;font-weight:900;color:white}
+.quiz-result-label{font-size:13px;color:rgba(255,255,255,.8);margin-top:4px}
 
 /* FORMS & MODAL */
 .field{margin-bottom:14px}
@@ -181,6 +227,7 @@ html,body{height:100%;font-family:'Inter',sans-serif;font-size:15px;background:v
 .empty-i{font-size:44px;margin-bottom:12px}
 .empty-t{font-size:16px;font-weight:700;margin-bottom:6px}
 .empty-s{font-size:13px;color:var(--t2);line-height:1.6}
+.loader{text-align:center;padding:30px;color:var(--t2);font-size:13px}
 </style>
 </head>
 <body data-theme="dark">
@@ -196,23 +243,41 @@ const I18N={
     reminders:'Eslatmalar',due_cards:'Takrorlash kerak',recent_topics:'Faol mavzular',recent_activity:'So\'nggi faollik',
     no_reminders:'Hozircha eslatma yo\'q',no_topics:'Hali mavzu yo\'q — gaplashing, men o\'zim yarataman',
     add_topic:'+ Mavzu qo\'shish',topic_name:'Mavzu nomi',save:'Saqlash',cancel:'Bekor',
-    settings:'Sozlamalar',language:'Til',logout:'Chiqish',all_topics:'Hammasi',
+    settings:'Sozlamalar',language:'Til',logout:'Chiqish',
+    overview:'Umumiy',flashcards:'Kartalar',materials:'Materiallar',quiz:'Test',
+    add_to_schedule:'Eslatma qo\'sh',make_flashcard:'Karta yarat',explain_more:'Tushuntir',
+    generate_quiz:'🎮 Test yaratish',quiz_loading:'Test tayyorlanmoqda...',
+    submit:'Tekshirish',next_question:'Keyingisi',finish:'Yakunlash',retry:'Qayta urinish',
+    your_score:'Natijangiz',true_label:'To\'g\'ri',false_label:'Noto\'g\'ri',
+    watch_video:'Video ko\'rish',analyzing:'Tahlil qilinmoqda...',
   },
   ru:{chat:'Чат',today:'Сегодня',topics:'Темы',
-    welcome_title:'Привет! Я Twin',welcome_sub:'Что бы вы ни изучали — пишите, говорите, или сфотографируйте. Остальное сделаю я.',
+    welcome_title:'Привет! Я Twin',welcome_sub:'Что бы вы ни изучали — пишите, говорите, или сфотографируйте.',
     placeholder:'Напишите или скажите...',today_greet:'Что сегодня?',
     reminders:'Напоминания',due_cards:'Нужно повторить',recent_topics:'Активные темы',recent_activity:'Недавняя активность',
-    no_reminders:'Пока нет напоминаний',no_topics:'Тем пока нет — просто говорите, я сам создам',
+    no_reminders:'Пока нет напоминаний',no_topics:'Тем пока нет — просто говорите',
     add_topic:'+ Добавить тему',topic_name:'Название темы',save:'Сохранить',cancel:'Отмена',
-    settings:'Настройки',language:'Язык',logout:'Выйти',all_topics:'Все',
+    settings:'Настройки',language:'Язык',logout:'Выйти',
+    overview:'Обзор',flashcards:'Карточки',materials:'Материалы',quiz:'Тест',
+    add_to_schedule:'Напоминание',make_flashcard:'Карточка',explain_more:'Объяснить',
+    generate_quiz:'🎮 Создать тест',quiz_loading:'Тест готовится...',
+    submit:'Проверить',next_question:'Далее',finish:'Завершить',retry:'Повторить',
+    your_score:'Ваш результат',true_label:'Верно',false_label:'Неверно',
+    watch_video:'Смотреть видео',analyzing:'Анализ...',
   },
   en:{chat:'Chat',today:'Today',topics:'Topics',
-    welcome_title:'Hi! I\'m Twin',welcome_sub:'Whatever you\'re learning — type, speak, or snap a photo. I\'ll handle the rest.',
+    welcome_title:'Hi! I\'m Twin',welcome_sub:'Whatever you\'re learning — type, speak, or snap a photo.',
     placeholder:'Type or speak...',today_greet:'What\'s up today?',
     reminders:'Reminders',due_cards:'Due for review',recent_topics:'Active topics',recent_activity:'Recent activity',
-    no_reminders:'No reminders yet',no_topics:'No topics yet — just talk to me, I\'ll create them',
+    no_reminders:'No reminders yet',no_topics:'No topics yet — just talk to me',
     add_topic:'+ Add topic',topic_name:'Topic name',save:'Save',cancel:'Cancel',
-    settings:'Settings',language:'Language',logout:'Sign out',all_topics:'All',
+    settings:'Settings',language:'Language',logout:'Sign out',
+    overview:'Overview',flashcards:'Flashcards',materials:'Materials',quiz:'Quiz',
+    add_to_schedule:'Add reminder',make_flashcard:'Make flashcard',explain_more:'Explain more',
+    generate_quiz:'🎮 Generate quiz',quiz_loading:'Generating quiz...',
+    submit:'Check',next_question:'Next',finish:'Finish',retry:'Retry',
+    your_score:'Your score',true_label:'True',false_label:'False',
+    watch_video:'Watch video',analyzing:'Analyzing...',
   }
 }
 function t(k){const l=S.user?.lang||'uz';return(I18N[l]||I18N.uz)[k]||k}
@@ -223,16 +288,18 @@ let S={
   chatMsgs:[],aiLoading:false,
   pendingImage:null,
   todayData:null,
-  flashcards:[],fcIdx:0,fcRev:false,
-  modal:null,
-  newTopicName:'',
+  modal:null,newTopicName:'',
   isRecording:false,recognition:null,
+  // topic detail view
+  viewingTopic:null,topicDetailTab:'overview',
+  topicFlashcards:[],fcIdx:0,fcRev:false,
+  topicMaterials:[],
+  quiz:null,quizLoading:false,quizAnswers:{},quizSubmitted:false,quizScore:null,
 }
 
 const req=async(m,p,b)=>{const r=await fetch(p,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):undefined});if(!r.ok)throw new Error(await r.text());return r.json()}
 const GET=p=>req('GET',p),POST=(p,b)=>req('POST',p,b),PUT=(p,b)=>req('PUT',p,b)
 const PATCH=(p,b)=>req('PATCH',p,b),DEL=p=>req('DELETE',p)
-const nowT=()=>new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
 
 async function init(){
   if(tg?.initDataUnsafe?.user){const u=tg.initDataUnsafe.user;try{await POST('/auth/telegram',{telegramId:u.id,name:u.first_name,username:u.username})}catch{}}
@@ -249,6 +316,7 @@ function applyTheme(th){document.body.setAttribute('data-theme',th)}
 function render(){
   if(!S.user){renderLogin();return}
   const root=document.getElementById('root')
+  if(S.viewingTopic){root.innerHTML=topicDetailShell()+(S.modal?modal():'');afterRender();return}
   root.innerHTML=(S.tab==='chat'?chatShell():stdShell())+nav()+(S.modal?modal():'')
   afterRender()
 }
@@ -333,12 +401,7 @@ function chatShell(){
         <div class="welcome-title">${t('welcome_title')}</div>
         <div class="welcome-sub">${t('welcome_sub')}</div>
       </div>`:''}
-      ${S.chatMsgs.map(m=>`<div class="cm ${m.role==='user'?'u':'a'}">
-        ${m.imageUrl?`<img class="cm-img" src="${m.imageUrl}">`:''}
-        <div class="cmb">${m.content.replace(/\n/g,'<br>')}</div>
-        ${m.savedReminder?`<div class="ext-tag">⏰ Eslatma saqlandi: ${m.savedReminder.title}</div>`:''}
-        ${m.savedCards?.length?`<div class="ext-tag">🔁 ${m.savedCards.length} ta karta yaratildi</div>`:''}
-      </div>`).join('')}
+      ${S.chatMsgs.map(renderChatMsg).join('')}
       ${S.aiLoading?`<div class="typing"><span></span><span></span><span></span></div>`:''}
     </div>
     <div class="chat-input">
@@ -356,6 +419,42 @@ function chatShell(){
   </div></div>`
 }
 
+function renderChatMsg(m){
+  let extras = ''
+  if (m.savedReminder) extras += `<div class="ext-tag">⏰ Eslatma: ${m.savedReminder.title}</div>`
+  if (m.savedCards?.length) extras += `<div class="ext-tag">🔁 ${m.savedCards.length} ta karta</div>`
+  if (m.youtubeLink) extras += `<a href="${m.youtubeLink.url}" target="_blank" class="yt-tag">▶️ ${t('watch_video')}: ${m.youtubeLink.query}</a>`
+
+  if (m.materialAnalysis) {
+    const a = m.materialAnalysis
+    return `<div class="cm ${m.role==='user'?'u':'a'}">
+      ${m.imageUrl?`<img class="cm-img" src="${m.imageUrl}">`:''}
+      ${m.content?`<div class="cmb">${m.content.replace(/\n/g,'<br>')}</div>`:''}
+      <div class="material-card">
+        <div class="material-head"><div class="material-icon">📋</div><div class="material-title">${t('analyzing')==='Analyzing...'?'Analysis':'Tahlil natijasi'}</div></div>
+        <div class="material-rows">
+          ${a.subject?`<div class="material-row"><span class="material-row-label">Fan:</span><span class="material-row-val">${a.subject}</span></div>`:''}
+          ${a.task?`<div class="material-row"><span class="material-row-label">Vazifa:</span><span class="material-row-val">${a.task}</span></div>`:''}
+          ${a.dueDate?`<div class="material-row"><span class="material-row-label">Muddat:</span><span class="material-row-val">${a.dueDate}</span></div>`:''}
+        </div>
+        ${a.confidence?`<div style="font-size:10px;color:var(--t2)">Ishonchlilik: ${a.confidence}%</div><div class="confidence-bar"><div class="confidence-fill" style="width:${a.confidence}%"></div></div>`:''}
+        <div class="material-actions" style="margin-top:10px">
+          <button class="ma-btn p" onclick="materialAction('${m.materialId}','reminder')">⏰ ${t('add_to_schedule')}</button>
+          <button class="ma-btn p" onclick="materialAction('${m.materialId}','flashcard')">🔁 ${t('make_flashcard')}</button>
+          <button class="ma-btn s" onclick="materialAction('${m.materialId}','explain')">💡 ${t('explain_more')}</button>
+          <button class="ma-btn s" onclick="openTopicDetail('${m.topicId}')">📂 Mavzuga o'tish</button>
+        </div>
+      </div>
+    </div>`
+  }
+
+  return `<div class="cm ${m.role==='user'?'u':'a'}">
+    ${m.imageUrl?`<img class="cm-img" src="${m.imageUrl}">`:''}
+    <div class="cmb">${m.content.replace(/\n/g,'<br>')}</div>
+    ${extras}
+  </div>`
+}
+
 // ── TODAY ────────────────────────────────────────────────────────
 function todayPage(){
   const d=S.todayData
@@ -370,7 +469,7 @@ function todayPage(){
     ${d?.recentTopics?.length?`<div class="sec">
       <div class="sec-title">${t('recent_topics')}</div>
       <div class="topic-chip-row">
-        ${d.recentTopics.map(tp=>`<div class="tchip" onclick="openTopicChat('${tp._id}')">
+        ${d.recentTopics.map(tp=>`<div class="tchip" onclick="openTopicDetail('${tp._id}')">
           <div class="tchip-em">${tp.emoji}</div>
           <div class="tchip-name">${tp.name}</div>
         </div>`).join('')}
@@ -407,17 +506,17 @@ function todayPage(){
     <div class="space"></div>`
 }
 
-// ── TOPICS ───────────────────────────────────────────────────────
+// ── TOPICS LIST ──────────────────────────────────────────────────
 function topicsPage(){
   return`
     <div style="padding:14px 14px 0">
       <div class="add-topic-btn" onclick="openModal('addTopic')">${t('add_topic')}</div>
     </div>
-    ${S.topics.map(tp=>`<div class="topic-card" onclick="openTopicChat('${tp._id}')">
+    ${S.topics.map(tp=>`<div class="topic-card" onclick="openTopicDetail('${tp._id}')">
       <div class="topic-card-top">
         <span class="topic-emoji">${tp.emoji}</span>
         <div class="topic-name">${tp.name}</div>
-        ${tp.isDone?`<span class="topic-badge">Tugadi</span>`:''}
+        <span class="topic-progress-ring">${tp.progress||0}%</span>
       </div>
       ${tp.understanding?.summary?`<div class="topic-summary">${tp.understanding.summary}</div>`:`<div class="topic-summary" style="color:var(--t3)">Hali gaplashilmagan</div>`}
       <div class="topic-chips">
@@ -425,14 +524,206 @@ function topicsPage(){
         ${(tp.understanding?.weakSpots||[]).slice(0,2).map(s=>`<span class="tw-chip w">📌 ${s}</span>`).join('')}
       </div>
     </div>`).join('')}
-    ${!S.topics.length?`<div class="empty"><div class="empty-i">📚</div><div class="empty-t">${t('no_topics')}</div><div class="empty-s">${t('no_topics')}</div></div>`:''}
+    ${!S.topics.length?`<div class="empty"><div class="empty-i">📚</div><div class="empty-t">${t('no_topics')}</div></div>`:''}
     <div class="space"></div>`
 }
 
-async function openTopicChat(topicId){
-  S.activeTopicId=topicId
-  S.tab='chat'
-  await loadTopicChat(topicId)
+// ── TOPIC DETAIL ─────────────────────────────────────────────────
+async function openTopicDetail(topicId){
+  if (!topicId) return
+  S.viewingTopic = S.topics.find(t=>t._id===topicId) || await GET('/api/topics/'+topicId)
+  S.topicDetailTab = 'overview'
+  S.quiz = null; S.quizAnswers = {}; S.quizSubmitted = false; S.quizScore = null
+  render()
+}
+function closeTopicDetail(){ S.viewingTopic = null; render() }
+
+function topicDetailShell(){
+  const tp = S.viewingTopic
+  return `<div id="app">
+    <div class="hdr">
+      <div class="hdr-row">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="back-btn" onclick="closeTopicDetail()">←</div>
+          <div class="hdr-title" style="font-size:16px">${tp.emoji} ${tp.name}</div>
+        </div>
+        <div class="icon-btn" onclick="openTopicChatFromDetail()">💬</div>
+      </div>
+    </div>
+    <div id="scroll">${topicDetailContent()}</div>
+  </div>`
+}
+
+function topicDetailContent(){
+  const tp = S.viewingTopic
+  const tabs = [['overview',t('overview')],['materials',t('materials')],['flashcards',t('flashcards')],['quiz',t('quiz')]]
+  return `
+    <div class="topic-detail-hero">
+      <div class="td-emoji">${tp.emoji}</div>
+      <div class="td-name">${tp.name}</div>
+      <div class="td-progress-track"><div class="td-progress-fill" style="width:${tp.progress||0}%"></div></div>
+      <div class="td-progress-label">${tp.progress||0}% o'zlashtirilgan</div>
+    </div>
+    <div class="tab-row">
+      ${tabs.map(([id,label])=>`<div class="ttab ${S.topicDetailTab===id?'on':''}" onclick="switchTopicTab('${id}')">${label}</div>`).join('')}
+    </div>
+    <div id="topic-tab-content">${topicTabContent()}</div>
+    <div class="space"></div>`
+}
+
+function topicTabContent(){
+  const tp = S.viewingTopic
+  if (S.topicDetailTab === 'overview') {
+    return `
+      <div class="sec">
+        <div class="sec-title">💪 Kuchli tomonlar</div>
+        <div class="topic-chips" style="margin:0 14px">
+          ${(tp.understanding?.strengths||[]).map(s=>`<span class="tw-chip s">${s}</span>`).join('')||'<span style="color:var(--t2);font-size:13px">Hali aniqlanmagan</span>'}
+        </div>
+      </div>
+      <div class="sec">
+        <div class="sec-title">📌 Qiynalayotgan joylar</div>
+        <div class="topic-chips" style="margin:0 14px">
+          ${(tp.understanding?.weakSpots||[]).map(s=>`<span class="tw-chip w">${s}</span>`).join('')||'<span style="color:var(--t2);font-size:13px">Hali aniqlanmagan</span>'}
+        </div>
+      </div>
+      ${tp.understanding?.summary?`<div class="sec"><div class="card-list" style="padding:14px;font-size:13px;line-height:1.6">${tp.understanding.summary}</div></div>`:''}
+    `
+  }
+  if (S.topicDetailTab === 'materials') {
+    if (!S.topicMaterials.length) return `<div class="empty"><div class="empty-i">📂</div><div class="empty-t">Hali material yo'q</div><div class="empty-s">Rasm yuborib, vazifani saqlang</div></div>`
+    return S.topicMaterials.map(m=>`<div class="material-thumb">
+      ${m.imageData?`<img src="${m.imageData}">`:'<div style="width:48px;height:48px;border-radius:8px;background:var(--card2);display:flex;align-items:center;justify-content:center">📝</div>'}
+      <div class="material-thumb-info">
+        <div class="material-thumb-title">${m.title}</div>
+        <div class="material-thumb-date">${new Date(m.createdAt).toLocaleDateString()}</div>
+      </div>
+    </div>`).join('')
+  }
+  if (S.topicDetailTab === 'flashcards') return fcTopicSection()
+  if (S.topicDetailTab === 'quiz') return quizSection()
+  return ''
+}
+
+async function switchTopicTab(tabId){
+  S.topicDetailTab = tabId
+  if (tabId==='materials' && !S.topicMaterials.length) S.topicMaterials = await GET('/api/topics/'+S.viewingTopic._id+'/materials').catch(()=>[])
+  if (tabId==='flashcards') S.topicFlashcards = await GET('/api/flashcards?topicId='+S.viewingTopic._id).catch(()=>[])
+  if (tabId==='quiz' && !S.quiz) S.quiz = await GET('/api/topics/'+S.viewingTopic._id+'/quiz').catch(()=>null)
+  render()
+}
+
+function openTopicChatFromDetail(){
+  S.activeTopicId = S.viewingTopic._id
+  S.viewingTopic = null
+  S.tab = 'chat'
+  loadTopicChat(S.activeTopicId).then(render)
+}
+
+// ── FLASHCARDS (within topic) ──────────────────────────────────
+function fcTopicSection(){
+  const cards=S.topicFlashcards, card=cards[S.fcIdx]
+  if(!cards.length) return `<div class="empty"><div class="empty-i">🔁</div><div class="empty-t">Hali karta yo'q</div><div class="empty-s">Suhbat orqali yoki rasm yuborib avtomatik yaratiladi</div></div>`
+  if(S.fcIdx>=cards.length) return `<div class="empty"><div class="empty-i">✅</div><div class="empty-t">Hammasi bajarildi!</div></div>`
+  return `
+    <div class="fc-stack" onclick="revFC()">
+      <div class="fc-shadow"></div>
+      <div class="fc-main ${S.fcRev?'rev':''}">
+        <div class="fc-front">${card?.front||''}</div>
+        ${S.fcRev?`<div class="fc-div"></div><div class="fc-back">${card?.back||''}</div>`:`<div style="color:rgba(255,255,255,.6);font-size:12px;margin-top:10px">👆 Ko'rish uchun bosing</div>`}
+      </div>
+    </div>
+    ${S.fcRev?`<div class="fc-rating">
+      <button class="fr a" onclick="reviewFC(0)">🔴 Qayta</button>
+      <button class="fr a" onclick="reviewFC(2)">🟡 Qiyin</button>
+      <button class="fr g" onclick="reviewFC(3)">🟢 Yaxshi</button>
+      <button class="fr e" onclick="reviewFC(5)">⚡ Oson</button>
+    </div>`:''}
+  `
+}
+function revFC(){S.fcRev=true;render()}
+async function reviewFC(q){
+  const card=S.topicFlashcards[S.fcIdx];if(!card)return
+  await POST('/api/flashcards/'+card._id+'/review',{quality:q})
+  S.fcIdx++;S.fcRev=false;render()
+}
+
+// ── QUIZ ─────────────────────────────────────────────────────────
+function quizSection(){
+  if (S.quizLoading) return `<div class="loader">⏳ ${t('quiz_loading')}</div>`
+  if (!S.quiz || !S.quiz.questions?.length) return `
+    <div class="quiz-intro">
+      <div style="font-size:40px;margin-bottom:12px">🎮</div>
+      <div style="font-size:15px;font-weight:700;margin-bottom:8px">Bilimingizni sinab ko'ring</div>
+      <div style="font-size:13px;color:var(--t2);margin-bottom:16px">AI shu mavzu bo'yicha turli xil savollar tuzadi</div>
+      <button class="btn btn-p" onclick="genQuiz()">${t('generate_quiz')}</button>
+    </div>`
+
+  if (S.quizSubmitted) {
+    return `<div class="quiz-result">
+      <div class="quiz-result-score">${S.quizScore}%</div>
+      <div class="quiz-result-label">${t('your_score')}</div>
+    </div>
+    ${S.quiz.questions.map((q,i)=>quizQuestionReview(q,i)).join('')}
+    <div style="padding:0 14px"><button class="btn btn-p" onclick="genQuiz()">${t('retry')}</button></div>
+    <div class="space"></div>`
+  }
+
+  return S.quiz.questions.map((q,i)=>quizQuestionInput(q,i)).join('') +
+    `<div style="padding:0 14px"><button class="btn btn-p" onclick="submitQuiz()">${t('submit')}</button></div>`
+}
+
+function quizQuestionInput(q,i){
+  if (q.type==='mcq') {
+    return `<div class="quiz-q">
+      <div class="quiz-q-num">${i+1}-savol</div>
+      <div class="quiz-q-text">${q.question}</div>
+      ${q.options.map(o=>`<div class="quiz-opt ${S.quizAnswers[i]===o?'sel':''}" onclick="selectQuizAnswer(${i},'${o.replace(/'/g,"\\'")}')">${o}</div>`).join('')}
+    </div>`
+  }
+  if (q.type==='truefalse') {
+    return `<div class="quiz-q">
+      <div class="quiz-q-num">${i+1}-savol</div>
+      <div class="quiz-q-text">${q.question}</div>
+      <div class="quiz-opt ${S.quizAnswers[i]==='true'?'sel':''}" onclick="selectQuizAnswer(${i},'true')">✓ ${t('true_label')}</div>
+      <div class="quiz-opt ${S.quizAnswers[i]==='false'?'sel':''}" onclick="selectQuizAnswer(${i},'false')">✗ ${t('false_label')}</div>
+    </div>`
+  }
+  return `<div class="quiz-q">
+    <div class="quiz-q-num">${i+1}-savol</div>
+    <div class="quiz-q-text">${q.question}</div>
+    <div class="quiz-fillblank"><input placeholder="Javobingiz..." value="${S.quizAnswers[i]||''}" oninput="S.quizAnswers[${i}]=this.value"></div>
+  </div>`
+}
+function quizQuestionReview(q,i){
+  const userAns = S.quizAnswers[i]
+  const isCorrect = String(userAns).trim().toLowerCase() === String(q.correctAnswer).trim().toLowerCase()
+  return `<div class="quiz-q">
+    <div class="quiz-q-num">${i+1}-savol ${isCorrect?'✅':'❌'}</div>
+    <div class="quiz-q-text">${q.question}</div>
+    <div style="font-size:12px;color:var(--t2)">Sizning javobingiz: <b style="color:${isCorrect?'var(--teal)':'var(--red)'}">${userAns||'—'}</b></div>
+    ${!isCorrect?`<div style="font-size:12px;color:var(--teal);margin-top:4px">To'g'ri javob: <b>${q.correctAnswer}</b></div>`:''}
+    ${q.explanation?`<div class="quiz-explain">${q.explanation}</div>`:''}
+  </div>`
+}
+function selectQuizAnswer(i,val){ S.quizAnswers[i]=val; render() }
+
+async function genQuiz(){
+  S.quizLoading=true;S.quizSubmitted=false;S.quizAnswers={};render()
+  try{
+    S.quiz = await POST('/api/topics/'+S.viewingTopic._id+'/quiz/generate',{count:5})
+  }catch{toast('❌ Test yaratilmadi')}
+  S.quizLoading=false;render()
+}
+async function submitQuiz(){
+  const total = S.quiz.questions.length
+  let correct = 0
+  S.quiz.questions.forEach((q,i)=>{
+    if (String(S.quizAnswers[i]||'').trim().toLowerCase() === String(q.correctAnswer).trim().toLowerCase()) correct++
+  })
+  const score = Math.round((correct/total)*100)
+  S.quizScore = score; S.quizSubmitted = true
+  try{ await POST('/api/quiz/'+S.quiz._id+'/submit',{score}) }catch{}
   render()
 }
 
@@ -494,7 +785,7 @@ async function loadTopicChat(topicId){
   if(!topicId){S.chatMsgs=[];return}
   try{
     const chats=await GET('/api/topics/'+topicId+'/chat')
-    S.chatMsgs=chats.map(c=>({role:c.role,content:c.content,imageUrl:c.imageUrl==='[rasm yuborildi]'?null:c.imageUrl}))
+    S.chatMsgs=chats.map(c=>({role:c.role,content:c.content,imageUrl:c.imageUrl}))
   }catch{S.chatMsgs=[]}
 }
 
@@ -532,8 +823,9 @@ async function sendChat(){
     S.aiLoading=true;render();scrollChat()
     try{
       const r=await POST('/api/chat/image',{imageBase64:imgToSend,message:msg,topicId:S.activeTopicId})
-      S.chatMsgs.push({role:'assistant',content:r.reply,savedReminder:r.savedReminder,savedCards:r.savedCards})
+      S.chatMsgs.push({role:'assistant',content:'',materialId:r.materialId,materialAnalysis:r.analysis,topicId:r.topic?._id})
       if(r.topic&&!S.activeTopicId){S.activeTopicId=r.topic._id;S.topics=await GET('/api/topics')}
+      else if(r.topic){S.topics=await GET('/api/topics')}
     }catch{S.chatMsgs.push({role:'assistant',content:'❌ Xatolik yuz berdi.'})}
     S.aiLoading=false;render();scrollChat()
     return
@@ -544,11 +836,24 @@ async function sendChat(){
   S.aiLoading=true;render();scrollChat()
   try{
     const r=await POST('/api/chat',{message:msg,topicId:S.activeTopicId})
-    S.chatMsgs.push({role:'assistant',content:r.reply,savedReminder:r.savedReminder,savedCards:r.savedCards})
+    S.chatMsgs.push({role:'assistant',content:r.reply,savedReminder:r.savedReminder,savedCards:r.savedCards,youtubeLink:r.youtubeLink})
     if(r.topic&&!S.activeTopicId){S.activeTopicId=r.topic._id;S.topics=await GET('/api/topics')}
     else if(r.topic){S.topics=await GET('/api/topics')}
   }catch{S.chatMsgs.push({role:'assistant',content:'❌ Xatolik yuz berdi.'})}
   S.aiLoading=false;render();scrollChat()
+}
+
+async function materialAction(materialId, action){
+  toast('⏳...')
+  try{
+    const r = await POST('/api/materials/'+materialId+'/action',{action})
+    if (action==='reminder') toast('✅ Eslatma qo\'shildi')
+    if (action==='flashcard') toast(`✅ ${r.flashcards?.length||0} ta karta yaratildi`)
+    if (action==='explain') {
+      S.chatMsgs.push({role:'assistant',content:r.explanation})
+      render();scrollChat()
+    }
+  }catch{toast('❌ Xatolik')}
 }
 
 function chatKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat()}}
@@ -580,7 +885,7 @@ function toast(msg){
   el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),2500)
 }
 
-function afterRender(){ if(S.tab==='chat')scrollChat() }
+function afterRender(){ if(S.tab==='chat'&&!S.viewingTopic)scrollChat() }
 
 init()
 </script>
