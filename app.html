@@ -1,0 +1,1722 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>StudyMind</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="garden.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+[data-theme="dark"]{
+  --bg:#0f1117;--bg2:#161b27;--card:#1c2235;--card2:#232840;
+  --p:#6c5fff;--p2:#a594ff;--pg:linear-gradient(135deg,#6c5fff,#a594ff);
+  --teal:#00c896;--amber:#ffb347;--red:#ff6b6b;--pink:#ff85c0;
+  --text:#f0f2ff;--t2:#8892c0;--t3:#3d4870;
+  --b:rgba(255,255,255,0.06);--b2:rgba(108,95,255,0.22);
+  --sh:0 2px 16px rgba(0,0,0,0.35);
+}
+[data-theme="light"]{
+  --bg:#f0f2f8;--bg2:#e8eaf4;--card:#ffffff;--card2:#f4f5ff;
+  --p:#6c5fff;--p2:#a594ff;--pg:linear-gradient(135deg,#6c5fff,#a594ff);
+  --teal:#00a878;--amber:#ff8c42;--red:#ff4757;--pink:#ff60a8;
+  --text:#1a1d35;--t2:#5a6080;--t3:#a0a8c8;
+  --b:rgba(0,0,0,0.07);--b2:rgba(108,95,255,0.15);
+  --sh:0 2px 12px rgba(108,95,255,0.09);
+}
+html,body{height:100%;font-family:'Inter',sans-serif;font-size:15px;background:var(--bg);color:var(--text);overflow:hidden;transition:background .3s,color .3s}
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh}
+#scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+#scroll::-webkit-scrollbar{display:none}
+/* NAV */
+#nav{flex-shrink:0;background:var(--card);border-top:1px solid var(--b);display:flex;padding:6px 4px max(8px,env(safe-area-inset-bottom))}
+.nb{flex:1;background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;font-family:'Inter',sans-serif;color:var(--t2);padding:4px 2px;border-radius:12px;transition:color .2s}
+.nb.on{color:var(--p)}
+.ni-wrap{width:42px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:10px;transition:background .2s;position:relative}
+.nb.on .ni-wrap{background:rgba(108,95,255,0.12)}
+.nb .ni{font-size:21px;line-height:1}
+.nb .nl{font-size:10px;font-weight:600}
+.nb-dot{width:5px;height:5px;border-radius:50%;background:var(--red);position:absolute;top:-2px;right:-2px}
+/* HEADER */
+.hdr{padding:14px 16px 10px;background:var(--bg);position:sticky;top:0;z-index:20;border-bottom:1px solid var(--b)}
+.hdr-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.hdr-title{font-family:'Poppins',sans-serif;font-size:20px;font-weight:800;letter-spacing:-.025em}
+.hdr-sub{font-size:11px;color:var(--t2)}
+.hdr-right{display:flex;align-items:center;gap:8px}
+.icon-btn{width:34px;height:34px;border-radius:10px;background:var(--card);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;flex-shrink:0}
+.hdr-av{width:36px;height:36px;border-radius:50%;background:var(--pg);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white;cursor:pointer;overflow:hidden;flex-shrink:0}
+.hdr-av img{width:100%;height:100%;object-fit:cover}
+.xp-bar{height:3px;background:var(--b);border-radius:2px;overflow:hidden}
+.xp-fill{height:100%;border-radius:2px;background:var(--pg);transition:width 1s ease}
+/* LOGIN */
+.login-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:28px;text-align:center}
+.login-logo{font-size:56px;margin-bottom:14px;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.login-title{font-family:'Poppins',sans-serif;font-size:32px;font-weight:900;letter-spacing:-.04em;background:var(--pg);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.login-sub{font-size:14px;color:var(--t2);margin-bottom:6px}
+.login-quote{font-size:13px;font-style:italic;color:var(--t3);margin-bottom:32px;line-height:1.5;max-width:280px}
+.l-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;max-width:340px;padding:15px;border-radius:16px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;margin-bottom:10px;text-decoration:none;border:none;transition:all .2s;letter-spacing:-.01em}
+.l-btn:active{transform:scale(.97)}
+.l-google{background:#fff;color:#1a1a2e;box-shadow:0 2px 12px rgba(0,0,0,.15)}
+.l-tg{background:#229ED9;color:white}
+.l-or{color:var(--t3);font-size:12px;margin:4px 0}
+/* ONBOARDING */
+.ob-wrap{position:fixed;inset:0;background:var(--bg);z-index:100;display:flex;flex-direction:column}
+.ob-canvas-wrap{flex:1;position:relative;min-height:0}
+.ob-canvas-wrap canvas{width:100%;height:100%;display:block}
+.ob-fade{position:absolute;bottom:0;left:0;right:0;height:55%;background:linear-gradient(to top,var(--bg) 40%,transparent)}
+.ob-body{padding:20px 22px max(20px,env(safe-area-inset-bottom));background:var(--bg);flex-shrink:0}
+.ob-dots{display:flex;gap:6px;justify-content:center;margin-bottom:18px}
+.ob-dot{width:6px;height:6px;border-radius:3px;background:var(--b2);transition:all .3s}
+.ob-dot.on{width:22px;background:var(--p)}
+.ob-title{font-family:'Poppins',sans-serif;font-size:26px;font-weight:900;letter-spacing:-.03em;margin-bottom:6px;color:var(--text)}
+.ob-sub{font-size:14px;color:var(--t2);line-height:1.6;margin-bottom:20px}
+.ob-inp{width:100%;background:var(--card);border:1.5px solid var(--b);border-radius:14px;padding:14px 16px;font-size:16px;font-family:'Inter',sans-serif;color:var(--text);outline:none;margin-bottom:12px;transition:border-color .2s}
+.ob-inp:focus{border-color:var(--p)}
+.ob-grade-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.ob-grade{background:var(--card);border:1.5px solid var(--b);border-radius:12px;padding:12px;text-align:center;cursor:pointer;font-size:14px;font-weight:600;color:var(--text);transition:all .15s}
+.ob-grade.sel{background:var(--p);border-color:var(--p);color:white}
+.ob-btn{width:100%;background:var(--pg);border:none;border-radius:14px;padding:16px;font-size:16px;font-weight:700;color:white;cursor:pointer;font-family:'Poppins',sans-serif}
+.ob-btn:active{transform:scale(.97)}
+.ob-skip{text-align:center;margin-top:12px;font-size:13px;color:var(--t2);cursor:pointer}
+/* HOME */
+.streak-card{margin:12px 14px 10px;background:linear-gradient(135deg,rgba(108,95,255,.15),rgba(165,148,255,.08));border:1px solid var(--b2);border-radius:20px;padding:16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:transform .15s}
+.streak-card:active{transform:scale(.98)}
+.streak-fire{font-size:38px;line-height:1;filter:drop-shadow(0 0 12px rgba(255,140,0,.5))}
+.streak-num{font-family:'Poppins',sans-serif;font-size:40px;font-weight:900;letter-spacing:-.04em;line-height:1}
+.streak-label{font-size:12px;color:var(--t2);margin-top:2px}
+.streak-r{margin-left:auto;text-align:right;flex-shrink:0}
+.garden-link{font-size:12px;color:var(--p);font-weight:600;display:flex;align-items:center;gap:3px;justify-content:flex-end}
+.quote-box{margin:0 14px 12px;background:var(--pg);border-radius:18px;padding:16px;position:relative;overflow:hidden}
+.quote-box::before{content:'';position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.08)}
+.q-text{font-size:13px;font-style:italic;color:rgba(255,255,255,.95);line-height:1.65;margin-bottom:8px;position:relative}
+.q-author{font-size:11px;color:rgba(255,255,255,.7);position:relative}
+.q-save{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.15);border:none;border-radius:8px;padding:5px 9px;color:white;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 14px 12px}
+.mc{background:var(--card);border:1px solid var(--b);border-radius:16px;padding:14px;box-shadow:var(--sh);cursor:default}
+.mc-val{font-family:'Poppins',sans-serif;font-size:28px;font-weight:900;letter-spacing:-.03em;line-height:1;margin-bottom:4px}
+.mc-lbl{font-size:11px;color:var(--t2);font-weight:500}
+.mc-hint{font-size:10px;color:var(--t3);margin-top:2px}
+.ai-bubble{margin:0 14px 12px;background:var(--card);border:1px solid var(--b);border-radius:18px;padding:14px;box-shadow:var(--sh)}
+.ai-badge{background:var(--pg);border-radius:8px;padding:3px 8px;font-size:10px;font-weight:700;color:white;display:inline-block;margin-bottom:8px}
+.ai-bubble-text{font-size:13px;line-height:1.6;color:var(--text)}
+.ai-more{font-size:12px;color:var(--p);font-weight:600;margin-top:8px;cursor:pointer;display:inline-block}
+.weekly{margin:0 14px 12px;background:var(--card);border:1px solid var(--b);border-radius:18px;padding:14px;box-shadow:var(--sh)}
+.sec-title{font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px}
+.bars{display:flex;align-items:flex-end;gap:5px;height:64px}
+.b-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.b-bar{width:100%;border-radius:4px 4px 0 0;min-height:3px;transition:height 1s ease}
+.b-lbl{font-size:9px;color:var(--t3)}
+.plan-wrap{margin:0 14px 12px}
+.plan-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.plan-actions{display:flex;gap:6px;align-items:center}
+.sec-action{font-size:12px;color:var(--p);font-weight:600;cursor:pointer}
+.plan-list{background:var(--card);border:1px solid var(--b);border-radius:16px;overflow:hidden;box-shadow:var(--sh)}
+.si{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--b)}
+.si:last-child{border-bottom:none}
+.si-em{font-size:18px;flex-shrink:0}
+.si-cb{width:22px;height:22px;border-radius:7px;border:2px solid var(--b2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;transition:all .2s}
+.si-cb.done{background:var(--teal);border-color:var(--teal);color:white}
+.si-cb.life{border-color:var(--amber)}
+.si-cb.life.done{background:var(--amber);border-color:var(--amber);color:white}
+.si-info{flex:1;min-width:0}
+.si-title{font-size:14px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.si-title.done{text-decoration:line-through;color:var(--t2)}
+.si-meta{display:flex;gap:5px;align-items:center;margin-top:2px}
+.si-cat{font-size:10px;font-weight:600;padding:1px 7px;border-radius:5px}
+.si-cat.study{background:rgba(108,95,255,.12);color:var(--p)}
+.si-cat.life{background:rgba(255,179,71,.15);color:var(--amber)}
+.si-time{font-size:12px;font-weight:700;color:var(--p);font-family:'Poppins',sans-serif;flex-shrink:0}
+.si-del{background:none;border:none;color:var(--t3);font-size:16px;cursor:pointer;padding:0 4px;flex-shrink:0}
+/* AI CHAT */
+.chat-shell{display:flex;flex-direction:column;height:calc(100dvh - 56px)}
+.chat-hdr{background:var(--card);padding:10px 14px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.chat-av{width:38px;height:38px;border-radius:50%;background:var(--pg);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;box-shadow:0 0 0 3px rgba(108,95,255,.18)}
+.chat-name{font-size:15px;font-weight:700}
+.chat-status{font-size:11px;color:var(--teal);display:flex;align-items:center;gap:4px;margin-top:1px}
+.chat-status::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--teal);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+.mic-btn{width:36px;height:36px;border-radius:50%;background:var(--card2);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;transition:all .2s}
+.mic-btn.rec{background:var(--red);border-color:var(--red);animation:mpulse 1s infinite}
+@keyframes mpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.chat-tools{display:flex;gap:6px;padding:8px 12px;overflow-x:auto;border-bottom:1px solid var(--b);flex-shrink:0}
+.chat-tools::-webkit-scrollbar{display:none}
+.ct{background:var(--card);border:1px solid var(--b);border-radius:20px;padding:6px 13px;font-size:12px;font-weight:600;color:var(--t2);cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;flex-shrink:0;transition:all .15s}
+.ct:active{background:rgba(108,95,255,.12);color:var(--p);border-color:var(--b2)}
+.chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;-webkit-overflow-scrolling:touch}
+.chat-msgs::-webkit-scrollbar{display:none}
+.cm{max-width:86%;animation:cmin .22s ease}
+@keyframes cmin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.cm.u{align-self:flex-end}
+.cm.a{align-self:flex-start}
+.cmb{padding:11px 14px;font-size:14px;line-height:1.6;border-radius:18px}
+.cm.u .cmb{background:var(--pg);color:white;border-radius:18px 4px 18px 18px}
+.cm.a .cmb{background:var(--card);border:1px solid var(--b);border-radius:4px 18px 18px 18px}
+.cmt{font-size:10px;color:var(--t3);margin-top:3px;padding:0 4px}
+.cm.u .cmt{text-align:right}
+.ext-tag{background:rgba(0,200,150,.1);border:1px solid rgba(0,200,150,.2);border-radius:8px;padding:4px 10px;font-size:11px;color:var(--teal);margin-top:5px;display:inline-flex;align-items:center;gap:5px}
+.typing{display:flex;gap:4px;padding:11px 14px;background:var(--card);border:1px solid var(--b);border-radius:4px 18px 18px 18px;width:fit-content;align-self:flex-start}
+.typing span{width:6px;height:6px;border-radius:50%;background:var(--p);animation:ty 1.2s infinite}
+.typing span:nth-child(2){animation-delay:.2s}
+.typing span:nth-child(3){animation-delay:.4s}
+@keyframes ty{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+.chat-input{background:var(--card);border-top:1px solid var(--b);padding:8px 10px calc(8px + env(safe-area-inset-bottom));flex-shrink:0}
+.chat-input-row{display:flex;gap:8px;align-items:flex-end;background:var(--bg);border-radius:24px;padding:8px 8px 8px 14px;border:1px solid var(--b);transition:border-color .2s}
+.chat-input-row:focus-within{border-color:var(--b2)}
+.ci{flex:1;background:none;border:none;font-size:14px;font-family:'Inter',sans-serif;color:var(--text);outline:none;resize:none;max-height:100px;line-height:1.5;min-height:22px}
+.ci::placeholder{color:var(--t3)}
+.send-btn{background:var(--pg);border:none;width:36px;height:36px;border-radius:50%;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;transition:all .2s}
+.send-btn:active{transform:scale(.88)}
+.send-btn:disabled{opacity:.35}
+/* SCHEDULE */
+.sched-seg{display:flex;background:var(--card2);border-radius:12px;padding:3px;margin:12px 14px 8px;border:1px solid var(--b);gap:2px}
+.ss{flex:1;background:none;border:none;border-radius:9px;padding:8px;font-size:13px;font-weight:600;cursor:pointer;color:var(--t2);transition:all .2s;font-family:'Inter',sans-serif}
+.ss.on{background:var(--p);color:white}
+.scat-row{display:flex;gap:6px;padding:0 14px 8px;overflow-x:auto}
+.scat-row::-webkit-scrollbar{display:none}
+.scat{background:var(--card);border:1px solid var(--b);border-radius:20px;padding:5px 13px;font-size:12px;font-weight:600;color:var(--t2);cursor:pointer;white-space:nowrap;transition:all .15s}
+.scat.on{background:var(--p);color:white;border-color:var(--p)}
+.week-row{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;padding:0 14px 8px}
+.wd{background:var(--card);border:1px solid var(--b);border-radius:10px;padding:6px 3px;text-align:center;cursor:pointer}
+.wd.today{border-color:var(--p);background:rgba(108,95,255,.08)}
+.wd-name{font-size:9px;color:var(--t2);font-weight:600;margin-bottom:2px}
+.wd-num{font-size:14px;font-weight:700}
+.wd-dot{width:4px;height:4px;border-radius:50%;background:var(--p);margin:3px auto 0}
+/* GARDEN PAGE */
+.garden-canvas-box{position:relative;height:280px;overflow:hidden}
+.garden-canvas-box canvas{width:100%;height:100%;display:block}
+.garden-hud{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;pointer-events:none}
+.gpill{background:rgba(0,0,0,.45);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:20px;padding:6px 12px;display:flex;align-items:center;gap:6px;color:white}
+.gpill-val{font-family:'Poppins',sans-serif;font-size:15px;font-weight:800}
+.gpill-lbl{font-size:10px;opacity:.75}
+.g-tools{display:flex;gap:8px;justify-content:center;padding:12px 14px;background:var(--card);border-top:1px solid var(--b)}
+.g-tool{flex:1;background:var(--card2);border:1px solid var(--b);border-radius:14px;padding:10px 6px;text-align:center;cursor:pointer;transition:all .2s}
+.g-tool:active{transform:scale(.94)}
+.g-tool-i{font-size:22px;margin-bottom:4px}
+.g-tool-l{font-size:10px;font-weight:600;color:var(--t2)}
+.next-unlock{margin:10px 14px;background:rgba(108,95,255,.1);border:1px solid var(--b2);border-radius:14px;padding:12px;display:flex;align-items:center;gap:10px}
+.unlock-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:0 14px 8px}
+.ui{background:var(--card);border:1px solid var(--b);border-radius:12px;padding:10px;display:flex;align-items:center;gap:8px}
+.ui.done{background:rgba(0,200,150,.08);border-color:rgba(0,200,150,.2)}
+.ui-em{font-size:20px;opacity:.35}
+.ui.done .ui-em{opacity:1}
+.ui-txt{font-size:11px;color:var(--t2)}
+.ui.done .ui-txt{color:var(--teal);font-weight:600}
+/* SUBJECTS */
+.subj-card{margin:0 14px 8px;background:var(--card);border:1px solid var(--b);border-radius:18px;overflow:hidden;box-shadow:var(--sh)}
+.subj-accent{height:3px}
+.subj-body{padding:14px}
+.subj-r1{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.subj-emoji{font-size:26px}
+.subj-name{font-family:'Poppins',sans-serif;font-size:16px;font-weight:700;flex:1}
+.subj-avg{font-family:'Poppins',sans-serif;font-size:24px;font-weight:900}
+.sparkline{display:flex;align-items:flex-end;gap:3px;height:26px;margin-bottom:6px}
+.sp-bar{width:12px;border-radius:3px 3px 0 0;min-height:3px}
+.subj-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--t2);margin-bottom:10px}
+.subj-btns{display:flex;gap:6px}
+.sbtn{flex:1;border:none;border-radius:10px;padding:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;text-align:center;transition:all .15s}
+.sbtn.p{background:rgba(108,95,255,.12);color:var(--p)}
+.sbtn.t{background:rgba(0,200,150,.12);color:var(--teal)}
+.sbtn.r{background:rgba(255,107,107,.12);color:var(--red)}
+/* FLASHCARD */
+.fc-wrap{padding:14px}
+.fc-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.fc-count{font-size:12px;color:var(--t2)}
+.fc-topic{background:var(--card);border:1px solid var(--b);border-radius:20px;padding:4px 12px;font-size:11px;color:var(--t2)}
+.fc-stack{position:relative;height:220px;margin-bottom:14px;cursor:pointer}
+.game-fmt{display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--bg);border:1.5px solid var(--b);border-radius:12px;padding:10px 6px;cursor:pointer}
+.game-fmt.on{border-color:var(--p);background:rgba(108,95,255,.08)}
+.game-opt{background:var(--bg);border:1.5px solid var(--b);border-radius:12px;padding:12px 14px;margin-bottom:8px;cursor:pointer;font-size:13px;font-weight:500}
+.game-opt.sel{border-color:var(--p);background:rgba(108,95,255,.08)}
+.fc-shadow{position:absolute;bottom:-8px;left:8px;right:8px;height:100%;background:rgba(108,95,255,.1);border-radius:20px;transform:scale(.96)}
+.fc-mid{position:absolute;bottom:-4px;left:4px;right:4px;height:100%;background:rgba(108,95,255,.15);border-radius:20px;transform:scale(.98)}
+.fc-main{position:absolute;inset:0;background:var(--pg);border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;box-shadow:0 8px 32px rgba(108,95,255,.3)}
+.fc-main.rev{background:linear-gradient(135deg,rgba(0,200,150,.18),rgba(0,168,120,.12));border:1px solid rgba(0,200,150,.3)}
+.fc-front{font-size:18px;font-weight:700;color:white;text-align:center;line-height:1.5}
+.fc-main.rev .fc-front{font-size:15px;color:var(--text);font-weight:600;margin-bottom:10px}
+.fc-div{width:40px;height:2px;background:rgba(255,255,255,.3);border-radius:1px;margin:10px auto}
+.fc-main.rev .fc-div{background:rgba(0,200,150,.4)}
+.fc-back{font-size:17px;font-weight:600;color:var(--teal);text-align:center;line-height:1.5}
+.fc-hint{font-size:12px;color:rgba(255,255,255,.55);margin-top:12px}
+.fc-rating{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.fr{border:none;border-radius:14px;padding:12px 4px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
+.fr:active{transform:scale(.93)}
+.fr.a{background:rgba(255,107,107,.15);color:var(--red)}
+.fr.h{background:rgba(255,179,71,.15);color:var(--amber)}
+.fr.g{background:rgba(108,95,255,.15);color:var(--p)}
+.fr.e{background:rgba(0,200,150,.15);color:var(--teal)}
+/* NOTES */
+.notes-search{margin:10px 14px;background:var(--card);border:1px solid var(--b);border-radius:14px;padding:10px 14px;display:flex;align-items:center;gap:8px}
+.notes-search input{flex:1;background:none;border:none;font-size:14px;font-family:'Inter',sans-serif;color:var(--text);outline:none}
+.notes-search input::placeholder{color:var(--t3)}
+.notes-filters{display:flex;gap:6px;padding:0 14px 8px;overflow-x:auto}
+.notes-filters::-webkit-scrollbar{display:none}
+.nf{background:var(--card);border:1px solid var(--b);border-radius:20px;padding:5px 13px;font-size:12px;font-weight:600;color:var(--t2);cursor:pointer;white-space:nowrap;transition:all .15s}
+.nf.on{background:var(--p);color:white;border-color:var(--p)}
+.note-card{margin:0 14px 8px;background:var(--card);border:1px solid var(--b);border-radius:16px;padding:14px;border-left:4px solid var(--p);box-shadow:var(--sh)}
+.note-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px}
+.note-title{font-size:15px;font-weight:700;flex:1;margin-right:8px}
+.note-acts{display:flex;gap:4px}
+.note-acts button{background:none;border:none;color:var(--t2);cursor:pointer;font-size:15px;padding:2px}
+.note-body{font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:8px}
+.note-footer{display:flex;justify-content:space-between;align-items:center}
+.note-date{font-size:10px;color:var(--t3)}
+.note-subj{background:rgba(108,95,255,.12);color:var(--p);font-size:10px;font-weight:600;padding:2px 8px;border-radius:6px}
+/* INSIGHTS */
+.ins-hero{margin:12px 14px 10px;background:var(--pg);border-radius:20px;padding:18px}
+.ins-hero-title{font-family:'Poppins',sans-serif;font-size:18px;font-weight:800;color:white;margin-bottom:3px}
+.ins-hero-sub{font-size:12px;color:rgba(255,255,255,.75);margin-bottom:14px}
+.ins-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ins-stat{background:rgba(255,255,255,.12);border-radius:12px;padding:10px;text-align:center}
+.ins-stat-val{font-family:'Poppins',sans-serif;font-size:20px;font-weight:800;color:white}
+.ins-stat-lbl{font-size:10px;color:rgba(255,255,255,.7);margin-top:2px}
+.ins-section{margin:0 14px 10px;background:var(--card);border:1px solid var(--b);border-radius:16px;padding:14px;box-shadow:var(--sh)}
+.ins-sec-h{font-size:12px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.ins-chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:12px;font-weight:600;padding:5px 12px;border-radius:20px}
+.chip.s{background:rgba(0,200,150,.12);color:var(--teal)}
+.chip.f{background:rgba(255,179,71,.15);color:var(--amber)}
+.ins-recs{display:flex;flex-direction:column;gap:0}
+.ins-rec{display:flex;align-items:flex-start;gap:8px;padding:9px 0;border-bottom:1px solid var(--b)}
+.ins-rec:last-child{border-bottom:none}
+.ins-rec-dot{width:6px;height:6px;border-radius:50%;background:var(--p);margin-top:6px;flex-shrink:0}
+.ins-rec-text{font-size:13px;line-height:1.55}
+/* MORE / PROFILE */
+.profile-hero{margin:12px 14px 10px;background:var(--pg);border-radius:20px;padding:20px;position:relative;overflow:hidden}
+.profile-hero::after{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.07)}
+.profile-av{width:54px;height:54px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:white;margin-bottom:10px;overflow:hidden}
+.profile-av img{width:100%;height:100%;object-fit:cover}
+.profile-name{font-family:'Poppins',sans-serif;font-size:20px;font-weight:900;color:white;margin-bottom:2px}
+.profile-level{font-size:12px;color:rgba(255,255,255,.75);margin-bottom:12px}
+.xp-track{background:rgba(255,255,255,.2);border-radius:100px;height:6px;overflow:hidden;margin-bottom:4px}
+.xp-prog{height:100%;border-radius:100px;background:rgba(255,255,255,.9);transition:width 1s ease}
+.xp-labels{display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,.65)}
+.more-section{margin:0 14px 10px;background:var(--card);border:1px solid var(--b);border-radius:16px;overflow:hidden;box-shadow:var(--sh)}
+.mi{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--b);cursor:pointer;transition:background .15s}
+.mi:last-child{border-bottom:none}
+.mi:active{background:var(--card2)}
+.mi-icon{width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.mi-info{flex:1}
+.mi-label{font-size:14px;font-weight:600}
+.mi-sub{font-size:11px;color:var(--t2);margin-top:1px}
+.mi-right{font-size:13px;color:var(--t2)}
+.ach-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 14px 8px}
+.ach-item{background:var(--card);border:1px solid var(--b);border-radius:14px;padding:13px;text-align:center;box-shadow:var(--sh)}
+.ach-item.on{border-color:var(--b2)}
+.ach-em{font-size:26px;margin-bottom:6px;filter:grayscale(1);opacity:.35}
+.ach-item.on .ach-em{filter:none;opacity:1}
+.ach-name{font-size:11px;font-weight:700}
+.ach-desc{font-size:10px;color:var(--t2);margin-top:2px;line-height:1.4}
+/* FORMS & MODAL */
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.field input,.field select,.field textarea{width:100%;background:var(--bg);border:1.5px solid var(--b);border-radius:12px;color:var(--text);padding:12px 14px;font-size:14px;font-family:'Inter',sans-serif;outline:none;-webkit-appearance:none;transition:border-color .2s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--p)}
+.seg-pick{display:flex;background:var(--bg);border:1.5px solid var(--b);border-radius:12px;padding:3px;gap:2px}
+.sp{flex:1;background:none;border:none;border-radius:9px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;color:var(--t2);font-family:'Inter',sans-serif;transition:all .15s}
+.sp.on{background:var(--p);color:white}
+.emoji-g{display:grid;grid-template-columns:repeat(9,1fr);gap:5px}
+.eo{background:var(--bg);border:1.5px solid var(--b);border-radius:9px;padding:6px;text-align:center;font-size:18px;cursor:pointer;transition:all .12s}
+.eo.sel{border-color:var(--p);background:rgba(108,95,255,.1)}
+.colors-row{display:flex;gap:8px;flex-wrap:wrap}
+.c-dot{width:28px;height:28px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all .15s}
+.c-dot.sel{border-color:var(--text);transform:scale(1.12)}
+.repeat-days{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.rd{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--b);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;cursor:pointer;color:var(--t2);transition:all .15s}
+.rd.on{background:var(--p);border-color:var(--p);color:white}
+.btn{padding:14px;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;display:block;text-align:center;width:100%;transition:all .2s;letter-spacing:-.01em}
+.btn:active{transform:scale(.97)}
+.btn-p{background:var(--pg);color:white}
+.btn-s{background:var(--bg);color:var(--t2);border:1.5px solid var(--b);margin-top:8px}
+.btn-sm{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all .15s}
+.btn-sm:active{transform:scale(.95)}
+.btn-sm.p{background:var(--p);color:white}
+.btn-sm.s{background:var(--card);color:var(--t2);border:1px solid var(--b)}
+.btn-sm.t{background:rgba(0,200,150,.12);color:var(--teal)}
+.mbg{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:200;display:flex;align-items:flex-end}
+.modal{background:var(--card);border-radius:24px 24px 0 0;width:100%;max-height:92vh;overflow-y:auto;animation:mdin .3s cubic-bezier(.34,1.2,.64,1)}
+@keyframes mdin{from{transform:translateY(100%)}to{transform:none}}
+.modal::-webkit-scrollbar{display:none}
+.m-inner{padding:0 18px calc(24px + env(safe-area-inset-bottom))}
+.m-handle{width:36px;height:4px;background:var(--b);border-radius:2px;margin:14px auto 20px}
+.m-title{font-family:'Poppins',sans-serif;font-size:18px;font-weight:800;margin-bottom:18px;letter-spacing:-.02em}
+/* CELEBRATION */
+.celeb-wrap{position:fixed;inset:0;z-index:300;pointer-events:none}
+.celeb-bg{position:absolute;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(4px)}
+.celeb-box{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;animation:celeb-in .4s cubic-bezier(.34,1.4,.64,1)}
+@keyframes celeb-in{from{transform:translate(-50%,-50%) scale(.5);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
+.celeb-icon{font-size:64px;display:block;margin-bottom:12px}
+.celeb-title{font-family:'Poppins',sans-serif;font-size:26px;font-weight:900;color:white;letter-spacing:-.02em;margin-bottom:6px}
+.celeb-sub{font-size:15px;color:rgba(255,255,255,.8)}
+#cc{position:absolute;inset:0;pointer-events:none}
+/* UTILS */
+.space{height:20px}
+.empty{text-align:center;padding:36px 20px}
+.empty-i{font-size:44px;margin-bottom:12px}
+.empty-t{font-size:16px;font-weight:700;margin-bottom:6px}
+.empty-s{font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:16px}
+</style>
+</head>
+<body data-theme="dark">
+<div id="root"></div>
+<script>
+const tg=window.Telegram?.WebApp
+if(tg){tg.ready();tg.expand();if(tg.disableVerticalSwipes)tg.disableVerticalSwipes()}
+
+const COLORS=['#6c5fff','#00c896','#ff6b6b','#ffb347','#ff85c0','#38b2f5','#a855f7','#10b981']
+const EMOJIS=['📚','📐','🔬','📖','🌍','🎨','💻','🎵','🧪','🧮','📝','🏛','🌱','⚗','🔭','🎯','💡','⚽']
+const SCHED_EMOJIS=['📌','📚','🏃','💊','🥗','📖','💤','🎵','💻','🌿','🧘','🎯','⚽','🛒','💬']
+const DAYS=['Du','Se','Ch','Pa','Ju','Sh','Ya']
+
+const I18N={
+  uz:{home:'Bosh',ai:'AI',schedule:'Reja',plan:'Reja',garden:"Bog'",more:"Ko'proq",flashcards:'Kartalar',profile:'Profil',
+    due_label:'Kerak',all_cards:'Hammasi',by_subject:'Fan bo\'yicha',tap_to_flip:'Ko\'rish uchun bosing',
+    game_mcq:'Tanlovli test',game_truefalse:"To'g'ri/Noto'g'ri",game_fillblank:"Bo'shliqni to'ldirish",game_matching:'Moslashtirish',game_wordscramble:"So'zni top",
+    choose_format:"O'yin turini tanlang",generate_game:'🎮 Yaratish',game_loading:'Tayyorlanmoqda...',
+    your_score:'Natijangiz',check_answer:'Tekshirish',next_q:'Keyingisi',play_again:'Qayta o\'ynash',
+    greeting_m:'Xayrli tong',greeting_d:'Xayrli kun',greeting_e:'Xayrli kech',
+    streak_days:'kun streak',avg_grade:"O'rtacha",study_min:'Daqiqa',focus:'Focus',
+    due_cards:'Kartalar',weekly:'Haftalik',ai_placeholder:'Yozing...',
+    ai_welcome:"Salom! Men StudyMind AI 🧠\n\nYozing:\n• \"Matematikadan 85 oldim\"\n• \"Fizika tushunmayapman\"\n• \"5 ta flashcard yarat\"",
+    no_plan:'Reja yo\'q',gen_plan:'🧠 AI reja',add_task:'+ Qo\'shish',
+    subjects:'Fanlar',notes:'Eslatmalar',insights:'AI Tahlil',
+    strengths:'Kuchli tomonlar',needs_focus:"E'tibor kerak",recommendations:'Tavsiyalar',
+    gen_insight:'🧠 Tahlil qilish',profile:'Profil',achievements:'Yutuqlar',
+    saved_quotes:'Saqlangan gaplar',streak_freeze:'Streak Freeze',
+    settings:'Sozlamalar',language:'Til',save:'Saqlash',cancel:'Bekor',logout:'Chiqish',
+    next_unlock:'Keyingi bosqich',
+    ob1_t:"O'z dunyongizni quring",ob1_s:"O'qigan sari dunyongiz o'sadi. Daraxtlar, ariq, uy — siz tufayli.",
+    ob2_t:'AI bilan gaplashing',ob2_s:'Bahongizni aysangiz AI o\'zi saqlaydi. Hech narsa to\'ldirmaysiz.',
+    ob3_t:'Ismingiz nima?',ob3_s:'AI sizni tanib, shaxsiy murabbiy bo\'ladi.',
+    ob4_t:'Qaysi sinfda?',lets_start:'Boshlaylik →',already:"Hisobim bor",
+  },
+  ru:{home:'Главная',ai:'AI',schedule:'Расписание',plan:'План',garden:'Сад',more:'Ещё',flashcards:'Карточки',profile:'Профиль',
+    due_label:'Нужно',all_cards:'Все',by_subject:'По предмету',tap_to_flip:'Нажмите, чтобы увидеть',
+    game_mcq:'Тест',game_truefalse:'Верно/Неверно',game_fillblank:'Заполните пропуск',game_matching:'Сопоставление',game_wordscramble:'Угадай слово',
+    choose_format:'Выберите формат',generate_game:'🎮 Создать',game_loading:'Подготовка...',
+    your_score:'Ваш результат',check_answer:'Проверить',next_q:'Далее',play_again:'Сыграть снова',
+    greeting_m:'Доброе утро',greeting_d:'Добрый день',greeting_e:'Добрый вечер',
+    streak_days:'дней подряд',avg_grade:'Средняя',study_min:'Минут',focus:'Фокус',
+    due_cards:'Карточки',weekly:'Активность',ai_placeholder:'Напишите...',
+    ai_welcome:"Привет! Я StudyMind AI 🧠\n\nНапишите:\n• \"По математике 85\"\n• \"Не понимаю физику\"\n• \"Создай 5 карточек\"",
+    no_plan:'Нет плана',gen_plan:'🧠 AI план',add_task:'+ Добавить',
+    subjects:'Предметы',notes:'Заметки',insights:'AI Анализ',
+    strengths:'Сильные стороны',needs_focus:'Нужно внимание',recommendations:'Рекомендации',
+    gen_insight:'🧠 Анализировать',profile:'Профиль',achievements:'Достижения',
+    saved_quotes:'Цитаты',streak_freeze:'Заморозка',
+    settings:'Настройки',language:'Язык',save:'Сохранить',cancel:'Отмена',logout:'Выйти',
+    next_unlock:'Следующий этап',
+    ob1_t:'Создайте свой мир',ob1_s:'Чем больше учишься, тем красивее становится мир.',
+    ob2_t:'Говорите с AI',ob2_s:'Скажи оценку — AI сам сохранит. Никаких форм.',
+    ob3_t:'Как вас зовут?',ob3_s:'AI будет вашим личным наставником.',
+    ob4_t:'В каком классе?',lets_start:'Начать →',already:'Уже есть аккаунт',
+  },
+  en:{home:'Home',ai:'AI',schedule:'Schedule',plan:'Plan',garden:'Garden',more:'More',flashcards:'Flashcards',profile:'Profile',
+    due_label:'Due',all_cards:'All Cards',by_subject:'By Subject',tap_to_flip:'Tap to flip',
+    game_mcq:'Multiple choice',game_truefalse:'True/False',game_fillblank:'Fill the blank',game_matching:'Matching',game_wordscramble:'Word guess',
+    choose_format:'Choose format',generate_game:'🎮 Generate',game_loading:'Generating...',
+    your_score:'Your score',check_answer:'Check',next_q:'Next',play_again:'Play again',
+    greeting_m:'Good morning',greeting_d:'Good afternoon',greeting_e:'Good evening',
+    streak_days:'day streak',avg_grade:'Avg Grade',study_min:'Minutes',focus:'Focus',
+    due_cards:'Cards',weekly:'Weekly',ai_placeholder:'Type...',
+    ai_welcome:"Hello! I'm StudyMind AI 🧠\n\nTell me:\n• \"Got 85 in Math\"\n• \"Don't understand Physics\"\n• \"Create 5 flashcards\"",
+    no_plan:'No plan',gen_plan:'🧠 AI Plan',add_task:'+ Add',
+    subjects:'Subjects',notes:'Notes',insights:'AI Insights',
+    strengths:'Strengths',needs_focus:'Needs Focus',recommendations:'Recommendations',
+    gen_insight:'🧠 Analyze',profile:'Profile',achievements:'Achievements',
+    saved_quotes:'Saved Quotes',streak_freeze:'Streak Freeze',
+    settings:'Settings',language:'Language',save:'Save',cancel:'Cancel',logout:'Sign Out',
+    next_unlock:'Next unlock',
+    ob1_t:'Build your world',ob1_s:'The more you study, the more your world grows.',
+    ob2_t:'Talk to AI',ob2_s:'Tell your grade — AI saves it automatically.',
+    ob3_t:"What's your name?",ob3_s:'AI will be your personal tutor.',
+    ob4_t:'What grade?',lets_start:"Let's Start →",already:'Already have an account',
+  }
+}
+function t(k){const l=S.user?.lang||'uz';return(I18N[l]||I18N.uz)[k]||k}
+
+let S={
+  user:null,subjects:[],stats:null,tab:'home',
+  chatMsgs:[],aiLoading:false,
+  flashcards:[],fcIdx:0,fcRev:false,
+  schedule:[],schedView:'today',schedCat:'all',
+  notes:[],notesFilter:'all',notesSearch:'',
+  insights:null,quote:null,achievements:[],
+  gardenData:null,
+  modal:null,editNote:null,
+  ns:{name:'',emoji:'📚',color:'#6c5fff',examDate:''},
+  nsc:{title:'',category:'study',subjectName:'',time:'',date:'',repeat:'none',repeatDays:[],emoji:'📌'},
+  nn:{title:'',content:'',subjectName:'',color:'#6c5fff'},
+  fcTopic:'',fcCount:5,
+  isRecording:false,recognition:null,
+  celebration:null,
+  onboarding:false,obStep:0,obName:'',obGrade:'',obRole:'student',obInvite:'',
+  journal:[],wellbeing:[],career:null,family:null,parentOverview:null,moreView:'main',
+}
+
+const req=async(m,p,b)=>{const r=await fetch(p,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):undefined});if(!r.ok)throw new Error(await r.text());return r.json()}
+const GET=p=>req('GET',p),POST=(p,b)=>req('POST',p,b),PUT=(p,b)=>req('PUT',p,b)
+const PATCH=(p,b)=>req('PATCH',p,b),DEL=p=>req('DELETE',p)
+const today=()=>new Date().toISOString().split('T')[0]
+const nowT=()=>new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
+
+async function init(){
+  if(tg?.initDataUnsafe?.user){const u=tg.initDataUnsafe.user;try{await POST('/auth/telegram',{telegramId:u.id,name:u.first_name,username:u.username})}catch{}}
+  try{
+    S.user=await GET('/api/user')
+    applyTheme(S.user.theme||'dark')
+    if(!S.user.grade&&S.user.role!=='parent'){S.onboarding=true;S.obStep=0;render();return}
+    if(S.user.role==='parent'){await loadParent();render();return}
+    await loadAll();render()
+  }catch{renderLogin()}
+}
+
+async function loadParent(){
+  try{S.family=await GET('/api/family/me')}catch{}
+  try{S.parentOverview=await GET('/api/family/student-overview')}catch{}
+}
+
+async function loadAll(){
+  const[a,b,c,d,e,f,g]=await Promise.all([
+    GET('/api/subjects'),GET('/api/stats'),GET('/api/flashcards?dueOnly=true'),
+    GET('/api/chat'),GET('/api/schedule?date='+today()),GET('/api/notes'),GET('/api/quote')
+  ])
+  S.subjects=a;S.stats=b;S.flashcards=c;S.fcIdx=0;S.fcRev=false
+  S.chatMsgs=d.map(m=>({role:m.role,content:m.content,time:'',extracted:m.extractedData}))
+  S.schedule=e;S.notes=f;S.quote=g
+  try{const gd=await GET('/api/garden');S.gardenData=gd}catch{}
+  try{S.family=await GET('/api/family/me')}catch{}
+}
+
+function applyTheme(th){document.body.setAttribute('data-theme',th)}
+
+function render(){
+  if(!S.user){renderLogin();return}
+  if(S.onboarding){renderOnboarding();return}
+  if(S.celebration){renderCelebration();return}
+  if(S.user.role==='parent'){renderParent();return}
+  const root=document.getElementById('root')
+  root.innerHTML=(S.tab==='ai'?chatShell():stdShell())+nav()+(S.modal?modal():'')
+  afterRender()
+}
+
+function renderLogin(){
+  document.getElementById('root').innerHTML=`<div class="login-wrap">
+    <div class="login-logo">🧠</div>
+    <div class="login-title">StudyMind</div>
+    <div class="login-sub">AI o'quv assistentingiz</div>
+    <div class="login-quote">"O'qigan sari dunyongiz o'sadi."</div>
+    <a href="/auth/google" class="l-btn l-google">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Google bilan kirish
+    </a>
+    <div class="l-or">yoki</div>
+    <button class="l-btn l-tg" onclick="loginTG()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-2.012 9.486c-.148.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.48 14.6l-2.95-.924c-.64-.2-.654-.64.135-.948l11.52-4.44c.533-.194 1 .13.377.96z"/></svg>
+      Telegram bilan kirish
+    </button>
+  </div>`
+}
+
+function loginTG(){
+  if(tg?.initDataUnsafe?.user){const u=tg.initDataUnsafe.user;POST('/auth/telegram',{telegramId:u.id,name:u.first_name,username:u.username}).then(()=>init()).catch(()=>toast('❌ Xatolik'))}
+  else toast('Telegram ichida ishlaydi.')
+}
+
+// ONBOARDING
+function renderOnboarding(){
+  const steps=[
+    {title:t('ob1_t'),sub:t('ob1_s'),cta:t('lets_start'),type:'info',skip:true},
+    {title:t('ob2_t'),sub:t('ob2_s'),cta:'Keyingi →',type:'info',skip:true},
+    {title:'Siz kimsiz?',sub:'Bu StudyMind tajribangizni belgilaydi.',cta:'Keyingi →',type:'role',skip:false},
+    {title:t('ob3_t'),sub:t('ob3_s'),cta:'Keyingi →',type:'name',skip:false},
+    {title:S.obRole==='parent'?'Farzandingiz sinfi?':t('ob4_t'),sub:S.obRole==='parent'?"Bu ixtiyoriy — keyin ham o'rnatishingiz mumkin":'',cta:S.obRole==='parent'?'Keyingi →':t('lets_start'),type:'grade',skip:false},
+  ]
+  if(S.obRole==='parent') steps.push({title:'Oilani ulang',sub:"Farzandingiz bergan taklif kodini kiriting, yoki keyinroq ulang.",cta:t('lets_start'),type:'family',skip:false})
+  const step=steps[S.obStep]
+  document.getElementById('root').innerHTML=`<div class="ob-wrap">
+    <div class="ob-canvas-wrap"><canvas id="ob-canvas"></canvas><div class="ob-fade"></div></div>
+    <div class="ob-body">
+      <div class="ob-dots">${steps.map((_,i)=>`<div class="ob-dot ${i===S.obStep?'on':''}"></div>`).join('')}</div>
+      <div class="ob-title">${step.title}</div>
+      ${step.sub?`<div class="ob-sub">${step.sub}</div>`:''}
+      ${step.type==='role'?`<div class="ob-grade-grid" style="grid-template-columns:1fr 1fr">
+        <div class="ob-grade ${S.obRole==='student'?'sel':''}" style="padding:18px 12px" onclick="S.obRole='student';render()">🎓<br><br>O'quvchi</div>
+        <div class="ob-grade ${S.obRole==='parent'?'sel':''}" style="padding:18px 12px" onclick="S.obRole='parent';render()">👪<br><br>Ota-ona</div>
+      </div>`:''}
+      ${step.type==='name'?`<input class="ob-inp" id="ob-name" placeholder="Ismingiz..." value="${S.obName}" oninput="S.obName=this.value" autofocus>`:''}
+      ${step.type==='grade'?`<div class="ob-grade-grid">
+        ${['8-sinf','9-sinf','10-sinf','11-sinf','1-kurs','2-kurs'].map(g=>`<div class="ob-grade ${S.obGrade===g?'sel':''}" onclick="S.obGrade='${g}';render()">${g}</div>`).join('')}
+      </div>`:''}
+      ${step.type==='family'?`
+        <div class="field"><label>Taklif kodi (bo'lsa)</label><input class="ob-inp" id="ob-invite" placeholder="ABC123" style="text-transform:uppercase" oninput="S.obInvite=this.value.toUpperCase()" value="${S.obInvite||''}"></div>
+      `:''}
+      <button class="ob-btn" onclick="obNext()">${step.cta}</button>
+      ${step.skip?`<div class="ob-skip" onclick="obSkip()">${t('already')}</div>`:''}
+    </div>
+  </div>`
+  setTimeout(()=>{
+    const c=document.getElementById('ob-canvas')
+    if(c&&window.StudyMindGarden)window.StudyMindGarden.init(c,{streak:0,xp:0,grade:0})
+  },80)
+}
+
+async function obNext(){
+  const totalSteps=S.obRole==='parent'?6:5
+  const isNameStep=S.obStep===3
+  const isLastStep=S.obStep===totalSteps-1
+  if(isNameStep&&!S.obName.trim()){toast('Ismingizni kiriting');return}
+  if(S.obStep===2&&!S.obRole){toast('Tanlang');return}
+
+  if(isLastStep){
+    await PUT('/api/user',{name:S.obName||S.user.name,grade:S.obGrade||'',role:S.obRole||'student'})
+    S.user.name=S.obName||S.user.name;S.user.grade=S.obGrade||'';S.user.role=S.obRole||'student'
+    if(S.obRole==='parent'){
+      if(S.obInvite?.trim()){
+        try{await POST('/api/family/join',{inviteCode:S.obInvite.trim()})}catch{toast('⚠️ Kod topilmadi, keyinroq urinib ko\'ring')}
+      } else {
+        try{await POST('/api/family/create',{})}catch{}
+      }
+      S.onboarding=false;await loadParent();render();return
+    }
+    S.onboarding=false;await loadAll();render();return
+  }
+  S.obStep++;render()
+}
+function obSkip(){S.onboarding=false;loadAll().then(()=>render())}
+
+// SHELL
+function stdShell(){
+  const u=S.user,xp=nxtLvl(u?.level||1),pct=Math.min(100,Math.round(((u?.xp||0)/xp)*100))
+  const h=new Date().getHours()
+  const gr=h<12?t('greeting_m'):h<17?t('greeting_d'):t('greeting_e')
+  const init2=(u?.name||'U').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()
+  const titles={home:`${gr}, ${u?.name?.split(' ')[0]}!`,schedule:t('schedule'),garden:t('garden'),notes:t('notes'),more:t('profile')}
+  const subs={home:u?.grade||`Lv.${u?.level}`,schedule:today(),garden:'',notes:`${S.notes.length} ta`,more:`Lv.${u?.level} · ${u?.xp} XP`}
+  return`<div id="app">
+    <div class="hdr">
+      <div class="hdr-row">
+        <div><div class="hdr-title">${titles[S.tab]||''}</div>${subs[S.tab]?`<div class="hdr-sub">${subs[S.tab]}</div>`:''}</div>
+        <div class="hdr-right">
+          <div class="icon-btn" onclick="toggleTheme()">${document.body.getAttribute('data-theme')==='dark'?'☀️':'🌙'}</div>
+          <div class="hdr-av" onclick="switchTab('more')">${u?.avatar?`<img src="${u.avatar}">`:init2}</div>
+        </div>
+      </div>
+      <div class="xp-bar"><div class="xp-fill" style="width:${pct}%"></div></div>
+    </div>
+    <div id="scroll">${pageCnt()}</div>
+  </div>`
+}
+
+function pageCnt(){
+  switch(S.tab){
+    case'home':return home()
+    case'schedule':return schedule()
+    case'flashcards':return flashcardsTab()
+    case'garden':return garden()
+    case'notes':return notes()
+    case'more':return more()
+  }
+  return''
+}
+
+function nav(){
+  const TABS=[{id:'home',i:'🏠',l:t('home')},{id:'ai',i:'🧠',l:t('ai')},{id:'schedule',i:'📅',l:t('plan')},{id:'flashcards',i:'🎮',l:t('flashcards')},{id:'garden',i:'🌿',l:t('garden')},{id:'more',i:'👤',l:t('profile')}]
+  const due=S.stats?.dueCards||0
+  return`<nav id="nav">${TABS.map(tb=>`<button class="nb ${S.tab===tb.id?'on':''}" onclick="switchTab('${tb.id}')">
+    <div class="ni-wrap"><span class="ni">${tb.i}</span>${tb.id==='flashcards'&&due?`<span class="nb-dot"></span>`:''}</div>
+    <span class="nl">${tb.l}</span>
+  </button>`).join('')}</nav>`
+}
+
+// HOME
+function home(){
+  const s=S.stats,u=S.user,w=s?.weekly||[],mx=Math.max(...w.map(d=>d.tasks),1)
+  return`
+    <div class="streak-card" onclick="switchTab('garden')">
+      <span class="streak-fire">🔥</span>
+      <div><div class="streak-num">${u?.streak||0}</div><div class="streak-label">${t('streak_days')}</div></div>
+      <div class="streak-r">
+        <div style="font-size:11px;color:var(--t2);margin-bottom:4px">Bog'ingiz</div>
+        <div class="garden-link">🌿 Ko'rish →</div>
+      </div>
+    </div>
+
+    ${S.quote?`<div class="quote-box">
+      <div class="q-text">"${S.quote.text}"</div>
+      <div class="q-author">— ${S.quote.author}</div>
+      <button class="q-save" onclick="saveQuote(event)">💾</button>
+    </div>`:''}
+
+    <div class="metrics">
+      <div class="mc"><div class="mc-val" style="color:var(--p)">${s?.avgGrade||'—'}</div><div class="mc-lbl">${t('avg_grade')}</div>${s?.avgGrade?`<div class="mc-hint">${s.avgGrade>=80?'Zo\'r!':s.avgGrade>=60?'Yaxshi':'Oshirish kerak'}</div>`:''}</div>
+      <div class="mc"><div class="mc-val" style="color:var(--teal)">${u?.totalStudyMinutes||0}</div><div class="mc-lbl">${t('study_min')}</div></div>
+      <div class="mc"><div class="mc-val" style="color:var(--amber)">${u?.focusScore||0}</div><div class="mc-lbl">${t('focus')}</div><div class="mc-hint">/ 100</div></div>
+      <div class="mc"><div class="mc-val" style="color:var(--red)">${s?.dueCards||0}</div><div class="mc-lbl">${t('due_cards')}</div></div>
+    </div>
+
+    ${s?.lastInsight?`<div class="ai-bubble">
+      <span class="ai-badge">AI Insight</span>
+      <div class="ai-bubble-text">${s.lastInsight.strengths?.length?`💪 ${s.lastInsight.strengths.slice(0,2).join(', ')}`:''} ${s.lastInsight.needsFocus?.length?`— 📌 ${s.lastInsight.needsFocus.slice(0,1).join(', ')}`:''}</div>
+      <div class="ai-more" onclick="switchTab('more')">To'liq tahlil →</div>
+    </div>`:''}
+
+    <div style="margin:0 14px 12px">
+      <div class="weekly">
+        <div class="sec-title">${t('weekly')}</div>
+        <div class="bars">
+          ${w.map((d,i)=>{const h=Math.max(4,Math.round((d.tasks/mx)*60));const dp=d.tasks>0?Math.round(d.done/d.tasks*100):0;return`<div class="b-col"><div class="b-bar" style="height:${h}px;background:${dp>=80?'var(--teal)':dp>=50?'var(--p)':'var(--card2)'}"></div><div class="b-lbl">${DAYS[i]}</div></div>`}).join('')}
+        </div>
+      </div>
+    </div>
+
+    <div class="plan-wrap">
+      <div class="plan-head">
+        <div class="sec-title">Bugungi reja</div>
+        <div class="plan-actions">
+          <span class="btn-sm s" style="font-size:11px" onclick="genPlan()">${t('gen_plan')}</span>
+          <span class="sec-action" onclick="switchTab('schedule')">Barchasi →</span>
+        </div>
+      </div>
+      <div class="plan-list">
+        ${S.schedule.slice(0,4).map(siHtml).join('')||`<div style="padding:16px;text-align:center;font-size:13px;color:var(--t2)">${t('no_plan')}</div>`}
+        ${!S.schedule.length?`<div style="padding:0 14px 12px;display:flex;gap:6px">
+          <button class="btn-sm p" onclick="genPlan()">${t('gen_plan')}</button>
+          <button class="btn-sm s" onclick="openModal('addSchedule')">${t('add_task')}</button>
+        </div>`:''}
+      </div>
+    </div>
+    <div class="space"></div>`
+}
+
+function siHtml(x){return`<div class="si">
+  <span class="si-em">${x.emoji||'📌'}</span>
+  <div class="si-cb ${x.isDone?'done':''} ${x.category==='life'?'life':''}" onclick="toggleSched('${x._id}',${!x.isDone})">${x.isDone?'✓':''}</div>
+  <div class="si-info">
+    <div class="si-title ${x.isDone?'done':''}">${x.title}</div>
+    <div class="si-meta"><span class="si-cat ${x.category}">${x.category==='study'?"O'quv":'Hayot'}</span>${x.subjectName?`<span style="font-size:10px;color:var(--t2)">${x.subjectName}</span>`:''}</div>
+  </div>
+  ${x.time?`<div class="si-time">${x.time}</div>`:''}
+  <button class="si-del" onclick="delSched('${x._id}')">×</button>
+</div>`}
+
+// AI CHAT
+function chatShell(){
+  return`<div id="app"><div class="chat-shell">
+    <div class="chat-hdr">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="chat-av">🧠</div>
+        <div><div class="chat-name">StudyMind AI</div><div class="chat-status">${S.aiLoading?'Yozmoqda...':'Doim tayyor'}</div></div>
+      </div>
+      <button class="mic-btn ${S.isRecording?'rec':''}" onclick="toggleVoice()">${S.isRecording?'⏹':'🎤'}</button>
+    </div>
+    <div class="chat-tools">
+      <div class="ct" onclick="qp('Bugungi o\\'qishimni tahlil qil')">🔍 Tahlil</div>
+      <div class="ct" onclick="qp('Bugun uchun reja tuz')">📅 Reja</div>
+      <div class="ct" onclick="qp('5 ta flashcard yarat')">🔁 Flashcard</div>
+      <div class="ct" onclick="openModal('fcTopic')">📚 Mavzu→Karta</div>
+      <div class="ct" onclick="qp('Mening zaif fanlarim nima?')">📊 Zaif fanlar</div>
+      ${S.subjects.slice(0,3).map(s=>`<div class="ct" onclick="qp('${s.name} fanidan yordam ber')">${s.emoji}${s.name}</div>`).join('')}
+    </div>
+    <div class="chat-msgs" id="cm">
+      ${!S.chatMsgs.length?`<div class="cm a"><div class="cmb">${t('ai_welcome').replace(/\n/g,'<br>')}</div></div>`:''}
+      ${S.chatMsgs.map(m=>`<div class="cm ${m.role==='user'?'u':'a'}">
+        <div class="cmb">${m.content.replace(/\n/g,'<br>')}</div>
+        ${m.extracted?.grade?`<div class="ext-tag">✓ ${m.extracted.grade.subjectName}: ${m.extracted.grade.score} saqlandi</div>`:''}
+        ${m.extracted?.studyMinutes?`<div class="ext-tag">⏱ ${m.extracted.studyMinutes} daqiqa saqlandi</div>`:''}
+        ${m.time?`<div class="cmt">${m.time}</div>`:''}
+      </div>`).join('')}
+      ${S.aiLoading?`<div class="typing"><span></span><span></span><span></span></div>`:''}
+    </div>
+    <div class="chat-input">
+      <div class="chat-input-row">
+        <textarea class="ci" id="ci" placeholder="${t('ai_placeholder')}" rows="1" onkeydown="chatKey(event)" oninput="autosize(this)"></textarea>
+        <button class="send-btn" onclick="sendChat()" ${S.aiLoading?'disabled':''}>➤</button>
+      </div>
+    </div>
+  </div></div>`
+}
+
+// SCHEDULE
+function schedule(){
+  const filtered=S.schedule.filter(x=>S.schedCat==='all'||x.category===S.schedCat)
+  const today2=today()
+  const weekDays=Array.from({length:7},(_,i)=>{
+    const d=new Date();d.setDate(d.getDate()-((d.getDay()||7)-1)+i)
+    return{date:d.toISOString().split('T')[0],day:DAYS[i],num:d.getDate()}
+  })
+  return`
+    <div style="padding:12px 14px 0;display:flex;gap:6px">
+      <button class="btn-sm p" onclick="openModal('addSchedule')">${t('add_task')}</button>
+      <button class="btn-sm s" onclick="genPlan()">${t('gen_plan')}</button>
+    </div>
+    <div class="sched-seg">
+      <button class="ss ${S.schedView==='today'?'on':''}" onclick="S.schedView='today';loadSchedule()">Bugun</button>
+      <button class="ss ${S.schedView==='week'?'on':''}" onclick="S.schedView='week';render()">Hafta</button>
+      <button class="ss ${S.schedView==='repeat'?'on':''}" onclick="S.schedView='repeat';loadSchedule()">Takroriy</button>
+    </div>
+    ${S.schedView==='week'?`<div class="week-row">
+      ${weekDays.map(d=>`<div class="wd ${d.date===today2?'today':''}">
+        <div class="wd-name">${d.day}</div>
+        <div class="wd-num">${d.num}</div>
+        ${d.date===today2?`<div class="wd-dot"></div>`:''}
+      </div>`).join('')}
+    </div>`:''}
+    <div class="scat-row">
+      <div class="scat ${S.schedCat==='all'?'on':''}" onclick="S.schedCat='all';render()">Hammasi</div>
+      <div class="scat ${S.schedCat==='study'?'on':''}" onclick="S.schedCat='study';render()">📚 O'quv</div>
+      <div class="scat ${S.schedCat==='life'?'on':''}" onclick="S.schedCat='life';render()">🌟 Hayot</div>
+    </div>
+    <div style="margin:0 14px">
+      <div class="plan-list">
+        ${filtered.map(siHtml).join('')||`<div class="empty"><div class="empty-i">📅</div><div class="empty-t">${t('no_plan')}</div><div class="empty-s">AI reja tuzing yoki qo'lda qo'shing</div><button class="btn-sm p" onclick="genPlan()">${t('gen_plan')}</button></div>`}
+      </div>
+    </div>
+    <div class="space"></div>`
+}
+
+// GARDEN
+function garden(){
+  const u=S.user,g=S.gardenData||{}
+  const next=window.StudyMindGarden?.getNextUnlock?.()||{emoji:'🌟',label:'Mukammal!',hint:''}
+  const unlocks=window.StudyMindGarden?.getUnlocks?.()||{}
+  const done=window.StudyMindGarden?.getDoneCount?.()||0
+  const total=window.StudyMindGarden?.getTotalCount?.()||10
+  const ULIST=[
+    {key:'field',e:'🌿',l:'Yashil maydon'},{key:'smallPlants',e:'🌱',l:"O'simliklar"},
+    {key:'flowers',e:'🌸',l:'Gullar'},{key:'tree1',e:'🌳',l:'Daraxt'},
+    {key:'river',e:'🏞️',l:'Daryo'},{key:'birds',e:'🐦',l:'Qushlar'},
+    {key:'house',e:'🏠',l:'Uy'},{key:'bridge',e:'🌉',l:"Ko'prik"},
+    {key:'mountain',e:'⛰️',l:"Tog'"},{key:'rainbow',e:'🌈',l:'Kamalak'},
+  ]
+  return`
+    <div class="garden-canvas-box">
+      <canvas id="gardenCanvas"></canvas>
+      <div class="garden-hud">
+        <div class="gpill"><span>🔥</span><div><div class="gpill-val">${u?.streak||0}</div><div class="gpill-lbl">streak</div></div></div>
+        <div class="gpill"><span>⭐</span><div><div class="gpill-val">${u?.xp||0}</div><div class="gpill-lbl">XP</div></div></div>
+      </div>
+    </div>
+    <div class="g-tools">
+      <div class="g-tool" onclick="gardenAction('water')"><div class="g-tool-i">💧</div><div class="g-tool-l">Suv</div></div>
+      <div class="g-tool" onclick="gardenAction('sun')"><div class="g-tool-i">☀️</div><div class="g-tool-l">Quyosh</div></div>
+      <div class="g-tool" onclick="gardenAction('boost')"><div class="g-tool-i">🌿</div><div class="g-tool-l">O'g'it</div></div>
+      <div class="g-tool" onclick="gardenAction('decor')"><div class="g-tool-i">🏡</div><div class="g-tool-l">Bezak</div></div>
+    </div>
+    <div class="next-unlock">
+      <span style="font-size:28px">${next.emoji}</span>
+      <div style="flex:1"><div style="font-size:13px;font-weight:700">${next.label}</div>${next.hint?`<div style="font-size:11px;color:var(--t2);margin-top:2px">${next.hint}</div>`:''}</div>
+      <div style="text-align:right"><div style="font-size:20px;font-weight:900;color:var(--p)">${done}</div><div style="font-size:10px;color:var(--t2)">/ ${total}</div></div>
+    </div>
+    <div style="padding:0 14px 8px"><div class="sec-title" style="margin-bottom:10px">Rivojlanish yo'li</div></div>
+    <div class="unlock-grid">
+      ${ULIST.map(it=>`<div class="ui ${unlocks[it.key]?'done':''}">
+        <span class="ui-em">${it.e}</span>
+        <div class="ui-txt ${unlocks[it.key]?'done':''}">${it.l}</div>
+      </div>`).join('')}
+    </div>
+    <div style="margin:4px 14px 8px;background:var(--card);border-radius:12px;padding:10px 14px;font-size:11px;color:var(--t2);line-height:1.7;text-align:center;border:1px solid var(--b)">
+      🧠 AI bilan gaplash → dunyo o'sadi · 🔥 Streak saqla · ❄️ 1 kun kechiriladi
+    </div>
+    <div class="space"></div>`
+}
+
+function gardenAction(type){
+  const msgs={water:'💧 Bog\'ga suv berildi!',sun:'☀️ Quyosh nuri!',boost:'🌿 O\'g\'it berildi!',decor:'🏡 Bezak qo\'yildi!'}
+  toast(msgs[type]||'✨')
+  if(window.StudyMindGarden?.celebrate){
+    const c=document.getElementById('gardenCanvas')
+    if(c)window.StudyMindGarden.celebrate(c.width/2/window.devicePixelRatio,c.height/2/window.devicePixelRatio,'#6c5fff')
+  }
+}
+
+// NOTES
+function notes(){
+  const subjects=[...new Set(S.notes.map(n=>n.subjectName).filter(Boolean))]
+  const filtered=S.notes.filter(n=>{
+    if(S.notesFilter==='pinned') return n.isPinned
+    if(S.notesFilter!=='all') return n.subjectName===S.notesFilter
+    if(S.notesSearch) return n.title?.toLowerCase().includes(S.notesSearch.toLowerCase())||n.content?.toLowerCase().includes(S.notesSearch.toLowerCase())
+    return true
+  })
+  return`
+    <div style="padding:12px 14px 0;display:flex;gap:6px">
+      <button class="btn-sm p" onclick="openModal('addNote')">+ Yangi</button>
+      <button class="btn-sm t" onclick="openModal('quickNote')">⚡ Tez yozish</button>
+    </div>
+    <div class="notes-search">
+      <span>🔍</span>
+      <input placeholder="Qidirish..." value="${S.notesSearch}" oninput="S.notesSearch=this.value;render()">
+      ${S.notesSearch?`<span onclick="S.notesSearch='';render()" style="cursor:pointer;color:var(--t2)">×</span>`:''}
+    </div>
+    <div class="notes-filters">
+      <div class="nf ${S.notesFilter==='all'?'on':''}" onclick="S.notesFilter='all';render()">Hammasi</div>
+      <div class="nf ${S.notesFilter==='pinned'?'on':''}" onclick="S.notesFilter='pinned';render()">📌 Pinlangan</div>
+      ${subjects.map(s=>`<div class="nf ${S.notesFilter===s?'on':''}" onclick="S.notesFilter='${s}';render()">${s}</div>`).join('')}
+    </div>
+    ${filtered.map(n=>`<div class="note-card" style="border-left-color:${n.color}">
+      <div class="note-top">
+        <div class="note-title">${n.title}</div>
+        <div class="note-acts">
+          <button onclick="pinNote('${n._id}',${!n.isPinned})">${n.isPinned?'📌':'📍'}</button>
+          <button onclick="editNoteAction('${n._id}')">✏️</button>
+          <button onclick="summarizeNote('${n._id}')">🧠</button>
+          <button onclick="delNote('${n._id}')">×</button>
+        </div>
+      </div>
+      ${n.content?`<div class="note-body">${n.content.slice(0,200)}${n.content.length>200?'...':''}</div>`:''}
+      <div class="note-footer">
+        <span class="note-date">${new Date(n.updatedAt||n.createdAt).toLocaleDateString()}</span>
+        ${n.subjectName?`<span class="note-subj">${n.subjectName}</span>`:''}
+      </div>
+    </div>`).join('')}
+    ${!filtered.length?`<div class="empty"><div class="empty-i">📝</div><div class="empty-t">${t('notes')}</div><div class="empty-s">Dars paytida o'rgangan narsangizni yozing</div><button class="btn-sm t" onclick="openModal('quickNote')">⚡ Tez yozish</button></div>`:''}
+    <div class="space"></div>`
+}
+
+// MORE
+// ── PARENT DASHBOARD (alohida shell — faqat agregat ma'lumot) ──────
+function renderParent(){
+  const o=S.parentOverview, fam=S.family
+  const init2=(S.user?.name||'U').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()
+  const unreadAlerts=(o?.alerts||[]).filter(a=>!a.isRead)
+  document.getElementById('root').innerHTML=`<div id="app">
+    <div class="hdr">
+      <div class="hdr-row">
+        <div><div class="hdr-title">👪 Ota-ona paneli</div><div class="hdr-sub">${o?.studentName?`${o.studentName} kuzatuvi`:'Farzandingizni ulang'}</div></div>
+        <div class="hdr-right">
+          <div class="icon-btn" onclick="toggleTheme()">${document.body.getAttribute('data-theme')==='dark'?'☀️':'🌙'}</div>
+          <div class="hdr-av" onclick="openModal('parentSettings')">${init2}</div>
+        </div>
+      </div>
+    </div>
+    <div id="scroll">
+      ${!fam?.studentUserId?`
+        <div style="margin:14px;background:var(--card);border:1px solid var(--b);border-radius:18px;padding:24px;text-align:center;box-shadow:var(--sh)">
+          <div style="font-size:40px;margin-bottom:10px">👪</div>
+          <div style="font-size:16px;font-weight:700;margin-bottom:6px">Farzandingizni ulang</div>
+          <div style="font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:16px">Quyidagi kodni farzandingizga bering — u shu kodni o'z appida kiritadi.</div>
+          ${fam?.inviteCode?`<div style="background:var(--pg);border-radius:14px;padding:16px;margin-bottom:14px">
+            <div style="font-size:11px;color:rgba(255,255,255,.7);margin-bottom:4px">TAKLIF KODI</div>
+            <div style="font-family:'Poppins',sans-serif;font-size:28px;font-weight:900;color:white;letter-spacing:.1em">${fam.inviteCode}</div>
+          </div>
+          <button class="btn-sm s" onclick="copyInvite('${fam.inviteCode}')">📋 Nusxalash</button>`:`<button class="btn btn-p" onclick="createFamily()">Kod yaratish</button>`}
+        </div>`
+      :`
+        ${unreadAlerts.length?`<div style="margin:14px;background:rgba(255,107,107,.1);border:1.5px solid rgba(255,107,107,.3);border-radius:18px;padding:16px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+            <span style="font-size:20px">⚠️</span><div style="font-size:14px;font-weight:700;color:var(--red)">E'tibor talab qiladi</div>
+          </div>
+          ${unreadAlerts.map(a=>`<div style="background:var(--card);border-radius:12px;padding:12px;margin-bottom:8px;font-size:13px;line-height:1.6">
+            ${a.message}
+            <div style="margin-top:8px;display:flex;gap:8px;align-items:center;justify-content:space-between">
+              <span style="font-size:11px;color:var(--t2)">${new Date(a.createdAt).toLocaleDateString()}</span>
+              <button class="btn-sm s" onclick="markAlertRead('${a._id}')">Ko'rdim</button>
+            </div>
+          </div>`).join('')}
+        </div>`:''}
+
+        <div class="profile-hero">
+          <div class="profile-av">${(o?.studentName||'?')[0]}</div>
+          <div class="profile-name">${o?.studentName||'—'}</div>
+          <div class="profile-level">${o?.grade||''} · Lv.${o?.level||1} · 🔥${o?.streak||0} kun</div>
+        </div>
+
+        <div class="metrics">
+          <div class="mc"><div class="mc-val" style="color:var(--p)">${o?.avgGrade||'—'}</div><div class="mc-lbl">O'rtacha baho</div></div>
+          <div class="mc"><div class="mc-val" style="color:var(--teal)">${o?.totalStudyMinutes||0}</div><div class="mc-lbl">Daqiqa o'qigan</div></div>
+          <div class="mc"><div class="mc-val" style="color:var(--amber)">${o?.focusScore||0}</div><div class="mc-lbl">Focus Score</div></div>
+          <div class="mc"><div class="mc-val" style="color:var(--pink)">🔥${o?.streak||0}</div><div class="mc-lbl">Streak</div></div>
+        </div>
+
+        ${o?.lastInsight?`<div class="ai-bubble">
+          <span class="ai-badge">AI Haftalik xulosa</span>
+          <div class="ai-bubble-text">${o.lastInsight.strengths?.length?`💪 Kuchli: ${o.lastInsight.strengths.join(', ')}`:''}${o.lastInsight.needsFocus?.length?`<br>📌 E'tibor: ${o.lastInsight.needsFocus.join(', ')}`:''}</div>
+        </div>`:''}
+
+        <div style="padding:0 14px"><div class="sec-title" style="margin-bottom:10px">${t('subjects')}</div></div>
+        ${(o?.subjects||[]).map(s=>`<div class="subj-card"><div class="subj-body" style="padding:12px 14px;display:flex;align-items:center;gap:10px">
+          <span style="font-size:20px">${s.emoji}</span>
+          <div style="flex:1;font-size:14px;font-weight:600">${s.name}</div>
+          <div style="font-family:'Poppins',sans-serif;font-weight:800;color:var(--p)">${s.avgGrade||'—'}</div>
+        </div></div>`).join('')||`<div class="empty"><div class="empty-s">Hali fan qo'shilmagan</div></div>`}
+
+        <div style="padding:12px 14px 4px"><div class="sec-title">🌤️ His-tuyg'u holati (haftalik)</div></div>
+        <div class="ins-section">
+          ${(o?.wellbeing||[]).length?o.wellbeing.map(w=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--b)">
+            <span style="font-size:12px;color:var(--t2)">${w.weekStart}</span>
+            <div style="display:flex;gap:6px">
+              <span class="chip ${w.moodTrend==='yaxshilanmoqda'?'s':w.moodTrend==='pasaymoqda'?'f':''}" style="font-size:10px">${w.moodTrend}</span>
+              <span class="chip ${w.stressLevel==='yuqori'?'f':'s'}" style="font-size:10px">stress: ${w.stressLevel}</span>
+            </div>
+          </div>`).join(''):`<div style="text-align:center;color:var(--t2);font-size:13px;padding:10px 0">Farzandingiz hali journal yozmagan.<br><span style="font-size:11px;color:var(--t3)">Eslatma: shaxsiy yozuvlar maxfiy — faqat umumiy trend ko'rsatiladi.</span></div>`}
+        </div>
+        <div style="margin:0 14px 10px;background:var(--card2);border-radius:12px;padding:10px 14px;font-size:11px;color:var(--t2);line-height:1.6;text-align:center">
+          🔒 Farzandingizning shaxsiy yozuvlari va AI suhbatlari maxfiy qoladi. Faqat umumiy trend va xavfsizlik signallari ko'rsatiladi.
+        </div>
+      `}
+    </div>
+  </div>` + (S.modal?modal():'')
+}
+
+async function createFamily(){
+  try{S.family=await POST('/api/family/create',{});render()}catch{toast('❌ Xatolik')}
+}
+function copyInvite(code){
+  navigator.clipboard?.writeText(code);toast('📋 Nusxalandi: '+code)
+}
+async function markAlertRead(id){
+  await PATCH('/api/family/alerts/'+id+'/read',{})
+  if(S.parentOverview)S.parentOverview.alerts=S.parentOverview.alerts.map(a=>a._id===id?{...a,isRead:true}:a)
+  render()
+}
+
+
+function more(){
+  const u=S.user,xp=nxtLvl(u?.level||1),pct=Math.min(100,Math.round(((u?.xp||0)/xp)*100))
+  const init2=(u?.name||'U').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()
+  const ACHS=[
+    {id:'first_chat',e:'💬',n:'Birinchi suhbat',d:'AI bilan birinchi gaplashdingiz'},
+    {id:'streak_3',e:'🔥',n:'3 kun streak',d:'3 kun ketma-ket'},
+    {id:'streak_7',e:'🔥',n:'Haftalik streak',d:'7 kun to\'xtovsiz'},
+    {id:'streak_30',e:'👑',n:'Oylik streak',d:'30 kun — champion!'},
+    {id:'grade_90',e:'⭐',n:'A+ Talaba',d:'Biror fanda 90+'},
+    {id:'flashcard_50',e:'🔁',n:'Karta ustasi',d:'50 ta karta bajardingiz'},
+    {id:'level_5',e:'🏆',n:'5-daraja',d:'5-darajaga yetdingiz'},
+    {id:'garden_house',e:'🏠',n:'Uy qurildi',d:'Bog\'ingizda uy paydo bo\'ldi'},
+  ]
+  const userAchs=u?.achievements||[]
+  const insightData=S.insights
+  return`
+    <div class="profile-hero">
+      <div class="profile-av">${u?.avatar?`<img src="${u.avatar}">`:init2}</div>
+      <div class="profile-name">${u?.name}</div>
+      <div class="profile-level">${t('profile')} · Lv.${u?.level} · ${u?.grade||''}</div>
+      <div class="xp-track"><div class="xp-prog" style="width:${pct}%"></div></div>
+      <div class="xp-labels"><span>${u?.xp} XP</span><span>${xp} XP</span></div>
+    </div>
+
+    <div style="margin:0 14px 10px;display:flex;gap:8px">
+      <div style="flex:1;background:var(--card);border:1px solid var(--b);border-radius:14px;padding:12px;text-align:center;box-shadow:var(--sh)">
+        <div style="font-family:'Poppins',sans-serif;font-size:22px;font-weight:800;color:var(--amber)">${u?.streak||0}</div>
+        <div style="font-size:11px;color:var(--t2)">Streak</div>
+      </div>
+      <div style="flex:1;background:var(--card);border:1px solid var(--b);border-radius:14px;padding:12px;text-align:center;box-shadow:var(--sh)">
+        <div style="font-family:'Poppins',sans-serif;font-size:22px;font-weight:800;color:var(--teal)">${u?.focusScore||0}</div>
+        <div style="font-size:11px;color:var(--t2)">Focus Score</div>
+      </div>
+      <div style="flex:1;background:var(--card);border:1px solid var(--b);border-radius:14px;padding:12px;text-align:center;box-shadow:var(--sh)">
+        <div style="font-family:'Poppins',sans-serif;font-size:22px;font-weight:800;color:var(--p)">${userAchs.length}</div>
+        <div style="font-size:11px;color:var(--t2)">Yutuq</div>
+      </div>
+    </div>
+
+    <!-- SUBJECTS -->
+    <div style="padding:0 14px;margin-bottom:4px"><div class="sec-title" style="margin-bottom:10px">${t('subjects')} <span class="sec-action" onclick="openModal('addSubject')" style="float:right">+ Qo'shish</span></div></div>
+    ${S.subjects.map(s=>`<div class="subj-card">
+      <div class="subj-accent" style="background:${s.color}"></div>
+      <div class="subj-body">
+        <div class="subj-r1">
+          <span class="subj-emoji">${s.emoji}</span>
+          <div style="flex:1"><div class="subj-name">${s.name}</div><div style="font-size:11px;color:var(--t2)">${s.gradeHistory?.length||0} baho</div></div>
+          <div class="subj-avg" style="color:${s.color}">${s.avgGrade||'—'}</div>
+        </div>
+        <div class="sparkline">
+          ${(s.gradeHistory||[]).slice(-7).map(g=>{const h=Math.max(3,Math.round((g.score/100)*24));return`<div class="sp-bar" style="height:${h}px;background:${g.score>=80?'var(--teal)':g.score>=60?'var(--p)':'var(--red)'}"></div>`}).join('')}
+          ${s.gradeHistory?.length===0?`<div style="font-size:11px;color:var(--t3)">Hali baho yo'q</div>`:''}
+        </div>
+        <div class="subj-meta">
+          <span>📊 O'rtacha: <b>${s.avgGrade||'—'}</b></span>
+          ${s.examDate?`<span style="color:${Math.ceil((new Date(s.examDate)-new Date())/86400000)<=7?'var(--red)':'var(--t2)'}">📅 ${Math.ceil((new Date(s.examDate)-new Date())/86400000)} kun</span>`:''}
+        </div>
+        <div class="subj-btns">
+          <button class="sbtn p" onclick="qpGo('${s.name} fanidan yordam ber')">🧠 AI</button>
+          <button class="sbtn t" onclick="openModal('fcTopic','${s._id}')">🔁 Karta</button>
+          <button class="sbtn r" onclick="delSubject('${s._id}')">🗑</button>
+        </div>
+      </div>
+    </div>`).join('')}
+    ${!S.subjects.length?`<div class="empty"><div class="empty-i">📚</div><div class="empty-t">Fan qo'shilmagan</div><div class="empty-s">Birinchi fan qo'shing — birinchi daraxt o'sadi!</div><button class="btn-sm p" onclick="openModal('addSubject')">+ Fan qo'shish</button></div>`:''}
+
+    <!-- FLASHCARDS -->
+    <div style="padding:12px 14px 4px"><div class="sec-title">🔁 ${t('flashcards')}</div></div>
+    <div style="margin:0 14px 10px;background:var(--card);border:1px solid var(--b);border-radius:16px;padding:14px;display:flex;align-items:center;gap:10px;box-shadow:var(--sh);cursor:pointer" onclick="switchTab('flashcards')">
+      <span style="font-size:24px">🎮</span>
+      <div style="flex:1"><div style="font-size:13px;font-weight:700">${S.stats?.dueCards||0} ta kerak</div><div style="font-size:11px;color:var(--t2)">Kartalar va o'yinlarni ko'rish</div></div>
+      <span style="color:var(--t2)">›</span>
+    </div>
+
+    <!-- INSIGHTS -->
+    <div style="padding:4px 14px 4px"><div class="sec-title">${t('insights')}</div></div>
+    ${insightData?`<div class="ins-hero">
+      <div class="ins-hero-title">Haftalik tahlil</div>
+      <div class="ins-hero-sub">19 May — 25 May</div>
+      <div class="ins-stats">
+        <div class="ins-stat"><div class="ins-stat-val">${insightData.studyTimeMinutes||0}</div><div class="ins-stat-lbl">Daqiqa o'qish</div></div>
+        <div class="ins-stat"><div class="ins-stat-val">${insightData.focusScore||0}</div><div class="ins-stat-lbl">Focus Score</div></div>
+      </div>
+    </div>
+    <div class="ins-section">
+      <div class="ins-sec-h">💪 ${t('strengths')}</div>
+      <div class="ins-chips">${(insightData.strengths||[]).map(s=>`<span class="chip s">${s}</span>`).join('')||'<span style="color:var(--t2);font-size:13px">Hali ma\'lumot yo\'q</span>'}</div>
+    </div>
+    <div class="ins-section">
+      <div class="ins-sec-h">📌 ${t('needs_focus')}</div>
+      <div class="ins-chips">${(insightData.needsFocus||[]).map(s=>`<span class="chip f">${s}</span>`).join('')||'<span style="color:var(--t2);font-size:13px">Hammasi yaxshi!</span>'}</div>
+    </div>
+    <div class="ins-section">
+      <div class="ins-sec-h">💡 ${t('recommendations')}</div>
+      <div class="ins-recs">${(insightData.recommendations||[]).map(r=>`<div class="ins-rec"><div class="ins-rec-dot"></div><div class="ins-rec-text">${r}</div></div>`).join('')||'<div style="color:var(--t2);font-size:13px">Tahlil qilish kerak</div>'}</div>
+    </div>
+    <div style="padding:0 14px 10px"><button class="btn btn-p" onclick="genInsight()">${t('gen_insight')}</button></div>`
+    :`<div class="ins-section" style="margin:0 14px 10px">
+      <div style="text-align:center;padding:12px 0">
+        <div style="font-size:32px;margin-bottom:8px">🧠</div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:6px">Haftalik tahlil</div>
+        <div style="font-size:13px;color:var(--t2);margin-bottom:14px">AI bilan gaplashib tahlil qiling</div>
+        <button class="btn-sm p" onclick="genInsight()">${t('gen_insight')}</button>
+      </div>
+    </div>`}
+
+    <!-- ACHIEVEMENTS -->
+    <div style="padding:4px 14px"><div class="sec-title">${t('achievements')}</div></div>
+    <div class="ach-grid">
+      ${ACHS.map(a=>{const unlocked=userAchs.some(ua=>ua.id===a.id);return`<div class="ach-item ${unlocked?'on':''}">
+        <div class="ach-em">${a.e}</div>
+        <div class="ach-name">${a.n}</div>
+        <div class="ach-desc">${a.d}</div>
+      </div>`}).join('')}
+    </div>
+
+    <!-- MORE LIST -->
+    <div class="more-section" style="margin-top:12px">
+      <div class="mi" onclick="openModal('journal')">
+        <div class="mi-icon" style="background:rgba(165,148,255,.15)">📔</div>
+        <div class="mi-info"><div class="mi-label">Journal</div><div class="mi-sub">Kunlik kayfiyat va fikrlaringiz — maxfiy</div></div>
+        <div class="mi-right">›</div>
+      </div>
+      <div class="mi" onclick="openModal('career')">
+        <div class="mi-icon" style="background:rgba(0,200,150,.15)">🧭</div>
+        <div class="mi-info"><div class="mi-label">Karyera yo'nalishi</div><div class="mi-sub">${S.career?.careers?.length?'AI tavsiyalari tayyor':'AI tahlil qiladi'}</div></div>
+        <div class="mi-right">›</div>
+      </div>
+      <div class="mi" onclick="openModal('familyLink')">
+        <div class="mi-icon" style="background:rgba(255,179,71,.15)">👪</div>
+        <div class="mi-info"><div class="mi-label">Ota-onani ulash</div><div class="mi-sub">${S.family?.parentUserId?'Ulangan':'Taklif kodi yarating'}</div></div>
+        <div class="mi-right">›</div>
+      </div>
+      <div class="mi" onclick="openModal('settings')">
+        <div class="mi-icon" style="background:rgba(108,95,255,.12)">⚙️</div>
+        <div class="mi-info"><div class="mi-label">${t('settings')}</div><div class="mi-sub">${t('language')}, sinf, ism</div></div>
+        <div class="mi-right">›</div>
+      </div>
+      <div class="mi">
+        <div class="mi-icon" style="background:rgba(255,179,71,.12)">❄️</div>
+        <div class="mi-info"><div class="mi-label">${t('streak_freeze')}</div><div class="mi-sub">${u?.streakFreezeCount||0} ta mavjud</div></div>
+        <div class="mi-right" style="color:var(--amber);font-weight:700">${u?.streakFreezeCount||0} ta</div>
+      </div>
+      ${u?.savedQuotes?.length?`<div class="mi" onclick="openModal('savedQuotes')">
+        <div class="mi-icon" style="background:rgba(0,200,150,.12)">💬</div>
+        <div class="mi-info"><div class="mi-label">${t('saved_quotes')}</div><div class="mi-sub">${u.savedQuotes.length} ta saqlangan</div></div>
+        <div class="mi-right">›</div>
+      </div>`:''}
+      <div class="mi" onclick="logout()" style="color:var(--red)">
+        <div class="mi-icon" style="background:rgba(255,107,107,.12)">🚪</div>
+        <div class="mi-info"><div class="mi-label" style="color:var(--red)">${t('logout')}</div></div>
+      </div>
+    </div>
+    <div class="space"></div>`
+}
+
+// FLASHCARDS TAB (alohida, kengaytirilgan: oddiy kartalar + AI o'yinlar)
+function flashcardsTab(){
+  const sub=S.fcSubTab||'due'
+  return`
+    <div style="padding:0 14px 10px">
+      <div class="seg-pick">
+        <button class="sp ${sub==='due'?'on':''}" onclick="setFcSubTab('due')">${t('due_label')} (${S.flashcards?.length||0})</button>
+        <button class="sp ${sub==='all'?'on':''}" onclick="setFcSubTab('all')">${t('all_cards')}</button>
+        <button class="sp ${sub==='games'?'on':''}" onclick="setFcSubTab('games')">🎮 ${t('flashcards')}</button>
+      </div>
+    </div>
+    ${sub==='due'?fcSection():''}
+    ${sub==='all'?fcAllSection():''}
+    ${sub==='games'?gamesSection():''}
+    <div class="space"></div>`
+}
+function setFcSubTab(s){S.fcSubTab=s;if(s==='all'&&!S.allFlashcards)loadAllFlashcards();if(s==='games'&&!S.gameSets)loadGameSets();render()}
+async function loadAllFlashcards(){S.allFlashcards=await GET('/api/flashcards').catch(()=>[]);render()}
+async function loadGameSets(){S.gameSets=await GET('/api/games').catch(()=>[]);render()}
+
+function fcAllSection(){
+  const cards=S.allFlashcards||[]
+  if(!cards.length) return`<div class="empty"><div class="empty-i">🔁</div><div class="empty-t">Hali karta yo'q</div></div>`
+  const bySubj={}
+  cards.forEach(c=>{const k=c.subjectName||'Umumiy';(bySubj[k]=bySubj[k]||[]).push(c)})
+  return Object.entries(bySubj).map(([subj,list])=>`
+    <div style="padding:10px 14px 4px"><div class="sec-title">${subj} (${list.length})</div></div>
+    ${list.map(c=>`<div style="margin:0 14px 8px;background:var(--card);border:1px solid var(--b);border-radius:14px;padding:12px 14px;box-shadow:var(--sh)">
+      <div style="font-size:13px;font-weight:600;margin-bottom:4px">${c.front}</div>
+      <div style="font-size:12px;color:var(--t2)">${c.back}</div>
+    </div>`).join('')}
+  `).join('')
+}
+
+// GAMES (AI generatsiya qiluvchi turli formatdagi mustahkamlash o'yinlari)
+const GAME_FORMATS=[
+  {id:'mcq',i:'✅',key:'game_mcq'},
+  {id:'truefalse',i:'⚖️',key:'game_truefalse'},
+  {id:'fillblank',i:'✏️',key:'game_fillblank'},
+  {id:'matching',i:'🔗',key:'game_matching'},
+  {id:'wordscramble',i:'🔤',key:'game_wordscramble'},
+]
+function gamesSection(){
+  if(S.activeGame) return gamePlayView()
+  return`
+    <div style="margin:0 14px 14px;background:var(--card);border:1px solid var(--b);border-radius:16px;padding:16px;box-shadow:var(--sh)">
+      <div style="font-size:13px;font-weight:700;margin-bottom:10px">${t('choose_format')}</div>
+      <select id="game-subj" style="width:100%;background:var(--bg);border:1.5px solid var(--b);border-radius:10px;color:var(--text);padding:10px;font-size:13px;margin-bottom:8px">
+        ${S.subjects.map(s=>`<option value="${s._id}|${s.name}">${s.emoji||'📘'} ${s.name}</option>`).join('')||'<option value="">Avval fan qo\'shing</option>'}
+      </select>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">
+        ${GAME_FORMATS.map(f=>`<div class="game-fmt ${S.selFormat===f.id?'on':''}" onclick="S.selFormat='${f.id}';render()">
+          <span style="font-size:16px">${f.i}</span><span style="font-size:11px;font-weight:600">${t(f.key)}</span>
+        </div>`).join('')}
+      </div>
+      <button class="btn-sm p" style="width:100%" onclick="genGame()" ${S.gameGenLoading?'disabled':''}>${S.gameGenLoading?t('game_loading'):t('generate_game')}</button>
+    </div>
+    ${(S.gameSets||[]).length?`<div style="padding:4px 14px"><div class="sec-title">So'nggi o'yinlar</div></div>
+    ${S.gameSets.map(g=>`<div style="margin:0 14px 8px;background:var(--card);border:1px solid var(--b);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;box-shadow:var(--sh);cursor:pointer" onclick="openGame('${g._id}')">
+      <span style="font-size:20px">${GAME_FORMATS.find(f=>f.id===g.format)?.i||'🎮'}</span>
+      <div style="flex:1"><div style="font-size:13px;font-weight:600">${g.subjectName}${g.topic?' · '+g.topic:''}</div><div style="font-size:11px;color:var(--t2)">${g.items.length} ta savol${g.lastScore!=null?' · '+g.lastScore+'%':''}</div></div>
+      <span style="color:var(--t2)">›</span>
+    </div>`).join('')}`:''}`
+}
+async function genGame(){
+  const subjSel=document.getElementById('game-subj')?.value
+  if(!subjSel){toast('Avval fan tanlang');return}
+  const[subjectId,subjectName]=subjSel.split('|')
+  if(!S.selFormat){toast("O'yin turini tanlang");return}
+  S.gameGenLoading=true;render()
+  try{
+    const set=await POST('/api/games/generate',{subjectId,subjectName,format:S.selFormat,count:6})
+    S.gameSets=[set,...(S.gameSets||[])]
+    openGame(set._id)
+  }catch{toast('❌ Yaratilmadi')}
+  S.gameGenLoading=false;render()
+}
+async function openGame(id){
+  const set=(S.gameSets||[]).find(g=>g._id===id)||await GET('/api/games/'+id)
+  S.activeGame={set,idx:0,answers:{},submitted:false,score:null}
+  render()
+}
+function closeGame(){S.activeGame=null;render()}
+function gameSelectAnswer(val){if(!S.activeGame)return;S.activeGame.answers[S.activeGame.idx]=val;render()}
+function gameNext(){
+  if(!S.activeGame)return
+  if(S.activeGame.idx<S.activeGame.set.items.length-1){S.activeGame.idx++;render()}
+  else gameSubmit()
+}
+async function gameSubmit(){
+  const g=S.activeGame;if(!g)return
+  let correct=0
+  g.set.items.forEach((it,i)=>{if(String(g.answers[i]||'').trim().toLowerCase()===String(it.correctAnswer).trim().toLowerCase())correct++})
+  const score=Math.round((correct/g.set.items.length)*100)
+  g.score=score;g.submitted=true;render()
+  try{const r=await POST('/api/games/'+g.set._id+'/submit',{score});if(r.newAchievements?.length)celebrate('🏆','Yangi yutuq!',r.newAchievements[0])}catch{}
+}
+function gamePlayView(){
+  const g=S.activeGame
+  if(g.submitted) return`
+    <div style="margin:14px;background:var(--pg);border-radius:20px;padding:24px;text-align:center">
+      <div style="font-family:'Poppins',sans-serif;font-size:42px;font-weight:900;color:white">${g.score}%</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.85)">${t('your_score')}</div>
+    </div>
+    <div style="padding:0 14px"><button class="btn-sm p" style="width:100%" onclick="closeGame()">${t('play_again')}</button></div>
+    <div class="space"></div>`
+  const it=g.set.items[g.idx]
+  const total=g.set.items.length
+  return`
+    <div style="padding:0 14px 10px;display:flex;align-items:center;gap:8px">
+      <div class="icon-btn" onclick="closeGame()">←</div>
+      <div style="flex:1;height:4px;background:var(--b);border-radius:2px;overflow:hidden"><div style="height:100%;background:var(--pg);width:${((g.idx+1)/total)*100}%"></div></div>
+      <div style="font-size:11px;color:var(--t2)">${g.idx+1}/${total}</div>
+    </div>
+    <div style="margin:0 14px 14px;background:var(--card);border:1px solid var(--b);border-radius:18px;padding:18px;box-shadow:var(--sh)">
+      <div style="font-size:15px;font-weight:600;margin-bottom:14px;line-height:1.5">${it.question}</div>
+      ${gameItemInput(it,g)}
+    </div>
+    <div style="padding:0 14px"><button class="btn-sm p" style="width:100%" onclick="gameNext()">${g.idx<total-1?t('next_q'):t('check_answer')}</button></div>
+    <div class="space"></div>`
+}
+function gameItemInput(it,g){
+  const ans=g.answers[g.idx]
+  if(it.options?.length) return it.options.map(o=>`<div class="game-opt ${ans===o?'sel':''}" onclick="gameSelectAnswer('${o.replace(/'/g,"\\'")}')">${o}</div>`).join('')
+  if(it.pairs?.length) return it.pairs.map((p,i)=>`<div style="display:flex;gap:8px;margin-bottom:6px;font-size:12px"><div style="flex:1;background:var(--bg);border-radius:8px;padding:8px">${p.left}</div><div style="flex:1;background:var(--bg);border-radius:8px;padding:8px">${p.right}</div></div>`).join('')+`<div style="font-size:11px;color:var(--t2);margin-top:6px">Juftliklarni o'qib chiqing</div>`
+  return`<input id="game-input" placeholder="Javobingiz..." value="${ans||''}" oninput="gameSelectAnswer(this.value)" style="width:100%;background:var(--bg);border:1.5px solid var(--b);border-radius:10px;color:var(--text);padding:12px 14px;font-size:14px;outline:none">`
+}
+
+function fcSection(){
+  const cards=S.flashcards,card=cards[S.fcIdx]
+  if(!cards.length) return`<div style="margin:0 14px 10px;background:var(--card);border:1px solid var(--b);border-radius:16px;padding:20px;text-align:center;box-shadow:var(--sh)">
+    <div style="font-size:28px;margin-bottom:8px">✅</div>
+    <div style="font-size:14px;font-weight:700;margin-bottom:6px">Bugungi kartalar bajarildi!</div>
+    <div style="font-size:12px;color:var(--t2);margin-bottom:12px">Bog'ingiz o'sdi 🌿</div>
+    <button class="btn-sm p" onclick="openModal('fcTopic')">🧠 Yangi mavzu</button>
+  </div>`
+  return`<div class="fc-wrap" style="padding:0 14px 10px">
+    <div class="fc-hdr">
+      <div class="fc-count">${S.fcIdx+1} / ${cards.length}</div>
+      <div class="fc-topic">${card?.topic||card?.subjectName||'Umumiy'}</div>
+    </div>
+    <div class="fc-stack" onclick="revFC()">
+      <div class="fc-shadow"></div>
+      <div class="fc-mid"></div>
+      <div class="fc-main ${S.fcRev?'rev':''}">
+        <div class="fc-front">${card?.front||''}</div>
+        ${S.fcRev?`<div class="fc-div"></div><div class="fc-back">${card?.back||''}</div>`:`<div class="fc-hint">👆 Ko'rish uchun bosing</div>`}
+      </div>
+    </div>
+    ${S.fcRev?`<div class="fc-rating">
+      <button class="fr a" onclick="reviewFC(0)">🔴 Qayta</button>
+      <button class="fr h" onclick="reviewFC(2)">🟡 Qiyin</button>
+      <button class="fr g" onclick="reviewFC(3)">🟢 Yaxshi</button>
+      <button class="fr e" onclick="reviewFC(5)">⚡ Oson</button>
+    </div>`:''}
+  </div>`
+}
+
+// MODAL
+function modal(){
+  const MAP={
+    addSubject:['Fan qo\'shish',mSubject()],
+    addSchedule:['Vazifa qo\'shish',mSchedule()],
+    addNote:['Eslatma qo\'shish',mNote()],
+    quickNote:['⚡ Tez yozish',mQuickNote()],
+    fcTopic:['🔁 Mavzu→Karta',mFCTopic()],
+    settings:['Sozlamalar',mSettings()],
+    noteEdit:['Eslatmani tahrirlash',mNoteEdit()],
+    savedQuotes:['Saqlangan gaplar',mSavedQuotes()],
+    journal:['📔 Journal',mJournal()],
+    career:['🧭 Karyera yo\'nalishi',mCareer()],
+    familyLink:['👪 Ota-onani ulash',mFamilyLink()],
+    parentSettings:['Sozlamalar',mParentSettings()],
+  }
+  const[title,content]=MAP[S.modal]||['','']
+  return`<div class="mbg" onclick="if(event.target===this)closeModal()">
+    <div class="modal"><div class="m-inner">
+      <div class="m-handle"></div>
+      <div class="m-title">${title}</div>
+      ${content}
+    </div></div>
+  </div>`
+}
+
+function mSubject(){const n=S.ns;return`
+  <div class="field"><label>Fan nomi *</label><input value="${n.name}" oninput="S.ns.name=this.value" placeholder="Matematika"></div>
+  <div class="field"><label>Emoji</label><div class="emoji-g">${EMOJIS.map(e=>`<div class="eo ${n.emoji===e?'sel':''}" onclick="S.ns.emoji='${e}';render()">${e}</div>`).join('')}</div></div>
+  <div class="field"><label>Rang</label><div class="colors-row">${COLORS.map(c=>`<div class="c-dot ${n.color===c?'sel':''}" style="background:${c}" onclick="S.ns.color='${c}';render()"></div>`).join('')}</div></div>
+  <div class="field"><label>Imtihon sanasi</label><input type="date" value="${n.examDate}" oninput="S.ns.examDate=this.value"></div>
+  <button class="btn btn-p" onclick="saveSubject()">Saqlash</button>
+  <button class="btn btn-s" onclick="closeModal()">Bekor</button>`}
+
+function mSchedule(){const n=S.nsc;return`
+  <div class="field"><label>Nomi *</label><input oninput="S.nsc.title=this.value" placeholder="Matematika uy vazifasi" value="${n.title}"></div>
+  <div class="field"><label>Turi</label><div class="seg-pick">
+    <button class="sp ${n.category==='study'?'on':''}" onclick="S.nsc.category='study';render()">📚 O'quv</button>
+    <button class="sp ${n.category==='life'?'on':''}" onclick="S.nsc.category='life';render()">🌟 Hayot</button>
+  </div></div>
+  <div class="field"><label>Emoji</label><div class="emoji-g" style="grid-template-columns:repeat(8,1fr)">${SCHED_EMOJIS.map(e=>`<div class="eo ${n.emoji===e?'sel':''}" onclick="S.nsc.emoji='${e}';render()">${e}</div>`).join('')}</div></div>
+  ${n.category==='study'?`<div class="field"><label>Fan</label><select onchange="S.nsc.subjectName=this.options[this.selectedIndex].value"><option value="">—</option>${S.subjects.map(s=>`<option value="${s.name}">${s.emoji} ${s.name}</option>`).join('')}</select></div>`:''}
+  <div class="field"><label>Vaqt</label><input type="time" oninput="S.nsc.time=this.value"></div>
+  <div class="field"><label>Takrorlanish</label><select onchange="S.nsc.repeat=this.value;render()">
+    <option value="none">Bir marta</option>
+    <option value="daily">Har kuni</option>
+    <option value="custom">Maxsus kunlar</option>
+  </select></div>
+  ${n.repeat==='custom'?`<div class="field"><label>Kunlar</label><div class="repeat-days">${DAYS.map((d,i)=>`<div class="rd ${n.repeatDays.includes(i)?'on':''}" onclick="toggleRD(${i})">${d}</div>`).join('')}</div></div>`:''}
+  <button class="btn btn-p" onclick="saveSched()">Saqlash</button>
+  <button class="btn btn-s" onclick="closeModal()">Bekor</button>`}
+
+function mNote(){const n=S.nn;return`
+  <div class="field"><label>Sarlavha</label><input oninput="S.nn.title=this.value" placeholder="Bugungi dars..." value="${n.title}"></div>
+  <div class="field"><label>Fan</label><select onchange="S.nn.subjectName=this.options[this.selectedIndex].value"><option value="">—</option>${S.subjects.map(s=>`<option value="${s.name}">${s.emoji} ${s.name}</option>`).join('')}</select></div>
+  <div class="field"><label>Mazmun</label><textarea rows="5" oninput="S.nn.content=this.value" placeholder="O'rgangan narsangizni yozing...">${n.content}</textarea></div>
+  <div class="field"><label>Rang</label><div class="colors-row">${COLORS.map(c=>`<div class="c-dot ${n.color===c?'sel':''}" style="background:${c}" onclick="S.nn.color='${c}';render()"></div>`).join('')}</div></div>
+  <button class="btn btn-p" onclick="saveNote()">Saqlash</button>
+  <button class="btn btn-s" onclick="closeModal()">Bekor</button>`}
+
+function mQuickNote(){return`
+  <div style="font-size:13px;color:var(--t2);margin-bottom:12px">Dars paytida tezda yozish:</div>
+  <div class="field"><textarea id="qn-txt" rows="5" placeholder="O'rgangan narsangizni yozing..." style="font-size:15px"></textarea></div>
+  <div class="field"><label>Fan</label><select id="qn-subj"><option value="">—</option>${S.subjects.map(s=>`<option value="${s.name}">${s.emoji} ${s.name}</option>`).join('')}</select></div>
+  <button class="btn btn-p" onclick="saveQuickNote()">⚡ Saqlash</button>
+  <button class="btn btn-s" onclick="closeModal()">Bekor</button>`}
+
+function mFCTopic(){return`
+  <div style="font-size:13px;color:var(--t2);margin-bottom:14px">Mavzu yozing — AI karta yaratadi:</div>
+  <div class="field"><label>Mavzu *</label><input id="fc-inp" placeholder="Nyuton qonunlari, Integral..."></div>
+  <div class="field"><label>Fan</label><select id="fc-subj"><option value="">—</option>${S.subjects.map(s=>`<option value="${s._id}">${s.emoji} ${s.name}</option>`).join('')}</select></div>
+  <div class="field"><label>Nechta karta</label><div class="seg-pick">
+    ${[3,5,8,10].map(n=>`<button class="sp ${S.fcCount===n?'on':''}" onclick="S.fcCount=${n};render()">${n} ta</button>`).join('')}
+  </div></div>
+  <button class="btn btn-p" onclick="genFCByTopic()">🧠 Yaratish</button>
+  <button class="btn btn-s" onclick="closeModal()">Bekor</button>`}
+
+function mNoteEdit(){const n=S.editNote;if(!n) return '';return`
+  <div class="field"><label>Sarlavha</label><input id="en-t" value="${n.title||''}"></div>
+  <div class="field"><label>Mazmun</label><textarea id="en-c" rows="7">${n.content||''}</textarea></div>
+  <button class="btn btn-p" onclick="updateNote('${n._id}')">Saqlash</button>
+  <button class="btn btn-s" onclick="closeModal()">Bekor</button>`}
+
+function mSettings(){const u=S.user;return`
+  <div class="field"><label>Ism</label><input value="${u?.name||''}" oninput="upd('name',this.value)"></div>
+  <div class="field"><label>Sinf</label><input value="${u?.grade||''}" placeholder="11-sinf" oninput="upd('grade',this.value)"></div>
+  <div class="field"><label>Maktab</label><input value="${u?.school||''}" oninput="upd('school',this.value)"></div>
+  <div class="field"><label>Til</label><div class="seg-pick">
+    <button class="sp ${u?.lang==='uz'?'on':''}" onclick="changeLang('uz')">🇺🇿 O'z</button>
+    <button class="sp ${u?.lang==='ru'?'on':''}" onclick="changeLang('ru')">🇷🇺 Рус</button>
+    <button class="sp ${u?.lang==='en'?'on':''}" onclick="changeLang('en')">🇬🇧 Eng</button>
+  </div></div>
+  <div class="field"><label>Tema</label><div class="seg-pick">
+    <button class="sp ${document.body.getAttribute('data-theme')==='dark'?'on':''}" onclick="setTheme('dark')">🌙 Dark</button>
+    <button class="sp ${document.body.getAttribute('data-theme')==='light'?'on':''}" onclick="setTheme('light')">☀️ Light</button>
+  </div></div>
+  <button class="btn btn-p" onclick="closeModal()">Saqlash</button>
+  <button class="btn btn-s" style="background:rgba(255,107,107,.1);color:var(--red);border-color:rgba(255,107,107,.2)" onclick="logout()">Chiqish</button>`}
+
+function mSavedQuotes(){const u=S.user;return`
+  ${(u?.savedQuotes||[]).slice().reverse().map(q=>`<div style="padding:10px 0;border-bottom:1px solid var(--b)">
+    <div style="font-size:13px;font-style:italic">"${q.text}"</div>
+    <div style="font-size:11px;color:var(--t2);margin-top:4px">— ${q.author}</div>
+  </div>`).join('')||'<div style="color:var(--t2);text-align:center;padding:20px">Hali saqlanmagan</div>'}
+  <button class="btn btn-s" onclick="closeModal()" style="margin-top:10px">Yopish</button>`}
+
+function mJournal(){
+  const entries=S.journal||[]
+  return`
+  <div style="background:rgba(108,95,255,.08);border:1px solid var(--b2);border-radius:12px;padding:10px 12px;font-size:11px;color:var(--t2);line-height:1.6;margin-bottom:14px">
+    🔒 Bu yerda yozganlaringiz to'liq maxfiy — ota-onangiz xom matnni hech qachon ko'rmaydi. Faqat umumiy kayfiyat trendi ko'rsatiladi.
+  </div>
+  <div class="field"><label>Bugun o'zingizni qanday his qilyapsiz?</label>
+    <div style="display:flex;gap:6px;justify-content:space-between">
+      ${[1,2,3,4,5].map(m=>`<div onclick="S.journalMood=${m};render()" style="flex:1;text-align:center;padding:10px 4px;border-radius:10px;cursor:pointer;font-size:22px;background:${(S.journalMood||3)===m?'var(--p)':'var(--card2)'};border:1.5px solid ${(S.journalMood||3)===m?'var(--p)':'var(--b)'}">${['😔','😕','😐','🙂','😄'][m-1]}</div>`).join('')}
+    </div>
+  </div>
+  <div class="field"><label>Bugun nima bo'ldi?</label>
+    <textarea id="j-content" rows="5" placeholder="Hech kim bu yerni ko'rmaydi — erkin yozing..."></textarea>
+  </div>
+  <button class="btn btn-p" onclick="saveJournal()">Saqlash</button>
+  <button class="btn btn-s" onclick="closeModal()">Bekor</button>
+  ${entries.length?`<div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--b)">
+    <div class="sec-title" style="margin-bottom:8px">Oldingi yozuvlar</div>
+    ${entries.slice(0,5).map(e=>`<div style="padding:8px 0;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:8px">
+      <span style="font-size:18px">${['😔','😕','😐','🙂','😄'][(e.mood||3)-1]}</span>
+      <div style="flex:1;font-size:12px;color:var(--t2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.content}</div>
+      <span style="font-size:10px;color:var(--t3)">${new Date(e.createdAt).toLocaleDateString()}</span>
+    </div>`).join('')}
+  </div>`:''}`
+}
+
+async function saveJournal(){
+  const content=document.getElementById('j-content')?.value
+  if(!content?.trim()){toast('Yozing...');return}
+  toast('⏳ Saqlanmoqda...')
+  try{
+    const r=await POST('/api/journal',{content,mood:S.journalMood||3})
+    S.journal=await GET('/api/journal')
+    closeModal()
+    toast('✅ Saqlandi — bu maxfiy qoladi')
+  }catch{toast('❌ Xatolik')}
+}
+
+function mCareer(){
+  const c=S.career
+  if(!c?.careers?.length) return`
+    <div style="text-align:center;padding:10px 0 16px">
+      <div style="font-size:36px;margin-bottom:10px">🧭</div>
+      <div style="font-size:14px;color:var(--t2);line-height:1.6;margin-bottom:16px">Baholaringiz va kuchli fanlaringiz asosida AI sizga mos kasblarni tavsiya qiladi.</div>
+      <button class="btn btn-p" onclick="genCareer()">🧠 Tahlil qilish</button>
+    </div>`
+  return`
+    <div style="font-size:12px;color:var(--t2);margin-bottom:14px">Yangilangan: ${new Date(c.generatedAt).toLocaleDateString()}</div>
+    ${c.careers.map(ca=>`<div style="background:var(--card2);border:1px solid var(--b);border-radius:14px;padding:14px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div style="font-size:15px;font-weight:700">${ca.careerName}</div>
+        <span class="chip ${ca.matchLevel==='yuqori'?'s':ca.matchLevel==='past'?'f':''}" style="font-size:10px">${ca.matchLevel}</span>
+      </div>
+      <div style="font-size:12px;color:var(--t2);line-height:1.5;margin-bottom:8px">${ca.reasoning}</div>
+      ${ca.roadmap?.length?`<div style="display:flex;flex-direction:column;gap:4px">
+        ${ca.roadmap.map(r=>`<div style="display:flex;gap:8px;font-size:11px;color:var(--t2)"><b style="color:var(--p)">${r.year}</b> ${r.milestone}</div>`).join('')}
+      </div>`:''}
+    </div>`).join('')}
+    <button class="btn btn-s" onclick="genCareer()">🔄 Qayta tahlil qilish</button>
+    <button class="btn btn-s" onclick="closeModal()">Yopish</button>`
+}
+
+async function genCareer(){
+  toast('⏳ AI tahlil qilmoqda...')
+  try{S.career=await POST('/api/career/generate',{});render()}catch(e){toast('❌ '+e.message)}
+}
+
+function mFamilyLink(){
+  const fam=S.family
+  if(fam?.parentUserId) return`
+    <div style="text-align:center;padding:10px 0">
+      <div style="font-size:36px;margin-bottom:10px">✅</div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:6px">Ota-ona ulangan</div>
+      <div style="font-size:12px;color:var(--t2)">Ota-onangiz umumiy ko'rsatkichlaringizni kuzatib boradi. Shaxsiy journal va AI suhbatlaringiz maxfiy qoladi.</div>
+    </div>
+    <button class="btn btn-s" onclick="closeModal()" style="margin-top:14px">Yopish</button>`
+  return`
+    <div style="font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:14px">Ota-onangizga taklif kodi bering — ular shu kodni o'z appida kiritib, umumiy ko'rsatkichlaringizni ko'ra oladi.</div>
+    ${fam?.inviteCode?`<div style="background:var(--pg);border-radius:14px;padding:18px;text-align:center;margin-bottom:14px">
+      <div style="font-size:11px;color:rgba(255,255,255,.7);margin-bottom:6px">TAKLIF KODI</div>
+      <div style="font-family:'Poppins',sans-serif;font-size:30px;font-weight:900;color:white;letter-spacing:.12em">${fam.inviteCode}</div>
+    </div>
+    <button class="btn-sm s" onclick="copyInvite('${fam.inviteCode}')" style="width:100%;justify-content:center;margin-bottom:10px">📋 Nusxalash</button>`
+    :`<button class="btn btn-p" onclick="genFamilyCode()">Kod yaratish</button>`}
+    <button class="btn btn-s" onclick="closeModal()">Yopish</button>`
+}
+
+async function genFamilyCode(){
+  try{S.family=await POST('/api/family/create',{});render()}catch{toast('❌ Xatolik')}
+}
+
+function mParentSettings(){const u=S.user;return`
+  <div class="field"><label>Ism</label><input value="${u?.name||''}" oninput="upd('name',this.value)"></div>
+  <div class="field"><label>Til</label><div class="seg-pick">
+    <button class="sp ${u?.lang==='uz'?'on':''}" onclick="changeLang('uz')">🇺🇿 O'z</button>
+    <button class="sp ${u?.lang==='ru'?'on':''}" onclick="changeLang('ru')">🇷🇺 Рус</button>
+    <button class="sp ${u?.lang==='en'?'on':''}" onclick="changeLang('en')">🇬🇧 Eng</button>
+  </div></div>
+  <button class="btn btn-p" onclick="closeModal()">Saqlash</button>
+  <button class="btn btn-s" style="background:rgba(255,107,107,.1);color:var(--red);border-color:rgba(255,107,107,.2)" onclick="logout()">Chiqish</button>`}
+
+
+function renderCelebration(){
+  const c=S.celebration
+  document.getElementById('root').innerHTML=`<div class="celeb-wrap">
+    <canvas id="cc"></canvas>
+    <div class="celeb-bg"></div>
+    <div class="celeb-box">
+      <span class="celeb-icon">${c.emoji}</span>
+      <div class="celeb-title">${c.title}</div>
+      <div class="celeb-sub">${c.sub||''}</div>
+    </div>
+  </div>`
+  confetti()
+  setTimeout(()=>{S.celebration=null;render()},2800)
+}
+
+function confetti(){
+  const cv=document.getElementById('cc');if(!cv) return
+  cv.width=window.innerWidth;cv.height=window.innerHeight
+  const ctx2=cv.getContext('2d')
+  const particles=Array.from({length:80},()=>({x:Math.random()*cv.width,y:-10,vx:(Math.random()-0.5)*6,vy:Math.random()*6+2,color:['#6c5fff','#00c896','#ffb347','#ff6b6b','#ff85c0','#a594ff'][Math.floor(Math.random()*6)],r:4+Math.random()*5}))
+  let t=0
+  function draw(){
+    if(t>80) return
+    ctx2.clearRect(0,0,cv.width,cv.height)
+    particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=0.15;ctx2.fillStyle=p.color;ctx2.beginPath();ctx2.arc(p.x,p.y,p.r,0,Math.PI*2);ctx2.fill()})
+    t++;requestAnimationFrame(draw)
+  }
+  draw()
+}
+
+function celebrate(emoji,title,sub){
+  S.celebration={emoji,title,sub};render()
+}
+
+// ACTIONS
+function switchTab(tb){
+  S.tab=tb
+  if(tb!=='flashcards')S.activeGame=null
+  if(window.StudyMindGarden) window.StudyMindGarden.destroy?.()
+  render();document.getElementById('scroll')?.scrollTo({top:0,behavior:'smooth'})
+}
+function openModal(m,d){
+  S.modal=m;S.modalData=d
+  if(m==='addSubject')S.ns={name:'',emoji:'📚',color:'#6c5fff',examDate:''}
+  if(m==='addSchedule')S.nsc={title:'',category:'study',subjectName:'',time:'',date:today(),repeat:'none',repeatDays:[],emoji:'📌'}
+  if(m==='addNote')S.nn={title:'',content:'',subjectName:'',color:'#6c5fff'}
+  render()
+  if(m==='journal')GET('/api/journal').then(j=>{S.journal=j;render()}).catch(()=>{})
+  if(m==='career')GET('/api/career').then(c=>{S.career=c;render()}).catch(()=>{})
+  if(m==='familyLink')GET('/api/family/me').then(f=>{S.family=f;render()}).catch(()=>{})
+}
+function closeModal(){S.modal=null;S.editNote=null;render()}
+function toggleRD(i){const idx=S.nsc.repeatDays.indexOf(i);if(idx>=0)S.nsc.repeatDays.splice(idx,1);else S.nsc.repeatDays.push(i);render()}
+function toggleTheme(){const th=document.body.getAttribute('data-theme')==='dark'?'light':'dark';setTheme(th)}
+function setTheme(th){applyTheme(th);upd('theme',th)}
+
+async function saveSubject(){
+  if(!S.ns.name.trim()){toast('Fan nomi kiriting');return}
+  try{S.subjects.push(await POST('/api/subjects',S.ns));closeModal()}catch(e){toast('❌ '+e.message)}
+}
+async function delSubject(id){if(!confirm('O\'chirilsinmi?'))return;await DEL('/api/subjects/'+id);S.subjects=S.subjects.filter(s=>s._id!==id);render()}
+
+async function saveSched(){
+  if(!S.nsc.title){toast('Nomi kiriting');return}
+  const s=await POST('/api/schedule',S.nsc);S.schedule.push(s);closeModal()
+}
+async function toggleSched(id,done){
+  await PATCH('/api/schedule/'+id,{isDone:done})
+  const s=S.schedule.find(s=>s._id===id);if(s)s.isDone=done
+  if(done){S.stats=await GET('/api/stats');S.user=await GET('/api/user')}
+  render()
+}
+async function delSched(id){await DEL('/api/schedule/'+id);S.schedule=S.schedule.filter(s=>s._id!==id);render()}
+async function loadSchedule(){
+  const url=S.schedView==='repeat'?'/api/schedule?templates=true':'/api/schedule?date='+today()
+  S.schedule=await GET(url);render()
+}
+async function genPlan(){
+  const topic=prompt('Mavzu yoki fan? (bo\'sh qoldirsa umumiy reja)')
+  toast('⏳ AI reja tuzmoqda...')
+  try{const r=await POST('/api/chat/daily-plan',{topic:topic||''});S.schedule=[...S.schedule,...r.schedule];render();toast(`✅ ${r.schedule.length} ta vazifa!`)}catch{toast('❌ Xatolik')}
+}
+
+async function saveNote(){const n=await POST('/api/notes',S.nn);S.notes.unshift(n);closeModal()}
+async function saveQuickNote(){
+  const txt=document.getElementById('qn-txt')?.value,subj=document.getElementById('qn-subj')?.value
+  if(!txt?.trim()){toast('Matn kiriting');return}
+  const n=await POST('/api/notes',{title:txt.slice(0,50),content:txt,subjectName:subj||''})
+  S.notes.unshift(n);closeModal();toast('✅ Saqlandi!')
+}
+function editNoteAction(id){S.editNote=S.notes.find(n=>n._id===id);openModal('noteEdit')}
+async function updateNote(id){
+  const t2=document.getElementById('en-t')?.value,c=document.getElementById('en-c')?.value
+  const n=await PUT('/api/notes/'+id,{title:t2,content:c})
+  const idx=S.notes.findIndex(x=>x._id===id);if(idx>=0)S.notes[idx]=n;closeModal()
+}
+async function pinNote(id,pin){await PUT('/api/notes/'+id,{isPinned:pin});const n=S.notes.find(x=>x._id===id);if(n)n.isPinned=pin;render()}
+async function delNote(id){if(!confirm('O\'chirilsinmi?'))return;await DEL('/api/notes/'+id);S.notes=S.notes.filter(n=>n._id!==id);render()}
+async function summarizeNote(id){
+  const n=S.notes.find(x=>x._id===id);if(!n?.content) return alert('Kontent yo\'q')
+  toast('⏳ AI xulosa...')
+  const r=await POST('/api/notes/summarize',{content:n.content})
+  alert('📝 Xulosa:\n\n'+r.summary)
+}
+
+function revFC(){S.fcRev=true;render()}
+async function reviewFC(q){
+  const c=S.flashcards[S.fcIdx];if(!c) return
+  const r=await POST('/api/flashcards/'+c._id+'/review',{quality:q})
+  S.fcIdx++;S.fcRev=false
+  if(S.fcIdx>=S.flashcards.length){S.flashcards=await GET('/api/flashcards?dueOnly=true');S.fcIdx=0}
+  if(r.newAchievements?.length) celebrate('🏆',r.newAchievements[0],'Yangi yutuq!');
+  else render()
+}
+async function genFCByTopic(){
+  const topic=document.getElementById('fc-inp')?.value
+  const subjectId=document.getElementById('fc-subj')?.value
+  if(!topic?.trim()){toast('Mavzu kiriting');return}
+  closeModal();toast('⏳ AI karta yaratmoqda...')
+  try{
+    const r=await POST('/api/chat/flashcard',{subjectId,topic,count:S.fcCount})
+    S.flashcards=await GET('/api/flashcards?dueOnly=true');S.fcIdx=0;S.fcRev=false
+    toast(`✅ "${r.topic}" — ${r.cards.length} ta karta!`)
+    S.tab='more';render()
+  }catch{toast('❌ Xatolik')}
+}
+
+async function sendChat(){
+  const inp=document.getElementById('ci'),msg=inp?.value?.trim()
+  if(!msg||S.aiLoading) return
+  S.chatMsgs.push({role:'user',content:msg,time:nowT(),extracted:null});inp.value='';if(inp)inp.style.height='auto'
+  S.aiLoading=true;render();scrollChat()
+  try{
+    const r=await POST('/api/chat',{message:msg})
+    S.chatMsgs.push({role:'assistant',content:r.reply,time:nowT(),extracted:r.extracted})
+    if(r.savedSchedule)S.schedule.push(r.savedSchedule)
+    if(r.savedCards?.length){S.flashcards=await GET('/api/flashcards?dueOnly=true');S.fcIdx=0;S.fcRev=false}
+    if(r.leveledUp)celebrate('⬆️',`Lv.${r.level} ga yetdingiz!`,'Yangi daraja!');
+    else if(r.newAchievements?.length)celebrate('🏆',r.newAchievements[0],'Yangi yutuq!');
+    if(r.gardenLevel!==undefined&&S.user)S.user.streak=r.streak
+    S.stats=await GET('/api/stats');S.subjects=await GET('/api/subjects');S.user=await GET('/api/user')
+  }catch{S.chatMsgs.push({role:'assistant',content:'❌ Xatolik.',time:nowT(),extracted:null})}
+  S.aiLoading=false;render();scrollChat()
+}
+
+function qp(text){const inp=document.getElementById('ci');if(inp)inp.value=text;sendChat()}
+function qpGo(text){S.tab='ai';render();setTimeout(()=>qp(text),100)}
+function chatKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat()}}
+function autosize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px'}
+
+function toggleVoice(){
+  if(!('webkitSpeechRecognition'in window||'SpeechRecognition'in window)){toast('❌ Chrome ishlatng');return}
+  if(S.isRecording){if(S.recognition){S.recognition.stop();S.recognition=null}S.isRecording=false;render();return}
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition
+  S.recognition=new SR()
+  S.recognition.lang=S.user?.lang==='ru'?'ru-RU':S.user?.lang==='en'?'en-US':'uz-UZ'
+  S.recognition.continuous=true;S.recognition.interimResults=true
+  S.recognition.onresult=e=>{
+    let final='',interim=''
+    for(let i=e.resultIndex;i<e.results.length;i++){if(e.results[i].isFinal)final+=e.results[i][0].transcript;else interim+=e.results[i][0].transcript}
+    const inp=document.getElementById('ci');if(inp){inp.value=final||interim;autosize(inp)}
+    if(final){S.isRecording=false;if(S.recognition){S.recognition.stop();S.recognition=null};render();setTimeout(()=>sendChat(),300)}
+  }
+  S.recognition.onerror=e=>{toast('❌ '+e.error);S.isRecording=false;S.recognition=null;render()}
+  S.recognition.onend=()=>{if(S.isRecording){S.isRecording=false;render()}}
+  try{S.recognition.start();S.isRecording=true;render();toast('🎤 Gapiring...')}catch{toast('❌ Mikrofon ishlamadi')}
+}
+
+async function saveQuote(e){
+  e?.stopPropagation()
+  if(!S.quote) return
+  try{await POST('/api/user/save-quote',S.quote);S.user=await GET('/api/user');S.quote=await GET('/api/quote');toast('💾 Saqlandi!');render()}catch{}
+}
+async function genInsight(){
+  toast('⏳ Tahlil...')
+  try{S.insights=await POST('/api/chat/insight',{});render()}catch{toast('❌ Xatolik')}
+}
+async function changeLang(lang){await upd('lang',lang);S.user.lang=lang;S.quote=await GET('/api/quote');closeModal();render()}
+async function upd(f,v){try{await PUT('/api/user',{[f]:v});if(S.user)S.user[f]=v}catch{}}
+async function logout(){await POST('/auth/logout');location.reload()}
+
+function nxtLvl(l){const t=[0,100,250,500,900,1400,2000,2800,3800,5000,6500,8500];return t[l]||8500+(l-11)*2000}
+function scrollChat(){setTimeout(()=>{const e=document.getElementById('cm');if(e)e.scrollTop=e.scrollHeight},60)}
+
+function toast(msg){
+  document.querySelectorAll('.toast-el').forEach(e=>e.remove())
+  const el=document.createElement('div');el.className='toast-el'
+  el.style.cssText='position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(20,24,40,.95);color:white;padding:9px 18px;border-radius:100px;font-size:13px;font-weight:600;z-index:999;white-space:nowrap;border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(10px)'
+  el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),2500)
+}
+
+function afterRender(){
+  if(S.tab==='ai')scrollChat()
+  if(S.tab==='garden')setTimeout(initGardenCanvas,60)
+}
+
+function initGardenCanvas(){
+  const cv=document.getElementById('gardenCanvas')
+  if(!cv||!window.StudyMindGarden) return
+  const u=S.user,g=S.gardenData||{}
+  window.StudyMindGarden.init(cv,{streak:u?.streak||0,xp:u?.xp||0,grade:g.avgGrade||0})
+}
+
+// SwitchTab with data loading
+window.switchTab=async function(tb){
+  if(window.StudyMindGarden&&S.tab==='garden') window.StudyMindGarden.destroy?.()
+  S.tab=tb
+  if(tb==='garden'){try{S.gardenData=await GET('/api/garden')}catch{}}
+  if(tb==='schedule')await loadSchedule()
+  if(tb==='notes'){try{S.notes=await GET('/api/notes')}catch{}}
+  if(tb==='more'){
+    try{
+      S.achievements=await GET('/api/achievements')
+      if(!S.insights){S.insights=await POST('/api/chat/insight',{}).catch(()=>null)}
+      if(!S.career){S.career=await GET('/api/career').catch(()=>null)}
+      if(!S.family){S.family=await GET('/api/family/me').catch(()=>null)}
+    }catch{}
+  }
+  render();document.getElementById('scroll')?.scrollTo({top:0,behavior:'smooth'})
+}
+
+init()
+</script>
+</body>
+</html>
