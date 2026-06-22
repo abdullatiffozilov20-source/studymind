@@ -1,6 +1,6 @@
 {
-  "name": "twin",
-  "version": "1.0.0",
+  "name": "studymind",
+  "version": "8.0.0",
   "type": "module",
   "main": "index.js",
   "scripts": { "start": "node index.js" },
