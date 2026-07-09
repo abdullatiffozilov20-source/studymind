@@ -9,6 +9,14 @@
 <script src="garden.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+[data-theme="light"]{
+  --bg:#f5f6fa;--bg2:#eceef5;--card:#ffffff;--card2:#f0f1f8;
+  --p:#5b4fcf;--p2:#7c6fff;--pg:linear-gradient(135deg,#5b4fcf,#7c6fff);
+  --teal:#00b386;--amber:#f59e0b;--red:#ef4444;--pink:#ec4899;
+  --text:#1a1d35;--t2:#6b7280;--t3:#9ca3af;
+  --b:rgba(0,0,0,0.08);--b2:rgba(91,79,207,0.18);
+  --sh:0 1px 8px rgba(0,0,0,0.07),0 4px 16px rgba(91,79,207,0.06);
+}
 [data-theme="dark"]{
   --bg:#0f1117;--bg2:#161b27;--card:#1c2235;--card2:#232840;
   --p:#6c5fff;--p2:#a594ff;--pg:linear-gradient(135deg,#6c5fff,#a594ff);
@@ -17,26 +25,17 @@
   --b:rgba(255,255,255,0.06);--b2:rgba(108,95,255,0.22);
   --sh:0 2px 16px rgba(0,0,0,0.35);
 }
-[data-theme="light"]{
-  --bg:#f0f2f8;--bg2:#e8eaf4;--card:#ffffff;--card2:#f4f5ff;
-  --p:#6c5fff;--p2:#a594ff;--pg:linear-gradient(135deg,#6c5fff,#a594ff);
-  --teal:#00a878;--amber:#ff8c42;--red:#ff4757;--pink:#ff60a8;
-  --text:#1a1d35;--t2:#5a6080;--t3:#a0a8c8;
-  --b:rgba(0,0,0,0.07);--b2:rgba(108,95,255,0.15);
-  --sh:0 2px 12px rgba(108,95,255,0.09);
-}
 html,body{height:100%;font-family:'Inter',sans-serif;font-size:15px;background:var(--bg);color:var(--text);overflow:hidden;transition:background .3s,color .3s}
 #app{display:flex;flex-direction:column;height:100vh;height:100dvh}
 #scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 #scroll::-webkit-scrollbar{display:none}
 /* NAV */
-#nav{flex-shrink:0;background:var(--card);border-top:1px solid var(--b);display:flex;padding:6px 4px max(8px,env(safe-area-inset-bottom))}
-.nb{flex:1;background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;font-family:'Inter',sans-serif;color:var(--t2);padding:4px 2px;border-radius:12px;transition:color .2s}
+#nav{flex-shrink:0;background:var(--card);border-top:1px solid var(--b);display:flex;padding:6px 2px max(8px,env(safe-area-inset-bottom))}
+.nb{flex:1;background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;font-family:'Inter',sans-serif;color:var(--t3);padding:4px 1px;border-radius:12px;transition:color .2s}
 .nb.on{color:var(--p)}
-.ni-wrap{width:42px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:10px;transition:background .2s;position:relative}
-.nb.on .ni-wrap{background:rgba(108,95,255,0.12)}
-.nb .ni{font-size:21px;line-height:1}
-.nb .nl{font-size:10px;font-weight:600}
+.ni-wrap{width:36px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:10px;transition:background .2s;position:relative}
+.nb.on .ni-wrap{background:rgba(91,79,207,0.1)}
+.nb .nl{font-size:9px;font-weight:600;letter-spacing:-.01em}
 .nb-dot{width:5px;height:5px;border-radius:50%;background:var(--red);position:absolute;top:-2px;right:-2px}
 /* HEADER */
 .hdr{padding:14px 16px 10px;background:var(--bg);position:sticky;top:0;z-index:20;border-bottom:1px solid var(--b)}
@@ -108,6 +107,24 @@ html,body{height:100%;font-family:'Inter',sans-serif;font-size:15px;background:v
 .b-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
 .b-bar{width:100%;border-radius:4px 4px 0 0;min-height:3px;transition:height 1s ease}
 .b-lbl{font-size:9px;color:var(--t3)}
+/* HOME NEW */
+.home-hdr{padding:16px 16px 10px;display:flex;align-items:center;justify-content:space-between}
+.home-greet{font-family:'Poppins',sans-serif;font-size:20px;font-weight:800;letter-spacing:-.025em;color:var(--text)}
+.home-sub{font-size:12px;color:var(--t2);margin-top:2px}
+.level-card{margin:0 14px 12px;background:var(--pg);border-radius:18px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 20px rgba(91,79,207,.3)}
+.lc-left{flex:1}
+.lc-label{font-family:'Poppins',sans-serif;font-size:18px;font-weight:800;color:white}
+.lc-xp{font-size:12px;color:rgba(255,255,255,.75);margin:4px 0}
+.lc-bar{height:6px;background:rgba(255,255,255,.25);border-radius:3px;overflow:hidden;max-width:180px}
+.lc-fill{height:100%;background:white;border-radius:3px;transition:width 1s ease}
+.lc-badge{width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;font-family:'Poppins',sans-serif;font-size:18px;font-weight:900;color:white}
+.stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:0 14px 12px}
+.stat-card{background:var(--card);border:1px solid var(--b);border-radius:14px;padding:12px 10px;text-align:center;box-shadow:var(--sh)}
+.stat-icon{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;margin:0 auto 6px}
+.stat-val{font-family:'Poppins',sans-serif;font-size:20px;font-weight:800;color:var(--text)}
+.stat-lbl{font-size:10px;color:var(--t2);font-weight:500;margin-top:2px}
+.insight-card{margin:0 14px 12px;background:var(--card);border:1px solid var(--b2);border-radius:16px;padding:14px;box-shadow:var(--sh);cursor:pointer}
+.garden-preview{margin:0 14px 12px;background:var(--card);border:1px solid var(--b);border-radius:16px;padding:14px;box-shadow:var(--sh);cursor:pointer}
 .plan-wrap{margin:0 14px 12px}
 .plan-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .plan-actions{display:flex;gap:6px;align-items:center}
@@ -130,7 +147,7 @@ html,body{height:100%;font-family:'Inter',sans-serif;font-size:15px;background:v
 .si-time{font-size:12px;font-weight:700;color:var(--p);font-family:'Poppins',sans-serif;flex-shrink:0}
 .si-del{background:none;border:none;color:var(--t3);font-size:16px;cursor:pointer;padding:0 4px;flex-shrink:0}
 /* AI CHAT */
-.chat-shell{display:flex;flex-direction:column;height:calc(100dvh - 56px)}
+.chat-shell{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
 .chat-hdr{background:var(--card);padding:10px 14px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .chat-av{width:38px;height:38px;border-radius:50%;background:var(--pg);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;box-shadow:0 0 0 3px rgba(108,95,255,.18)}
 .chat-name{font-size:15px;font-weight:700}
@@ -358,7 +375,7 @@ html,body{height:100%;font-family:'Inter',sans-serif;font-size:15px;background:v
 .empty-s{font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:16px}
 </style>
 </head>
-<body data-theme="dark">
+<body data-theme="light">
 <div id="root"></div>
 <script>
 const tg=window.Telegram?.WebApp
@@ -497,7 +514,7 @@ function render(){
   if(S.celebration){renderCelebration();return}
   if(S.user.role==='parent'){renderParent();return}
   const root=document.getElementById('root')
-  root.innerHTML=(S.tab==='ai'?chatShell():stdShell())+nav()+(S.modal?modal():'')
+  root.innerHTML=(S.tab==='ai'?chatShell():stdShell())+(S.modal?modal():'')
   afterRender()
 }
 
@@ -588,24 +605,21 @@ function obSkip(){S.onboarding=false;loadAll().then(()=>render())}
 
 // SHELL
 function stdShell(){
-  const u=S.user,xp=nxtLvl(u?.level||1),pct=Math.min(100,Math.round(((u?.xp||0)/xp)*100))
-  const h=new Date().getHours()
-  const gr=h<12?t('greeting_m'):h<17?t('greeting_d'):t('greeting_e')
+  const u=S.user
   const init2=(u?.name||'U').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()
-  const titles={home:`${gr}, ${u?.name?.split(' ')[0]}!`,schedule:t('schedule'),garden:t('garden'),notes:t('notes'),more:t('profile')}
-  const subs={home:u?.grade||`Lv.${u?.level}`,schedule:today(),garden:'',notes:`${S.notes.length} ta`,more:`Lv.${u?.level} · ${u?.xp} XP`}
+  const titles={schedule:t('plan'),garden:t('garden'),notes:t('notes'),more:t('profile'),flashcards:t('flashcards')}
   return`<div id="app">
-    <div class="hdr">
+    ${S.tab!=='home'?`<div class="hdr">
       <div class="hdr-row">
-        <div><div class="hdr-title">${titles[S.tab]||''}</div>${subs[S.tab]?`<div class="hdr-sub">${subs[S.tab]}</div>`:''}</div>
+        <div><div class="hdr-title">${titles[S.tab]||''}</div></div>
         <div class="hdr-right">
           <div class="icon-btn" onclick="toggleTheme()">${document.body.getAttribute('data-theme')==='dark'?'☀️':'🌙'}</div>
           <div class="hdr-av" onclick="switchTab('more')">${u?.avatar?`<img src="${u.avatar}">`:init2}</div>
         </div>
       </div>
-      <div class="xp-bar"><div class="xp-fill" style="width:${pct}%"></div></div>
-    </div>
+    </div>`:''}
     <div id="scroll">${pageCnt()}</div>
+    ${nav()}
   </div>`
 }
 
@@ -622,10 +636,17 @@ function pageCnt(){
 }
 
 function nav(){
-  const TABS=[{id:'home',i:'🏠',l:t('home')},{id:'ai',i:'🧠',l:t('ai')},{id:'schedule',i:'📅',l:t('plan')},{id:'flashcards',i:'🎮',l:t('flashcards')},{id:'garden',i:'🌿',l:t('garden')},{id:'more',i:'👤',l:t('profile')}]
+  const TABS=[
+    {id:'home',l:t('home'),svg:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>'},
+    {id:'ai',l:t('ai'),svg:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>'},
+    {id:'schedule',l:t('plan'),svg:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'},
+    {id:'flashcards',l:t('flashcards'),svg:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>'},
+    {id:'garden',l:t('garden'),svg:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12m0 0C12 7 7 4 2 4c0 5 3 9 7 10m3-10c0-5 5-8 10-8-1 5-4 9-10 10"/></svg>'},
+    {id:'more',l:t('profile'),svg:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'},
+  ]
   const due=S.stats?.dueCards||0
   return`<nav id="nav">${TABS.map(tb=>`<button class="nb ${S.tab===tb.id?'on':''}" onclick="switchTab('${tb.id}')">
-    <div class="ni-wrap"><span class="ni">${tb.i}</span>${tb.id==='flashcards'&&due?`<span class="nb-dot"></span>`:''}</div>
+    <div class="ni-wrap">${tb.svg}${tb.id==='flashcards'&&due?`<span class="nb-dot"></span>`:''}</div>
     <span class="nl">${tb.l}</span>
   </button>`).join('')}</nav>`
 }
@@ -633,58 +654,76 @@ function nav(){
 // HOME
 function home(){
   const s=S.stats,u=S.user,w=s?.weekly||[],mx=Math.max(...w.map(d=>d.tasks),1)
+  const xp=nxtLvl(u?.level||1),pct=Math.min(100,Math.round(((u?.xp||0)/xp)*100))
+  const h=new Date().getHours()
+  const greet=h<12?t('greeting_m'):h<17?t('greeting_d'):t('greeting_e')
+  const init2=(u?.name||'U').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()
   return`
-    <div class="streak-card" onclick="switchTab('garden')">
-      <span class="streak-fire">🔥</span>
-      <div><div class="streak-num">${u?.streak||0}</div><div class="streak-label">${t('streak_days')}</div></div>
-      <div class="streak-r">
-        <div style="font-size:11px;color:var(--t2);margin-bottom:4px">Bog'ingiz</div>
-        <div class="garden-link">🌿 Ko'rish →</div>
+    <div class="home-hdr">
+      <div>
+        <div class="home-greet">${greet}, ${u?.name?.split(' ')[0]||''}! 👋</div>
+        <div class="home-sub">StudyMind bilan o'qish barakali bo'lsin</div>
+      </div>
+      <div class="hdr-av" onclick="switchTab('more')">${u?.avatar?`<img src="${u.avatar}">`:init2}</div>
+    </div>
+
+    <div class="level-card" onclick="switchTab('more')">
+      <div class="lc-left">
+        <div class="lc-label">Level ${u?.level||1}</div>
+        <div class="lc-xp">${u?.xp||0} / ${xp} XP</div>
+        <div class="lc-bar"><div class="lc-fill" style="width:${pct}%"></div></div>
+      </div>
+      <div class="lc-badge">${u?.level||1}</div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(239,68,68,.1);color:var(--red)">🔥</div>
+        <div class="stat-val">${u?.streak||0}</div>
+        <div class="stat-lbl">Streak</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(91,79,207,.1);color:var(--p)">🎯</div>
+        <div class="stat-val">${u?.focusScore||0}</div>
+        <div class="stat-lbl">Focus</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(0,179,134,.1);color:var(--teal)">⏱</div>
+        <div class="stat-val">${u?.totalStudyMinutes||0}</div>
+        <div class="stat-lbl">Daqiqa</div>
       </div>
     </div>
 
-    ${S.quote?`<div class="quote-box">
-      <div class="q-text">"${S.quote.text}"</div>
-      <div class="q-author">— ${S.quote.author}</div>
-      <button class="q-save" onclick="saveQuote(event)">💾</button>
-    </div>`:''}
-
-    <div class="metrics">
-      <div class="mc"><div class="mc-val" style="color:var(--p)">${s?.avgGrade||'—'}</div><div class="mc-lbl">${t('avg_grade')}</div>${s?.avgGrade?`<div class="mc-hint">${s.avgGrade>=80?'Zo\'r!':s.avgGrade>=60?'Yaxshi':'Oshirish kerak'}</div>`:''}</div>
-      <div class="mc"><div class="mc-val" style="color:var(--teal)">${u?.totalStudyMinutes||0}</div><div class="mc-lbl">${t('study_min')}</div></div>
-      <div class="mc"><div class="mc-val" style="color:var(--amber)">${u?.focusScore||0}</div><div class="mc-lbl">${t('focus')}</div><div class="mc-hint">/ 100</div></div>
-      <div class="mc"><div class="mc-val" style="color:var(--red)">${s?.dueCards||0}</div><div class="mc-lbl">${t('due_cards')}</div></div>
-    </div>
-
-    ${s?.lastInsight?`<div class="ai-bubble">
-      <span class="ai-badge">AI Insight</span>
-      <div class="ai-bubble-text">${s.lastInsight.strengths?.length?`💪 ${s.lastInsight.strengths.slice(0,2).join(', ')}`:''} ${s.lastInsight.needsFocus?.length?`— 📌 ${s.lastInsight.needsFocus.slice(0,1).join(', ')}`:''}</div>
-      <div class="ai-more" onclick="switchTab('more')">To'liq tahlil →</div>
-    </div>`:''}
-
-    <div style="margin:0 14px 12px">
-      <div class="weekly">
-        <div class="sec-title">${t('weekly')}</div>
-        <div class="bars">
-          ${w.map((d,i)=>{const h=Math.max(4,Math.round((d.tasks/mx)*60));const dp=d.tasks>0?Math.round(d.done/d.tasks*100):0;return`<div class="b-col"><div class="b-bar" style="height:${h}px;background:${dp>=80?'var(--teal)':dp>=50?'var(--p)':'var(--card2)'}"></div><div class="b-lbl">${DAYS[i]}</div></div>`}).join('')}
-        </div>
+    ${s?.lastInsight?`<div class="insight-card" onclick="switchTab('more')">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <div style="background:var(--pg);border-radius:8px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:13px">🧠</div>
+        <div style="font-size:12px;font-weight:700;color:var(--p)">AI Insight</div>
       </div>
+      <div style="font-size:12px;color:var(--t2);line-height:1.5">${s.lastInsight.strengths?.length?`💪 ${s.lastInsight.strengths.slice(0,2).join(', ')} bo'yicha zo'rsiz.`:''} ${s.lastInsight.needsFocus?.length?`📌 ${s.lastInsight.needsFocus.slice(0,1).join(', ')} ga e'tibor bering.`:''}</div>
+      <div style="font-size:11px;color:var(--p);margin-top:6px;font-weight:600">To'liq ko'rish →</div>
+    </div>`:''}
+
+    <div class="garden-preview" onclick="switchTab('garden')">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:13px;font-weight:700">Sizning Bog'ingiz</div>
+        <div style="font-size:11px;color:var(--p);font-weight:600">Level ${s?.gardenLevel||1} · Ko'rish →</div>
+      </div>
+      <div style="font-size:11px;color:var(--t2);margin-top:4px">Keyingi bosqich: ${t('next_unlock')}</div>
     </div>
 
     <div class="plan-wrap">
       <div class="plan-head">
-        <div class="sec-title">Bugungi reja</div>
+        <div class="sec-title">Today's Plan</div>
         <div class="plan-actions">
           <span class="btn-sm s" style="font-size:11px" onclick="genPlan()">${t('gen_plan')}</span>
-          <span class="sec-action" onclick="switchTab('schedule')">Barchasi →</span>
+          <span class="sec-action" onclick="switchTab('schedule')">View all →</span>
         </div>
       </div>
       <div class="plan-list">
-        ${S.schedule.slice(0,4).map(siHtml).join('')||`<div style="padding:16px;text-align:center;font-size:13px;color:var(--t2)">${t('no_plan')}</div>`}
-        ${!S.schedule.length?`<div style="padding:0 14px 12px;display:flex;gap:6px">
+        ${S.schedule.slice(0,5).map(siHtml).join('')||`<div style="padding:20px;text-align:center">
+          <div style="font-size:13px;color:var(--t2);margin-bottom:10px">${t('no_plan')}</div>
           <button class="btn-sm p" onclick="genPlan()">${t('gen_plan')}</button>
-          <button class="btn-sm s" onclick="openModal('addSchedule')">${t('add_task')}</button>
-        </div>`:''}
+        </div>`}
       </div>
     </div>
     <div class="space"></div>`
@@ -703,7 +742,8 @@ function siHtml(x){return`<div class="si">
 
 // AI CHAT
 function chatShell(){
-  return`<div id="app"><div class="chat-shell">
+  return`<div id="app">
+  <div class="chat-shell">
     <div class="chat-hdr">
       <div style="display:flex;align-items:center;gap:10px">
         <div class="chat-av">🧠</div>
@@ -735,7 +775,9 @@ function chatShell(){
         <button class="send-btn" onclick="sendChat()" ${S.aiLoading?'disabled':''}>➤</button>
       </div>
     </div>
-  </div></div>`
+  </div>
+  ${nav()}
+  </div>`
 }
 
 // SCHEDULE
