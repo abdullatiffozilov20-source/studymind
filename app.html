@@ -324,6 +324,18 @@ function formatDate(d) {
   if (!m) return d;
   return `${parseInt(m[3], 10)} ${MONTHS[parseInt(m[2], 10) - 1]}`;
 }
+function withCommas(n) { return n.toLocaleString("en-US"); }
+function daysTogether() {
+  if (!state.meetDate) return null;
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(state.meetDate);
+  if (!m) return null;
+  const start = new Date(state.meetDate + "T00:00:00");
+  const now = new Date();
+  const diffMs = now - start;
+  if (isNaN(diffMs)) return null;
+  const days = Math.max(0, Math.floor(diffMs / 86400000));
+  return { days, hours: days * 24, minutes: days * 24 * 60 };
+}
 
 const state = {
   tab: "home",
@@ -376,9 +388,9 @@ let pushInFlight = false;
 /* ================= ROOM (server bilan sinxronlash) ================= */
 
 function getRoomCode() {
-  if (state.partnerCodeEntered && state.myCode) {
-    return [state.myCode, state.partnerCodeEntered].sort()[0];
-  }
+  // Kim boshqa birovning kodini kiritgan bo'lsa — o'sha kodga (o'sha xonaga) qo'shiladi.
+  // Kod kiritmagan bo'lsa (masalan kodini ulashgan, kutayotgan tomon) — o'z xonasida qoladi.
+  if (state.partnerCodeEntered) return state.partnerCodeEntered.trim();
   return state.myCode || null;
 }
 
@@ -386,7 +398,7 @@ function roomSnapshot() {
   return {
     memories: state.memories, letters: state.letters, tracks: state.tracks,
     timeline: state.timeline, plans: state.plans, bucket: state.bucket, tasks: state.tasks,
-    qa: state.qa,
+    qa: state.qa, meetDate: state.meetDate,
   };
 }
 
@@ -401,6 +413,7 @@ function applyRoomData(data) {
   state.bucket = data.bucket || [];
   state.tasks = data.tasks || [];
   state.qa = data.qa || {};
+  if (data.meetDate) { state.meetDate = data.meetDate; safeSet("couple_meetdate", state.meetDate); }
   cacheLocally();
   render();
 }
@@ -497,11 +510,12 @@ function allMemoryImages() {
 function renderHome() {
   const gc = genderConfig();
   const greetName = state.greetingNickname || state.myName;
+  const dt = daysTogether();
   const memChips = state.memories.slice(0, 3).map(m => `
     <div class="mem-chip" style="background:${m.color}" data-action="openMemory" data-id="${m.id}">
       <div style="font-size:22px">${(m.images && m.images[0]) ? `<img src="${m.images[0]}" style="width:32px;height:32px;object-fit:cover;border-radius:8px">` : m.emoji}</div>
       <p style="font-size:11px;color:#7A5670;margin:6px 0 0;font-weight:500">${esc(m.title)}</p>
-      <p style="font-size:10px;color:#B79AAE;margin:0">${esc(formatDate(m.date))}</p>
+      <p style="font-size:10px;color:#B79AAE;margin:0">${esc(formatDate(m.date))}${m.postedBy ? " · " + esc(m.postedBy) : ""}</p>
     </div>`).join("");
 
   return `
@@ -518,8 +532,11 @@ function renderHome() {
           <img class="hero-slide-img" id="heroSlideImg" src="">
           <div class="hero-time-content">
             <p style="font-size:12px;color:#8A5C78;margin:0;letter-spacing:1px">BIRGA OʻTGAN VAQT</p>
-            <p class="baloo" style="font-size:42px;color:#5B3A56;margin:4px 0">171 kun</p>
-            <p style="font-size:12px;color:#8A5C78;margin:0">4,104 soat · 246,240 daqiqa</p>
+            ${dt
+              ? `<p class="baloo" style="font-size:42px;color:#5B3A56;margin:4px 0">${dt.days} kun</p>
+                 <p style="font-size:12px;color:#8A5C78;margin:0">${withCommas(dt.hours)} soat · ${withCommas(dt.minutes)} daqiqa</p>`
+              : `<p class="baloo" style="font-size:20px;color:#5B3A56;margin:4px 0">Tanishgan sanangiz kiritilmagan</p>
+                 <p style="font-size:12px;color:#8A5C78;margin:0">Profil sozlamalarida qo'shing</p>`}
           </div>
         </div>
 
@@ -1297,9 +1314,9 @@ document.addEventListener("DOMContentLoaded", () => {
         resetContentToZero();
         state.appStarted = true;
         safeSet("couple_app_started", true);
-        pushRoom();
       }
       if (!state.myCode) { state.myCode = genCode(); safeSet("couple_mycode", state.myCode); }
+      pushRoom();
       state.screen = "link"; render();
     }
     else if (action === "linkPartner") {
@@ -1307,8 +1324,9 @@ document.addEventListener("DOMContentLoaded", () => {
       if (val) {
         state.linked = true; safeSet("couple_linked", true);
         state.partnerCodeEntered = val; safeSet("couple_partner_code_entered", val);
-        startRoomPolling();
-        pushRoom();
+        // Avval sherigingizning mavjud xonasini olib kelamiz (uni bo'sh mahalliy
+        // ma'lumot bilan ustidan yozib qo'ymaslik uchun), keyin muntazam yangilanishni boshlaymiz.
+        fetchRoom().then(() => startRoomPolling());
       }
       state.screen = "profile"; render();
     }
