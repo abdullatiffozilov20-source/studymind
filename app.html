@@ -30,25 +30,30 @@ input, textarea, select { font-family: inherit; }
 .card-purple { margin-top: 12px; background: #F1ECFF; border-radius: 22px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
 .mem-strip { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 6px; }
 .mem-chip { min-width: 100px; border-radius: 18px; padding: 14px 10px; text-align: center; flex-shrink: 0; cursor: pointer; }
-.mem-tile { border-radius: 20px; padding: 16px 18px; display: flex; align-items: center; gap: 14px; margin-bottom: 12px; cursor: pointer; }
+.mem-tile { border-radius: 20px; padding: 16px 18px; display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+.mem-tile-main { display: flex; align-items: center; gap: 14px; flex: 1; cursor: pointer; }
 .mem-icon { width: 48px; height: 48px; border-radius: 16px; background: rgba(255,255,255,0.6); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; overflow: hidden; }
 .mem-icon img { width: 100%; height: 100%; object-fit: cover; }
-.mem-detail-img { width: 100%; border-radius: 18px; margin-bottom: 12px; max-height: 220px; object-fit: cover; }
+.gallery { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 12px; }
+.gallery-item { position: relative; flex-shrink: 0; }
+.gallery-item img { width: 90px; height: 90px; object-fit: cover; border-radius: 14px; }
+.gallery-del { position: absolute; top: -6px; right: -6px; width: 22px; height: 22px; border-radius: 11px; background: #5B3A56; color: #fff; border: none; font-size: 12px; display: flex; align-items: center; justify-content: center; }
 
-.track-row { border-radius: 18px; padding: 14px 16px; margin-bottom: 10px; }
+.track-row { border-radius: 18px; padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
 .track-icon { width: 36px; height: 36px; border-radius: 18px; background: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
 .track-link { display: inline-block; margin-top: 6px; font-size: 11px; color: #D4537E; text-decoration: none; }
 
-.letter-row { background: #FFF3E3; border-radius: 20px; padding: 16px 18px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; cursor: pointer; }
-.letter-open { background: #FFF9F6; border: 1.5px dashed #F0B8CE; border-radius: 22px; padding: 28px 20px; min-height: 240px; }
+.letter-row { background: #FFF3E3; border-radius: 20px; padding: 16px 18px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.letter-row-main { display: flex; align-items: center; gap: 12px; cursor: pointer; flex: 1; }
+.letter-open { background: #FFF9F6; border: 1.5px dashed #F0B8CE; border-radius: 22px; padding: 28px 20px; min-height: 200px; }
 
-.segment { display: flex; background: #FFF3E3; border-radius: 16px; padding: 4px; margin-bottom: 16px; }
-.segment button { flex: 1; border: none; border-radius: 12px; padding: 9px 0; font-size: 12.5px; background: transparent; color: #B79AAE; }
+.segment { display: flex; background: #FFF3E3; border-radius: 16px; padding: 4px; margin-bottom: 16px; overflow-x: auto; }
+.segment button { flex: 1; border: none; border-radius: 12px; padding: 9px 4px; font-size: 11.5px; background: transparent; color: #B79AAE; white-space: nowrap; }
 .segment button.active { background: #FFFFFF; color: #D4537E; box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
 
 .timeline { position: relative; padding-left: 18px; }
 .timeline::before { content: ""; position: absolute; left: 5px; top: 6px; bottom: 6px; width: 2px; background: #F5D6E4; }
-.timeline-item { position: relative; margin-bottom: 18px; }
+.timeline-item { position: relative; margin-bottom: 18px; display: flex; align-items: flex-start; justify-content: space-between; }
 .timeline-dot { position: absolute; left: -18px; top: 3px; width: 10px; height: 10px; border-radius: 5px; background: #D4537E; }
 
 .folder-block { background: #FFF3E3; border-radius: 18px; margin-bottom: 12px; padding: 14px 16px; }
@@ -56,13 +61,17 @@ input, textarea, select { font-family: inherit; }
 .folder-title { font-family: Georgia, serif; font-size: 14px; color: #5B3A56; margin: 0; }
 .folder-count { font-size: 10px; color: #B4497A; }
 .folder-body { margin-top: 10px; }
-.bucket-row { display: flex; align-items: center; gap: 12px; border-radius: 16px; padding: 10px 12px; margin-bottom: 8px; background: #FFFDFB; }
+.bucket-row { display: flex; align-items: center; gap: 10px; border-radius: 16px; padding: 10px 12px; margin-bottom: 8px; background: #FFFDFB; }
 .bucket-check { width: 20px; height: 20px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 11px; color: #fff; border: 1.5px solid #E7C7D4; background: #fff; }
 .bucket-check.done { background: #4FBF9B; border-color: #4FBF9B; }
 .add-item-row { display: flex; gap: 8px; margin-top: 4px; }
 .add-item-row input { flex: 1; border: 1px solid #F0B8CE; border-radius: 10px; padding: 8px 10px; font-size: 12px; }
 .add-item-row button, .add-folder-btn { border: none; background: #D4537E; color: #fff; border-radius: 10px; padding: 8px 12px; font-size: 12px; }
 .add-folder-btn { width: 100%; margin-top: 4px; background: #FFFFFF; color: #D4537E; border: 1.5px dashed #F0B8CE; }
+
+.icon-btn { border: none; background: transparent; color: #C9A9BB; font-size: 13px; padding: 4px 6px; flex-shrink: 0; }
+.icon-btn.danger { color: #D4537E; }
+.row-actions { display: flex; gap: 2px; flex-shrink: 0; }
 
 .gender-btn { border: none; background: #FFF3E3; border-radius: 20px; padding: 22px 26px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
 
@@ -82,6 +91,15 @@ input, textarea, select { font-family: inherit; }
 
 .link-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: #4FBF9B; background: #DBF7EF; padding: 4px 10px; border-radius: 10px; margin-bottom: 10px; }
 .link-badge.pending { color: #B4497A; background: #FFE1EC; }
+
+.task-row { background: #FFF3E3; border-radius: 18px; padding: 14px 16px; margin-bottom: 10px; }
+.task-row.done { background: #DBF7EF; }
+.task-text { margin: 0; font-size: 13px; color: #5B3A56; font-weight: 500; }
+.task-reward { margin: 6px 0 0; font-size: 12px; color: #B4497A; }
+.task-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+.task-done-btn { border: none; background: #D4537E; color: #fff; border-radius: 10px; padding: 6px 12px; font-size: 11.5px; }
+.task-done-btn.completed { background: #4FBF9B; }
+.reward-pop { text-align: center; font-size: 12px; color: #4FBF9B; margin-top: 4px; }
 
 .bottomnav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px;
              background: #FFFDFB; border-top: 1px solid #F5E3EA; display: flex; justify-content: space-around;
@@ -108,9 +126,10 @@ input, textarea, select { font-family: inherit; }
 .form-label { font-size: 11.5px; color: #B4497A; font-weight: 600; margin-bottom: 5px; display: block; }
 .form-input, .form-textarea { width: 100%; border: 1px solid #F0B8CE; border-radius: 12px; padding: 10px 12px; font-size: 13px; color: #5B3A56; }
 .form-textarea { resize: none; }
-.emoji-pick { display: flex; gap: 8px; flex-wrap: wrap; }
-.emoji-pick button { border: 1.5px solid #F0D5E1; background: #FFFDFB; border-radius: 12px; width: 38px; height: 38px; font-size: 17px; }
+.emoji-pick { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.emoji-pick button { border: 1.5px solid #F0D5E1; background: #FFFDFB; border-radius: 12px; width: 36px; height: 36px; font-size: 16px; }
 .emoji-pick button.active { border-color: #D4537E; background: #FFE1EC; }
+.emoji-hint { font-size: 10.5px; color: #B79AAE; margin-top: 4px; }
 .setup-screen { padding: 30px 26px; text-align: center; }
 .setup-title { font-family: Georgia, serif; font-size: 20px; color: #5B3A56; margin: 0 0 6px; }
 .setup-sub { font-size: 12.5px; color: #8A6E80; margin: 0 0 22px; }
@@ -132,10 +151,7 @@ input, textarea, select { font-family: inherit; }
 <body>
 <div id="app"></div>
 <script>
-/* data.js — barcha boshlang'ich (seed) ma'lumotlar shu yerda.
-   Bu global oddiy <script> sifatida ulanadi, shuning uchun faylni
-   to'g'ridan-to'g'ri brauzerda (file://) ochganda ham fetch/CORS
-   muammosisiz ishlaydi. */
+/* data.js — boshlang'ich (seed) ma'lumotlar. */
 
 window.APP_DATA = {
 
@@ -143,54 +159,43 @@ window.APP_DATA = {
     { emoji: "💕", title: "Xush kelibsiz", text: "Bu ilova ikkingiz uchun maxsus joy — xotiralar, xatlar va orzularingiz bir joyda." },
     { emoji: "🗂️", title: "Bir-biringizni bilib oling", text: "Bosqichma-bosqich savollar orqali sherigingizni yanada chuqurroq tanib boring." },
     { emoji: "🎵", title: "Maxsus lahzalar", text: "Har bir qo'shiq, xat va reja — ikkalangizga tegishli o'ziga xos xotira." },
-    { emoji: "🔗", title: "Bitta profil, ikkalangiz uchun", text: "Kodlaringizni ulang — profilingiz ikkalangiz uchastkiz uchrashadigan yagona joyga aylanadi." },
+    { emoji: "🔗", title: "Bitta profil, ikkalangiz uchun", text: "Kodlaringizni ulang — profilingiz ikkalangiz uchrashadigan yagona joyga aylanadi." },
   ],
 
+  // Gender bo'yicha bosh sahifadagi ikonka/salomlashish — xohlasangiz bir xil ham qilib qo'yish mumkin,
+  // shunchaki ikkala qatorni bir xil qiymatga tenglashtiring.
+  genderIcons: {
+    qiz: { icon: "🌷", sun: "🌸" },
+    yigit: { icon: "🧑", sun: "☀️" },
+    default: { icon: "👩‍❤️‍👨", sun: "☀️" },
+  },
+
+  emojiSuggestions: ["☕️", "🌸", "🎶", "😆", "🌙", "🎂", "✈️", "🏡", "🥰", "🎉", "📷", "🍕"],
+  moodSuggestions: ["🥰", "🤍", "✨", "😊", "😢", "🌙", "😴", "🥳"],
+  rewardSuggestions: ["☕️ Birga qahva", "🍫 Shokolad", "💆 Massaj", "🎬 Kino kechasi", "🍕 Pizza kechasi", "💐 Gul"],
+
+  // Bular faqat ilk marta ochilganda ko'rsatiladigan namuna — profil sozlangach (ism kiritilgach) tozalanadi.
   memories: [
-    { id: 1, date: "12 Fev", title: "Birinchi uchrashuv", emoji: "☕️", color: "#FFE1EC", note: "", image: null },
-    { id: 2, date: "3 Mart", title: "Bogʻda sayr", emoji: "🌸", color: "#E4E0FF", note: "", image: null },
-    { id: 3, date: "20 May", title: "Konsertga bordik", emoji: "🎶", color: "#FFF0D9", note: "", image: null },
-    { id: 4, date: "9 Iyun", title: "Sen kulganing", emoji: "😆", color: "#DBF7EF", note: "", image: null },
+    { id: 1, date: "12 Fev", title: "Birinchi uchrashuv", emoji: "☕️", color: "#FFE1EC", note: "", images: [] },
+    { id: 2, date: "3 Mart", title: "Bogʻda sayr", emoji: "🌸", color: "#E4E0FF", note: "", images: [] },
   ],
-
   letters: [
-    { id: 1, title: "Sen bilmagan bir gap", date: "14 Fev", mood: "🥰", body: "Bilasanmi, seni oʻylayotgan har bir daqiqam ajoyib. Bu xat kichkina, lekin ichida katta bir gap bor — men senga minnatdorman, har kuni yonimda boʻlganing uchun. 🌙" },
-    { id: 2, title: "Charchagan kuning uchun", date: "2 Apr", mood: "🤍", body: "Bugun charchagan boʻlsang ham, bilib qoʻy — sen mening kuchimsan." },
-    { id: 3, title: "Rejalarimiz haqida", date: "18 Iyun", mood: "✨", body: "Kelajakda birga qilishni xohlagan narsalarimizni oʻylab, jilmayib qoʻydim." },
+    { id: 1, title: "Sen bilmagan bir gap", date: "14 Fev", mood: "🥰", body: "Bilasanmi, seni oʻylayotgan har bir daqiqam ajoyib. 🌙" },
   ],
-
   tracks: [
     { id: 1, title: "Bizning qoʻshigʻimiz", story: "Birinchi uchrashuv kuni yangragan qoʻshiq", link: "" },
-    { id: 2, title: "Yomgʻirli oqshom", story: "Mashinada birga eshitgan kuni", link: "" },
-    { id: 3, title: "Sokin tun", story: "Uxlash oldidan tinglaymiz", link: "" },
   ],
-
   timeline: [
     { id: 1, date: "12 Fev", title: "Birinchi uchrashuv", emoji: "☕️" },
-    { id: 2, date: "3 Mart", title: "Bogʻda sayr", emoji: "🌸" },
-    { id: 3, date: "20 May", title: "Konsertga bordik", emoji: "🎶" },
-    { id: 4, date: "9 Iyun", title: "Sen kulganing", emoji: "😆" },
   ],
-
   plans: [
-    { id: 1, title: "Sayohat rejalari", items: [
-      { id: 1, text: "Kuz oxirida togʻga chiqish", done: false },
-      { id: 2, text: "Yozda dengizga borish", done: false },
-    ]},
-    { id: 2, title: "Uy rejalari", items: [
-      { id: 1, text: "Birga kichik bogʻcha tashkil qilish", done: false },
-    ]},
+    { id: 1, title: "Sayohat rejalari", items: [ { id: 1, text: "Kuz oxirida togʻga chiqish", done: false } ] },
   ],
-
   bucket: [
-    { id: 1, title: "Sayohat orzulari", items: [
-      { id: 1, text: "Boshqa mamlakatga sayohat", done: false },
-      { id: 2, text: "Dengiz boʻyida gʻurub koʻrish", done: true },
-    ]},
-    { id: 2, title: "Birga tajriba", items: [
-      { id: 1, text: "Oshxona darsiga borish", done: false },
-      { id: 2, text: "Chodirda tunash", done: false },
-    ]},
+    { id: 1, title: "Sayohat orzulari", items: [ { id: 1, text: "Boshqa mamlakatga sayohat", done: false } ] },
+  ],
+  tasks: [
+    { id: 1, text: "Menga sevimli taomimni pishirib ber", reward: "🍫 Shokolad", assignedBy: "me", done: false },
   ],
 
   stages: [
@@ -246,7 +251,7 @@ window.APP_DATA = {
 
 </script>
 <script>
-/* app.js — asosiy mantiq. Vanilla JS, hech qanday tashqi kutubxona shart emas. */
+/* app.js — vanilla JS, hech qanday tashqi kutubxona shart emas. */
 
 const D = window.APP_DATA;
 
@@ -255,7 +260,7 @@ function safeGet(key, fallback) {
   catch (e) { return fallback; }
 }
 function safeSet(key, val) {
-  try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) { /* storage full or blocked */ }
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) { /* to'liq yoki bloklangan */ }
 }
 function esc(str) {
   return String(str == null ? "" : str).replace(/[&<>"']/g, s => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[s]));
@@ -267,10 +272,17 @@ function genCode() {
   for (let i = 0; i < 6; i++) s += chars[Math.floor(Math.random() * chars.length)];
   return s;
 }
+const MONTHS = ["Yan", "Fev", "Mar", "Apr", "May", "Iyun", "Iyul", "Avg", "Sen", "Okt", "Noy", "Dek"];
+function formatDate(d) {
+  if (!d) return "";
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d);
+  if (!m) return d; // eski qo'lda kiritilgan matnli sana ("12 Fev") bo'lsa, o'zgarishsiz ko'rsatiladi
+  return `${parseInt(m[3], 10)} ${MONTHS[parseInt(m[2], 10) - 1]}`;
+}
 
 const state = {
   tab: "home",
-  screen: "main", // main | profile | onboarding | gender | setup | link | memoryDetail
+  screen: "main",
   onboardIdx: 0,
 
   gender: safeGet("couple_gender", null),
@@ -278,16 +290,16 @@ const state = {
   partnerName: safeGet("couple_partnername", ""),
   meetDate: safeGet("couple_meetdate", ""),
   myCode: safeGet("couple_mycode", null),
+  partnerCodeEntered: safeGet("couple_partner_code_entered", ""),
   linked: safeGet("couple_linked", false),
   onboardSeen: safeGet("couple_onboard_seen", false),
+  appStarted: safeGet("couple_app_started", false),
 
   profileTab: "me",
   openStages: { 1: true },
+  editingKey: null,
   myAnswers: safeGet("couple_my_answers", {}),
-  partnerAnswers: safeGet("couple_partner_answers", {
-    "1-Oʻzi haqida-Toʻliq ismi": "Aziz",
-    "1-Xarakteri-Introvertmi yoki ekstrovert": "Koʻproq introvert",
-  }),
+  partnerAnswers: safeGet("couple_partner_answers", {}),
 
   memories: safeGet("couple_memories", D.memories),
   letters: safeGet("couple_letters", D.letters),
@@ -295,14 +307,15 @@ const state = {
   timeline: safeGet("couple_timeline", D.timeline),
   plans: safeGet("couple_plans", D.plans),
   bucket: safeGet("couple_bucket", D.bucket),
+  tasks: safeGet("couple_tasks", D.tasks),
 
   timeMode: "timeline",
   letterOpenId: null,
   memoryDetailId: null,
-  playingId: null,
   openFolders: {},
+  editingItem: null, // { list, folderId, itemId }
 
-  modal: null, // { type, ...payload }
+  modal: null, // { type, editId? , list? }
 };
 
 function persistAll() {
@@ -312,7 +325,12 @@ function persistAll() {
   safeSet("couple_timeline", state.timeline);
   safeSet("couple_plans", state.plans);
   safeSet("couple_bucket", state.bucket);
+  safeSet("couple_tasks", state.tasks);
   safeSet("couple_my_answers", state.myAnswers);
+}
+
+function genderConfig() {
+  return D.genderIcons[state.gender] || D.genderIcons.default;
 }
 
 /* ---------- top bar ---------- */
@@ -322,21 +340,26 @@ function renderTopBar(title, opts) {
   return `
     <div class="topbar">
       <div class="topbar-left">
-        ${opts.onBack !== false && opts.hasBack ? `<button class="backbtn" data-action="${opts.backAction || 'back'}">‹</button>` : ""}
+        ${opts.hasBack ? `<button class="backbtn" data-action="${opts.backAction || 'back'}">‹</button>` : ""}
         <span class="topbar-title baloo">${esc(title)}</span>
       </div>
       ${opts.addAction ? `<button class="addbtn" data-action="${opts.addAction}">+</button>` : ""}
     </div>`;
 }
 
+function emptyState(text) {
+  return `<p style="text-align:center;color:#B79AAE;font-size:12.5px;margin-top:30px">${esc(text)}</p>`;
+}
+
 /* ================= HOME ================= */
 
 function renderHome() {
+  const gc = genderConfig();
   const memChips = state.memories.slice(0, 3).map(m => `
     <div class="mem-chip" style="background:${m.color}" data-action="openMemory" data-id="${m.id}">
-      <div style="font-size:22px">${m.image ? `<img src="${m.image}" style="width:32px;height:32px;object-fit:cover;border-radius:8px">` : m.emoji}</div>
+      <div style="font-size:22px">${(m.images && m.images[0]) ? `<img src="${m.images[0]}" style="width:32px;height:32px;object-fit:cover;border-radius:8px">` : m.emoji}</div>
       <p style="font-size:11px;color:#7A5670;margin:6px 0 0;font-weight:500">${esc(m.title)}</p>
-      <p style="font-size:10px;color:#B79AAE;margin:0">${esc(m.date)}</p>
+      <p style="font-size:10px;color:#B79AAE;margin:0">${esc(formatDate(m.date))}</p>
     </div>`).join("");
 
   return `
@@ -344,8 +367,8 @@ function renderHome() {
       ${renderTopBar("", {})}
       <div class="content">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;cursor:pointer" data-action="openProfileEntry">
-          <div style="width:36px;height:36px;border-radius:18px;background:#FFE1EC;display:flex;align-items:center;justify-content:center;font-size:17px">👩‍❤️‍👨</div>
-          <p class="baloo" style="font-size:21px;color:#5B3A56;margin:0">Xayrli tong${state.myName ? ", " + esc(state.myName) : ", Erica"} ☀️</p>
+          <div style="width:36px;height:36px;border-radius:18px;background:#FFE1EC;display:flex;align-items:center;justify-content:center;font-size:17px">${gc.icon}</div>
+          <p class="baloo" style="font-size:21px;color:#5B3A56;margin:0">Xayrli tong${state.myName ? ", " + esc(state.myName) : ""} ${gc.sun}</p>
         </div>
         <p style="font-size:13px;color:#B79AAE;margin:0 0 20px">10-iyul, juma</p>
 
@@ -375,7 +398,7 @@ function renderHome() {
         </div>
 
         <p class="baloo" style="font-size:15px;color:#5B3A56;margin:22px 0 10px">Soʻnggi xotiralar</p>
-        <div class="mem-strip">${memChips}</div>
+        <div class="mem-strip">${memChips || emptyState("Hali xotira yoʻq")}</div>
       </div>
     </div>`;
 }
@@ -384,36 +407,43 @@ function renderHome() {
 
 function renderMem() {
   const tiles = state.memories.map(m => `
-    <div class="mem-tile" style="background:${m.color}" data-action="openMemory" data-id="${m.id}">
-      <div class="mem-icon">${m.image ? `<img src="${m.image}">` : m.emoji}</div>
-      <div>
-        <p style="margin:0;font-size:14px;font-weight:500;color:#5B3A56">${esc(m.title)}</p>
-        <p style="margin:0;font-size:11px;color:#8A6E80">${esc(m.date)}${m.note ? " · yozuv bor" : ""}</p>
+    <div class="mem-tile" style="background:${m.color}">
+      <div class="mem-tile-main" data-action="openMemory" data-id="${m.id}">
+        <div class="mem-icon">${(m.images && m.images[0]) ? `<img src="${m.images[0]}">` : m.emoji}</div>
+        <div>
+          <p style="margin:0;font-size:14px;font-weight:500;color:#5B3A56">${esc(m.title)}</p>
+          <p style="margin:0;font-size:11px;color:#8A6E80">${esc(formatDate(m.date))}${m.note ? " · yozuv bor" : ""}${m.images && m.images.length ? ` · ${m.images.length} rasm` : ""}</p>
+        </div>
+      </div>
+      <div class="row-actions">
+        <button class="icon-btn danger" data-action="deleteMemory" data-id="${m.id}">🗑</button>
       </div>
     </div>`).join("");
   return `<div class="screen">${renderTopBar("Xotiralar", { addAction: "openMemoryForm" })}<div class="content">${tiles || emptyState("Hali xotira yoʻq. + tugmasi orqali qoʻshing.")}</div></div>`;
 }
 
-function emptyState(text) {
-  return `<p style="text-align:center;color:#B79AAE;font-size:12.5px;margin-top:30px">${esc(text)}</p>`;
-}
-
 function renderMemoryDetail() {
   const m = state.memories.find(x => x.id === state.memoryDetailId);
-  if (!m) return renderMem();
+  if (!m) { state.screen = "main"; return renderMem(); }
+  const images = m.images || [];
+  const gallery = images.map((img, idx) => `
+    <div class="gallery-item">
+      <img src="${img}">
+      <button class="gallery-del" data-action="deleteMemoryImage" data-id="${m.id}" data-idx="${idx}">×</button>
+    </div>`).join("");
   return `
     <div class="screen">
       ${renderTopBar(m.title, { hasBack: true, backAction: "back" })}
       <div class="content">
-        ${m.image ? `<img class="mem-detail-img" src="${m.image}">` : `<div class="hero-time" style="margin-bottom:12px"><span style="font-size:40px">${m.emoji}</span></div>`}
-        <p style="font-size:12px;color:#B79AAE;margin:0 0 10px">${esc(m.date)}</p>
+        ${images.length ? `<div class="gallery">${gallery}</div>` : `<div class="hero-time" style="margin-bottom:12px"><span style="font-size:40px">${m.emoji}</span></div>`}
+        <p style="font-size:12px;color:#B79AAE;margin:0 0 10px">${esc(formatDate(m.date))}</p>
         <div class="form-field">
           <label class="form-label">Yozuv</label>
           <textarea class="form-textarea" rows="4" id="memNoteInput" placeholder="Bu xotira haqida yozing...">${esc(m.note || "")}</textarea>
         </div>
         <div class="form-field">
-          <label class="form-label">Rasm qoʻshish / almashtirish</label>
-          <input class="form-input" type="file" accept="image/*" data-action="memImageSelected" data-id="${m.id}">
+          <label class="form-label">Yana rasm qoʻshish (bir nechtasini birga tanlashingiz mumkin)</label>
+          <input class="form-input" type="file" accept="image/*" multiple data-action="memImageSelected" data-id="${m.id}">
         </div>
         <button class="primary-btn" data-action="saveMemoryDetail" data-id="${m.id}">Saqlash</button>
       </div>
@@ -425,13 +455,17 @@ function renderMemoryDetail() {
 function renderMusic() {
   const rows = state.tracks.map(t => `
     <div class="track-row" style="background:#FFF3E3">
-      <div style="display:flex;align-items:center;gap:12px">
+      <div style="display:flex;align-items:flex-start;gap:12px;flex:1">
         <div class="track-icon">🎵</div>
         <div style="flex:1">
           <p style="margin:0;font-size:13px;font-weight:500;color:#5B3A56">${esc(t.title)}</p>
           <p style="margin:0;font-size:11px;color:#B79AAE">${esc(t.story || "")}</p>
           ${t.link ? `<a class="track-link" href="${esc(t.link)}" target="_blank" rel="noopener">🔗 Tinglash havolasi</a>` : ""}
         </div>
+      </div>
+      <div class="row-actions">
+        <button class="icon-btn" data-action="editTrack" data-id="${t.id}">✎</button>
+        <button class="icon-btn danger" data-action="deleteTrack" data-id="${t.id}">🗑</button>
       </div>
     </div>`).join("");
   return `<div class="screen">${renderTopBar("Bizning ovozlar", { addAction: "openTrackForm" })}<div class="content">${rows || emptyState("Hali qoʻshiq yoʻq. + tugmasi orqali maxsus qoʻshiq qoʻshing.")}</div></div>`;
@@ -449,42 +483,66 @@ function renderLetters() {
           <div class="letter-open">
             <p style="font-size:30px;margin:0 0 8px">${opened.mood}</p>
             <p class="baloo" style="font-size:17px;color:#5B3A56;margin:0 0 4px">${esc(opened.title)}</p>
-            <p style="font-size:11px;color:#B79AAE;margin:0 0 18px">${esc(opened.date)}</p>
+            <p style="font-size:11px;color:#B79AAE;margin:0 0 18px">${esc(formatDate(opened.date))}</p>
             <p style="font-size:13px;color:#7A5670;line-height:1.7;text-align:left;white-space:pre-wrap">${esc(opened.body)}</p>
           </div>
         </div>
       </div>`;
   }
   const rows = state.letters.map(l => `
-    <div class="letter-row" data-action="openLetter" data-id="${l.id}">
-      <div style="display:flex;align-items:center;gap:12px">
+    <div class="letter-row">
+      <div class="letter-row-main" data-action="openLetter" data-id="${l.id}">
         <div style="font-size:20px">✉️</div>
         <div>
           <p style="margin:0;font-size:13px;font-weight:500;color:#5B3A56">${esc(l.title)}</p>
-          <p style="margin:0;font-size:11px;color:#B79AAE">${esc(l.date)}</p>
+          <p style="margin:0;font-size:11px;color:#B79AAE">${esc(formatDate(l.date))}</p>
         </div>
       </div>
-      <span style="font-size:16px">${l.mood}</span>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="font-size:16px">${l.mood}</span>
+        <div class="row-actions">
+          <button class="icon-btn" data-action="editLetter" data-id="${l.id}">✎</button>
+          <button class="icon-btn danger" data-action="deleteLetter" data-id="${l.id}">🗑</button>
+        </div>
+      </div>
     </div>`).join("");
   return `<div class="screen">${renderTopBar("Xatlar", { addAction: "openLetterForm" })}<div class="content">${rows || emptyState("Hali xat yoʻq. + tugmasi orqali yozing.")}</div></div>`;
 }
 
-/* ================= TIME (timeline / plans / bucket) ================= */
+/* ================= TIME (timeline / plans / bucket / tasks) ================= */
 
 function renderFolderList(listKey, folders) {
   return folders.map(folder => {
     const open = !!state.openFolders[listKey + "-" + folder.id];
     const done = folder.items.filter(i => i.done).length;
-    const itemsHtml = folder.items.map(item => `
-      <div class="bucket-row">
-        <div class="bucket-check ${item.done ? "done" : ""}" data-action="toggleItem" data-list="${listKey}" data-folder="${folder.id}" data-item="${item.id}">${item.done ? "✓" : ""}</div>
-        <p style="margin:0;font-size:13px;color:#5B3A56;text-decoration:${item.done ? "line-through" : "none"};opacity:${item.done ? 0.55 : 1}">${esc(item.text)}</p>
-      </div>`).join("");
+    const itemsHtml = folder.items.map(item => {
+      const editing = state.editingItem && state.editingItem.list === listKey && state.editingItem.folderId === folder.id && state.editingItem.itemId === item.id;
+      if (editing) {
+        return `
+          <div class="bucket-row">
+            <input class="form-input" style="flex:1" id="edit-item-input" value="${esc(item.text)}">
+            <button class="icon-btn" data-action="saveItemEdit" data-list="${listKey}" data-folder="${folder.id}" data-item="${item.id}">✔</button>
+            <button class="icon-btn" data-action="cancelItemEdit">✕</button>
+          </div>`;
+      }
+      return `
+        <div class="bucket-row">
+          <div class="bucket-check ${item.done ? "done" : ""}" data-action="toggleItem" data-list="${listKey}" data-folder="${folder.id}" data-item="${item.id}">${item.done ? "✓" : ""}</div>
+          <p style="margin:0;flex:1;font-size:13px;color:#5B3A56;text-decoration:${item.done ? "line-through" : "none"};opacity:${item.done ? 0.55 : 1}">${esc(item.text)}</p>
+          <div class="row-actions">
+            <button class="icon-btn" data-action="editItem" data-list="${listKey}" data-folder="${folder.id}" data-item="${item.id}">✎</button>
+            <button class="icon-btn danger" data-action="deleteItem" data-list="${listKey}" data-folder="${folder.id}" data-item="${item.id}">🗑</button>
+          </div>
+        </div>`;
+    }).join("");
     return `
       <div class="folder-block">
-        <div class="folder-head" data-action="toggleFolder" data-list="${listKey}" data-folder="${folder.id}">
-          <p class="folder-title">📁 ${esc(folder.title)}</p>
-          <span class="folder-count">${done}/${folder.items.length}</span>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div class="folder-head" style="flex:1" data-action="toggleFolder" data-list="${listKey}" data-folder="${folder.id}">
+            <p class="folder-title">📁 ${esc(folder.title)}</p>
+            <span class="folder-count">${done}/${folder.items.length}</span>
+          </div>
+          <button class="icon-btn danger" data-action="deleteFolder" data-list="${listKey}" data-folder="${folder.id}">🗑</button>
         </div>
         ${open ? `
           <div class="folder-body">
@@ -498,11 +556,29 @@ function renderFolderList(listKey, folders) {
   }).join("") + `<button class="add-folder-btn" data-action="addFolder" data-list="${listKey}">+ Yangi boʻlim</button>`;
 }
 
+function renderTasks() {
+  const rows = state.tasks.map(t => `
+    <div class="task-row ${t.done ? "done" : ""}">
+      <p class="task-text">${esc(t.text)}</p>
+      ${t.reward ? `<p class="task-reward">🎁 Mukofot: ${esc(t.reward)}</p>` : ""}
+      <div class="task-actions">
+        <button class="task-done-btn ${t.done ? "completed" : ""}" data-action="toggleTask" data-id="${t.id}">${t.done ? "✓ Bajarildi" : "Bajarildim"}</button>
+        <div class="row-actions">
+          <button class="icon-btn" data-action="editTask" data-id="${t.id}">✎</button>
+          <button class="icon-btn danger" data-action="deleteTask" data-id="${t.id}">🗑</button>
+        </div>
+      </div>
+      ${t.done ? `<p class="reward-pop">🎉 Tabriklaymiz — mukofotni his qiling!</p>` : ""}
+    </div>`).join("");
+  return `${rows || emptyState("Hali vazifa yoʻq. + tugmasi orqali sherigingizga vazifa bering.")}`;
+}
+
 function renderTime() {
   const modes = [
     { key: "timeline", label: "Xronologiya" },
     { key: "plans", label: "Rejalar" },
     { key: "bucket", label: "Orzular" },
+    { key: "tasks", label: "Vazifalar" },
   ];
   const segBtns = modes.map(o => `<button class="${state.timeMode === o.key ? "active" : ""}" data-action="setTimeMode" data-mode="${o.key}">${o.label}</button>`).join("");
 
@@ -513,13 +589,22 @@ function renderTime() {
     body = `<div class="timeline">${state.timeline.map(m => `
       <div class="timeline-item">
         <div class="timeline-dot"></div>
-        <p style="margin:0;font-size:11px;color:#B79AAE">${esc(m.date)}</p>
-        <p style="margin:2px 0 0;font-size:13px;font-weight:500;color:#5B3A56">${m.emoji} ${esc(m.title)}</p>
+        <div>
+          <p style="margin:0;font-size:11px;color:#B79AAE">${esc(formatDate(m.date))}</p>
+          <p style="margin:2px 0 0;font-size:13px;font-weight:500;color:#5B3A56">${m.emoji} ${esc(m.title)}</p>
+        </div>
+        <div class="row-actions">
+          <button class="icon-btn" data-action="editTimeline" data-id="${m.id}">✎</button>
+          <button class="icon-btn danger" data-action="deleteTimeline" data-id="${m.id}">🗑</button>
+        </div>
       </div>`).join("") || emptyState("Hali voqea yoʻq.")}</div>`;
   } else if (state.timeMode === "plans") {
     body = renderFolderList("plans", state.plans);
-  } else {
+  } else if (state.timeMode === "bucket") {
     body = renderFolderList("bucket", state.bucket);
+  } else {
+    addAction = "openTaskForm";
+    body = renderTasks();
   }
 
   return `
@@ -578,7 +663,7 @@ function renderSetup() {
   return `
     <div class="setup-screen">
       <p class="setup-title">Juftlik maʼlumotlari</p>
-      <p class="setup-sub">Bir necha kichik maʼlumot — profilingiz shunga qarab moslashadi.</p>
+      <p class="setup-sub">Bir necha kichik maʼlumot — profilingiz shunga qarab moslashadi. Buni saqlagach, ilova sizniki uchun 0 dan boshlanadi.</p>
       <div class="form-field">
         <label class="form-label">Ismingiz</label>
         <input class="form-input" id="setupMyName" value="${esc(state.myName)}" placeholder="Ismingiz">
@@ -608,7 +693,7 @@ function renderLink() {
       </div>
       <div class="form-field">
         <label class="form-label">Sherigingizning kodi</label>
-        <input class="form-input" id="partnerCodeInput" placeholder="Masalan: AB12CD">
+        <input class="form-input" id="partnerCodeInput" value="${esc(state.partnerCodeEntered)}" placeholder="Masalan: AB12CD">
       </div>
       <button class="primary-btn" data-action="linkPartner">Ulash</button>
       <button class="ghost-btn" data-action="skipLink">Hozircha oʻtkazib yuborish</button>
@@ -700,73 +785,99 @@ function renderProfile() {
 
 /* ================= MODALS ================= */
 
+function findEditTarget(type, id) {
+  if (type === "letterForm") return state.letters.find(x => x.id === id);
+  if (type === "trackForm") return state.tracks.find(x => x.id === id);
+  if (type === "timelineForm") return state.timeline.find(x => x.id === id);
+  return null;
+}
+
 function renderModal() {
   if (!state.modal) return "";
   const m = state.modal;
   let inner = "";
 
   if (m.type === "memoryForm") {
-    const emojis = ["☕️", "🌸", "🎶", "😆", "🌙", "🎂", "✈️", "🏡"];
     inner = `
       <p class="modal-title">Yangi xotira</p>
       <div class="form-field"><label class="form-label">Sarlavha</label><input class="form-input" id="mf-title" placeholder="Masalan: Bogʻda sayr"></div>
-      <div class="form-field"><label class="form-label">Sana</label><input class="form-input" id="mf-date" placeholder="12 Fev"></div>
-      <div class="form-field"><label class="form-label">Belgi</label>
-        <div class="emoji-pick">${emojis.map(e => `<button data-emoji="${e}" class="emoji-opt">${e}</button>`).join("")}</div>
-        <input type="hidden" id="mf-emoji" value="☕️">
+      <div class="form-field"><label class="form-label">Sana</label><input class="form-input" type="date" id="mf-date"></div>
+      <div class="form-field"><label class="form-label">Belgi (istalgan emoji yozing yoki tanlang)</label>
+        <input class="form-input" id="mf-emoji" maxlength="4" value="☕️">
+        <div class="emoji-pick">${D.emojiSuggestions.map(e => `<button type="button" data-emoji="${e}" data-target="mf-emoji" class="emoji-opt">${e}</button>`).join("")}</div>
       </div>
       <div class="form-field"><label class="form-label">Yozuv (ixtiyoriy)</label><textarea class="form-textarea" rows="3" id="mf-note" placeholder="Bu xotira haqida..."></textarea></div>
-      <div class="form-field"><label class="form-label">Rasm (ixtiyoriy)</label><input class="form-input" type="file" accept="image/*" id="mf-image"></div>
+      <div class="form-field"><label class="form-label">Rasmlar (ixtiyoriy, bir nechtasini birga tanlashingiz mumkin)</label><input class="form-input" type="file" accept="image/*" multiple id="mf-image"></div>
       <div class="modal-actions">
-        <button class="modal-cancel" data-action="closeModal">Bekor qilish</button>
-        <button class="modal-save" data-action="submitMemory">Qoʻshish</button>
+        <button type="button" class="modal-cancel" data-action="closeModal">Bekor qilish</button>
+        <button type="button" class="modal-save" data-action="submitMemory">Qoʻshish</button>
       </div>`;
   } else if (m.type === "letterForm") {
-    const moods = ["🥰", "🤍", "✨", "😊", "😢", "🌙"];
+    const ex = m.editId ? findEditTarget("letterForm", m.editId) : null;
     inner = `
-      <p class="modal-title">Yangi xat</p>
-      <div class="form-field"><label class="form-label">Sarlavha</label><input class="form-input" id="lf-title" placeholder="Xat sarlavhasi"></div>
-      <div class="form-field"><label class="form-label">Sana</label><input class="form-input" id="lf-date" placeholder="14 Fev"></div>
-      <div class="form-field"><label class="form-label">Kayfiyat</label>
-        <div class="emoji-pick">${moods.map(e => `<button data-emoji="${e}" class="emoji-opt">${e}</button>`).join("")}</div>
-        <input type="hidden" id="lf-mood" value="🥰">
+      <p class="modal-title">${ex ? "Xatni tahrirlash" : "Yangi xat"}</p>
+      <div class="form-field"><label class="form-label">Sarlavha</label><input class="form-input" id="lf-title" value="${esc(ex ? ex.title : "")}" placeholder="Xat sarlavhasi"></div>
+      <div class="form-field"><label class="form-label">Sana</label><input class="form-input" type="date" id="lf-date" value="${ex && /^\d{4}-\d{2}-\d{2}$/.test(ex.date) ? ex.date : ""}"></div>
+      <div class="form-field"><label class="form-label">Kayfiyat (istalgan emoji yozing yoki tanlang)</label>
+        <input class="form-input" id="lf-mood" maxlength="4" value="${esc(ex ? ex.mood : "🥰")}">
+        <div class="emoji-pick">${D.moodSuggestions.map(e => `<button type="button" data-emoji="${e}" data-target="lf-mood" class="emoji-opt">${e}</button>`).join("")}</div>
       </div>
-      <div class="form-field"><label class="form-label">Matn</label><textarea class="form-textarea" rows="5" id="lf-body" placeholder="Xat matnini yozing..."></textarea></div>
+      <div class="form-field"><label class="form-label">Matn</label><textarea class="form-textarea" rows="5" id="lf-body" placeholder="Xat matnini yozing...">${esc(ex ? ex.body : "")}</textarea></div>
       <div class="modal-actions">
-        <button class="modal-cancel" data-action="closeModal">Bekor qilish</button>
-        <button class="modal-save" data-action="submitLetter">Qoʻshish</button>
+        <button type="button" class="modal-cancel" data-action="closeModal">Bekor qilish</button>
+        <button type="button" class="modal-save" data-action="submitLetter" data-edit-id="${ex ? ex.id : ""}">${ex ? "Saqlash" : "Qoʻshish"}</button>
       </div>`;
   } else if (m.type === "trackForm") {
+    const ex = m.editId ? findEditTarget("trackForm", m.editId) : null;
     inner = `
-      <p class="modal-title">Yangi maxsus qoʻshiq</p>
-      <div class="form-field"><label class="form-label">Nomi</label><input class="form-input" id="tf-title" placeholder="Qoʻshiq nomi"></div>
-      <div class="form-field"><label class="form-label">Nega maxsus?</label><textarea class="form-textarea" rows="2" id="tf-story" placeholder="Masalan: birinchi uchrashuvda yangragan"></textarea></div>
-      <div class="form-field"><label class="form-label">Tinglash havolasi (ixtiyoriy)</label><input class="form-input" id="tf-link" placeholder="Spotify / YouTube link"></div>
+      <p class="modal-title">${ex ? "Qoʻshiqni tahrirlash" : "Yangi maxsus qoʻshiq"}</p>
+      <div class="form-field"><label class="form-label">Nomi</label><input class="form-input" id="tf-title" value="${esc(ex ? ex.title : "")}" placeholder="Qoʻshiq nomi"></div>
+      <div class="form-field"><label class="form-label">Nega maxsus?</label><textarea class="form-textarea" rows="2" id="tf-story" placeholder="Masalan: birinchi uchrashuvda yangragan">${esc(ex ? ex.story : "")}</textarea></div>
+      <div class="form-field"><label class="form-label">Tinglash havolasi (ixtiyoriy)</label><input class="form-input" id="tf-link" value="${esc(ex ? ex.link : "")}" placeholder="Spotify / YouTube link"></div>
       <div class="modal-actions">
-        <button class="modal-cancel" data-action="closeModal">Bekor qilish</button>
-        <button class="modal-save" data-action="submitTrack">Qoʻshish</button>
+        <button type="button" class="modal-cancel" data-action="closeModal">Bekor qilish</button>
+        <button type="button" class="modal-save" data-action="submitTrack" data-edit-id="${ex ? ex.id : ""}">${ex ? "Saqlash" : "Qoʻshish"}</button>
       </div>`;
   } else if (m.type === "timelineForm") {
+    const ex = m.editId ? findEditTarget("timelineForm", m.editId) : null;
     inner = `
-      <p class="modal-title">Yangi voqea</p>
-      <div class="form-field"><label class="form-label">Sarlavha</label><input class="form-input" id="tl-title" placeholder="Voqea nomi"></div>
-      <div class="form-field"><label class="form-label">Sana</label><input class="form-input" id="tl-date" placeholder="12 Fev"></div>
-      <div class="form-field"><label class="form-label">Emoji</label><input class="form-input" id="tl-emoji" placeholder="🎉" value="🎉"></div>
+      <p class="modal-title">${ex ? "Voqeani tahrirlash" : "Yangi voqea"}</p>
+      <div class="form-field"><label class="form-label">Sarlavha</label><input class="form-input" id="tl-title" value="${esc(ex ? ex.title : "")}" placeholder="Voqea nomi"></div>
+      <div class="form-field"><label class="form-label">Sana</label><input class="form-input" type="date" id="tl-date" value="${ex && /^\d{4}-\d{2}-\d{2}$/.test(ex.date) ? ex.date : ""}"></div>
+      <div class="form-field"><label class="form-label">Emoji</label>
+        <input class="form-input" id="tl-emoji" value="${esc(ex ? ex.emoji : "🎉")}">
+        <div class="emoji-pick">${D.emojiSuggestions.map(e => `<button type="button" data-emoji="${e}" data-target="tl-emoji" class="emoji-opt">${e}</button>`).join("")}</div>
+      </div>
       <div class="modal-actions">
-        <button class="modal-cancel" data-action="closeModal">Bekor qilish</button>
-        <button class="modal-save" data-action="submitTimeline">Qoʻshish</button>
+        <button type="button" class="modal-cancel" data-action="closeModal">Bekor qilish</button>
+        <button type="button" class="modal-save" data-action="submitTimeline" data-edit-id="${ex ? ex.id : ""}">${ex ? "Saqlash" : "Qoʻshish"}</button>
       </div>`;
   } else if (m.type === "folderForm") {
     inner = `
       <p class="modal-title">Yangi boʻlim</p>
       <div class="form-field"><label class="form-label">Boʻlim nomi</label><input class="form-input" id="ff-title" placeholder="Masalan: Sayohat rejalari"></div>
       <div class="modal-actions">
-        <button class="modal-cancel" data-action="closeModal">Bekor qilish</button>
-        <button class="modal-save" data-action="submitFolder" data-list="${m.list}">Qoʻshish</button>
+        <button type="button" class="modal-cancel" data-action="closeModal">Bekor qilish</button>
+        <button type="button" class="modal-save" data-action="submitFolder" data-list="${m.list}">Qoʻshish</button>
+      </div>`;
+  } else if (m.type === "taskForm") {
+    const ex = m.editId ? state.tasks.find(x => x.id === m.editId) : null;
+    inner = `
+      <p class="modal-title">${ex ? "Vazifani tahrirlash" : "Sherigingizga vazifa bering"}</p>
+      <div class="form-field"><label class="form-label">Vazifa</label><textarea class="form-textarea" rows="2" id="tk-text" placeholder="Masalan: menga kitob oʻqib ber">${esc(ex ? ex.text : "")}</textarea></div>
+      <div class="form-field"><label class="form-label">Bajarsa — sovgʻa</label>
+        <input class="form-input" id="tk-reward" value="${esc(ex ? ex.reward : "")}" placeholder="Masalan: ☕️ Birga qahva">
+        <div class="emoji-pick">${D.rewardSuggestions.map(r => `<button type="button" data-emoji="${esc(r)}" data-target="tk-reward" class="emoji-opt" style="width:auto;padding:0 10px;font-size:11.5px">${esc(r)}</button>`).join("")}</div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="modal-cancel" data-action="closeModal">Bekor qilish</button>
+        <button type="button" class="modal-save" data-action="submitTask" data-edit-id="${ex ? ex.id : ""}">${ex ? "Saqlash" : "Berish"}</button>
       </div>`;
   }
 
-  return `<div class="modal-overlay" data-action="closeModalOverlay"><div class="modal-sheet" onclick="event.stopPropagation()">${inner}</div></div>`;
+  return `<div class="modal-overlay">
+      <div class="modal-sheet">${inner}</div>
+    </div>`;
 }
 
 /* ================= NAV ================= */
@@ -797,19 +908,13 @@ function render() {
   let main = "";
   let nav = "";
 
-  if (state.screen === "onboarding") {
-    main = renderOnboarding();
-  } else if (state.screen === "gender") {
-    main = renderGenderPick();
-  } else if (state.screen === "setup") {
-    main = renderSetup();
-  } else if (state.screen === "link") {
-    main = renderLink();
-  } else if (state.screen === "profile") {
-    main = renderProfile();
-  } else if (state.screen === "memoryDetail") {
-    main = renderMemoryDetail();
-  } else {
+  if (state.screen === "onboarding") main = renderOnboarding();
+  else if (state.screen === "gender") main = renderGenderPick();
+  else if (state.screen === "setup") main = renderSetup();
+  else if (state.screen === "link") main = renderLink();
+  else if (state.screen === "profile") main = renderProfile();
+  else if (state.screen === "memoryDetail") main = renderMemoryDetail();
+  else {
     const screens = { mem: renderMem, music: renderMusic, home: renderHome, letters: renderLetters, time: renderTime };
     main = screens[state.tab]();
     nav = renderBottomNav();
@@ -817,36 +922,54 @@ function render() {
 
   document.getElementById("app").innerHTML = `<div style="flex:1;overflow-y:auto">${main}</div>${nav}${renderModal()}`;
 
-  // wire emoji pickers inside modal (plain click handlers, since data-action click delegation covers buttons but emoji needs local active state)
+  // emoji/quick-pick buttons: fill the target input (free typing on the same input still works too)
   document.querySelectorAll(".emoji-opt").forEach(btn => {
     btn.addEventListener("click", () => {
-      const group = btn.parentElement;
-      group.querySelectorAll(".emoji-opt").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      const hidden = group.nextElementSibling;
-      if (hidden && hidden.tagName === "INPUT") hidden.value = btn.dataset.emoji;
+      const targetId = btn.dataset.target;
+      const input = document.getElementById(targetId);
+      if (input) input.value = btn.dataset.emoji;
     });
   });
 }
 
-/* ================= ACTIONS ================= */
+/* ================= HELPERS ================= */
 
-function readFileAsDataUrl(file, cb) {
-  const reader = new FileReader();
-  reader.onload = () => cb(reader.result);
-  reader.readAsDataURL(file);
+function readFilesAsDataUrls(files, cb) {
+  const arr = Array.from(files);
+  if (!arr.length) { cb([]); return; }
+  let remaining = arr.length;
+  const results = new Array(arr.length);
+  arr.forEach((file, idx) => {
+    const reader = new FileReader();
+    reader.onload = () => { results[idx] = reader.result; remaining--; if (remaining === 0) cb(results); };
+    reader.readAsDataURL(file);
+  });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  // Telegram Mini App init — no-op harmlessly if opened outside Telegram
-  if (window.Telegram && window.Telegram.WebApp) {
-    const tg = window.Telegram.WebApp;
-    tg.ready();
-    tg.expand();
-    document.body.style.background = tg.themeParams.bg_color || "#FBEFE8";
-  }
+function resetContentToZero() {
+  state.memories = [];
+  state.letters = [];
+  state.tracks = [];
+  state.timeline = [];
+  state.plans = [];
+  state.bucket = [];
+  state.tasks = [];
+  state.myAnswers = {};
+  persistAll();
+}
 
+/* ================= ACTIONS ================= */
+
+document.addEventListener("DOMContentLoaded", () => {
   const app = document.getElementById("app");
+
+  // Faqat overlay foniga (sheet tashqarisiga) bosilganda modalni yopish — sheet ichidagi
+  // hech qanday tugma bosilishini to'xtatib qo'ymaydi (bu avvalgi versiyadagi asosiy xato edi).
+  app.addEventListener("click", e => {
+    if (e.target.classList && e.target.classList.contains("modal-overlay")) {
+      state.modal = null; render();
+    }
+  });
 
   app.addEventListener("click", e => {
     const el = e.target.closest("[data-action]");
@@ -860,7 +983,7 @@ document.addEventListener("DOMContentLoaded", () => {
     else if (action === "openMemory") { state.memoryDetailId = Number(el.dataset.id); state.screen = "memoryDetail"; render(); }
     else if (action === "setTimeMode") { state.timeMode = el.dataset.mode; render(); }
 
-    // profile entry flow
+    // ---- profile entry flow ----
     else if (action === "openProfileEntry") {
       if (!state.onboardSeen) { state.screen = "onboarding"; state.onboardIdx = 0; }
       else if (!state.gender) { state.screen = "gender"; }
@@ -879,23 +1002,30 @@ document.addEventListener("DOMContentLoaded", () => {
       state.screen = "setup"; render();
     }
     else if (action === "saveSetup") {
+      const wasStarted = state.appStarted;
       state.myName = document.getElementById("setupMyName").value.trim();
       state.partnerName = document.getElementById("setupPartnerName").value.trim();
       state.meetDate = document.getElementById("setupMeetDate").value;
       safeSet("couple_myname", state.myName);
       safeSet("couple_partnername", state.partnerName);
       safeSet("couple_meetdate", state.meetDate);
+      // Ilk marta ism kiritilganda — namuna ma'lumotlar tozalanadi, 0 dan boshlanadi.
+      if (!wasStarted && state.myName) {
+        resetContentToZero();
+        state.appStarted = true;
+        safeSet("couple_app_started", true);
+      }
       state.screen = "link"; render();
     }
     else if (action === "linkPartner") {
       const val = document.getElementById("partnerCodeInput").value.trim();
-      if (val) { state.linked = true; safeSet("couple_linked", true); }
+      if (val) {
+        state.linked = true; safeSet("couple_linked", true);
+        state.partnerCodeEntered = val; safeSet("couple_partner_code_entered", val);
+      }
       state.screen = "profile"; render();
     }
-    else if (action === "skipLink") {
-      safeSet("couple_link_skipped", true);
-      state.screen = "profile"; render();
-    }
+    else if (action === "skipLink") { safeSet("couple_link_skipped", true); state.screen = "profile"; render(); }
     else if (action === "goLinkFromProfile") { state.screen = "link"; render(); }
 
     else if (action === "setProfileTab") { state.profileTab = el.dataset.ptab; render(); }
@@ -910,107 +1040,163 @@ document.addEventListener("DOMContentLoaded", () => {
       state.editingKey = null; render();
     }
 
-    // folders (plans / bucket)
-    else if (action === "toggleFolder") {
-      const k = el.dataset.list + "-" + el.dataset.folder;
-      state.openFolders[k] = !state.openFolders[k]; render();
-    }
+    // ---- folders (plans / bucket) ----
+    else if (action === "toggleFolder") { const k = el.dataset.list + "-" + el.dataset.folder; state.openFolders[k] = !state.openFolders[k]; render(); }
     else if (action === "addFolder") { state.modal = { type: "folderForm", list: el.dataset.list }; render(); }
     else if (action === "submitFolder") {
       const title = document.getElementById("ff-title").value.trim();
-      if (title) {
-        const list = state.modal.list;
-        const arr = state[list];
-        arr.push({ id: uid(arr), title, items: [] });
-        persistAll();
-      }
+      if (title) { const arr = state[state.modal.list]; arr.push({ id: uid(arr), title, items: [] }); persistAll(); }
       state.modal = null; render();
+    }
+    else if (action === "deleteFolder") {
+      const list = el.dataset.list, folderId = Number(el.dataset.folder);
+      state[list] = state[list].filter(f => f.id !== folderId);
+      persistAll(); render();
     }
     else if (action === "addItem") {
       const list = el.dataset.list, folderId = Number(el.dataset.folder);
       const input = document.getElementById(`newitem-${list}-${folderId}`);
       const text = input ? input.value.trim() : "";
-      if (text) {
-        const folder = state[list].find(f => f.id === folderId);
-        folder.items.push({ id: uid(folder.items), text, done: false });
-        persistAll();
-      }
+      if (text) { const folder = state[list].find(f => f.id === folderId); folder.items.push({ id: uid(folder.items), text, done: false }); persistAll(); }
       render();
     }
     else if (action === "toggleItem") {
       const list = el.dataset.list, folderId = Number(el.dataset.folder), itemId = Number(el.dataset.item);
+      const item = state[list].find(f => f.id === folderId).items.find(i => i.id === itemId);
+      item.done = !item.done; persistAll(); render();
+    }
+    else if (action === "editItem") {
+      state.editingItem = { list: el.dataset.list, folderId: Number(el.dataset.folder), itemId: Number(el.dataset.item) }; render();
+    }
+    else if (action === "cancelItemEdit") { state.editingItem = null; render(); }
+    else if (action === "saveItemEdit") {
+      const list = el.dataset.list, folderId = Number(el.dataset.folder), itemId = Number(el.dataset.item);
+      const input = document.getElementById("edit-item-input");
+      const item = state[list].find(f => f.id === folderId).items.find(i => i.id === itemId);
+      if (input && input.value.trim()) item.text = input.value.trim();
+      state.editingItem = null; persistAll(); render();
+    }
+    else if (action === "deleteItem") {
+      const list = el.dataset.list, folderId = Number(el.dataset.folder), itemId = Number(el.dataset.item);
       const folder = state[list].find(f => f.id === folderId);
-      const item = folder.items.find(i => i.id === itemId);
-      item.done = !item.done;
+      folder.items = folder.items.filter(i => i.id !== itemId);
       persistAll(); render();
     }
 
-    // modals: memory / letter / track / timeline
+    // ---- tasks ----
+    else if (action === "openTaskForm") { state.modal = { type: "taskForm" }; render(); }
+    else if (action === "editTask") { state.modal = { type: "taskForm", editId: Number(el.dataset.id) }; render(); }
+    else if (action === "deleteTask") { state.tasks = state.tasks.filter(t => t.id !== Number(el.dataset.id)); persistAll(); render(); }
+    else if (action === "toggleTask") {
+      const t = state.tasks.find(x => x.id === Number(el.dataset.id));
+      t.done = !t.done; persistAll(); render();
+    }
+    else if (action === "submitTask") {
+      const text = document.getElementById("tk-text").value.trim();
+      const reward = document.getElementById("tk-reward").value.trim();
+      const editId = el.dataset.editId ? Number(el.dataset.editId) : null;
+      if (editId) {
+        const t = state.tasks.find(x => x.id === editId);
+        t.text = text || t.text; t.reward = reward;
+      } else if (text) {
+        state.tasks.push({ id: uid(state.tasks), text, reward, assignedBy: "me", done: false });
+      }
+      persistAll(); state.modal = null; render();
+    }
+
+    // ---- memory / letter / track / timeline modals ----
     else if (action === "openMemoryForm") { state.modal = { type: "memoryForm" }; render(); }
     else if (action === "openLetterForm") { state.modal = { type: "letterForm" }; render(); }
+    else if (action === "editLetter") { state.modal = { type: "letterForm", editId: Number(el.dataset.id) }; render(); }
+    else if (action === "deleteLetter") { state.letters = state.letters.filter(l => l.id !== Number(el.dataset.id)); persistAll(); render(); }
     else if (action === "openTrackForm") { state.modal = { type: "trackForm" }; render(); }
+    else if (action === "editTrack") { state.modal = { type: "trackForm", editId: Number(el.dataset.id) }; render(); }
+    else if (action === "deleteTrack") { state.tracks = state.tracks.filter(t => t.id !== Number(el.dataset.id)); persistAll(); render(); }
     else if (action === "openTimelineForm") { state.modal = { type: "timelineForm" }; render(); }
-    else if (action === "closeModal" || action === "closeModalOverlay") { state.modal = null; render(); }
+    else if (action === "editTimeline") { state.modal = { type: "timelineForm", editId: Number(el.dataset.id) }; render(); }
+    else if (action === "deleteTimeline") { state.timeline = state.timeline.filter(t => t.id !== Number(el.dataset.id)); persistAll(); render(); }
+    else if (action === "deleteMemory") { state.memories = state.memories.filter(m => m.id !== Number(el.dataset.id)); persistAll(); render(); }
+    else if (action === "deleteMemoryImage") {
+      const id = Number(el.dataset.id), idx = Number(el.dataset.idx);
+      const m = state.memories.find(x => x.id === id);
+      m.images.splice(idx, 1);
+      persistAll(); render();
+    }
+    else if (action === "closeModal") { state.modal = null; render(); }
 
     else if (action === "submitMemory") {
       const title = document.getElementById("mf-title").value.trim();
-      const date = document.getElementById("mf-date").value.trim();
-      const emoji = document.getElementById("mf-emoji").value || "☕️";
+      const date = document.getElementById("mf-date").value;
+      const emoji = document.getElementById("mf-emoji").value.trim() || "☕️";
       const note = document.getElementById("mf-note").value.trim();
       const fileInput = document.getElementById("mf-image");
       const colors = ["#FFE1EC", "#E4E0FF", "#FFF0D9", "#DBF7EF"];
-      const finish = (imageDataUrl) => {
-        state.memories.push({ id: uid(state.memories), title: title || "Yangi xotira", date: date || "", emoji, color: colors[state.memories.length % colors.length], note, image: imageDataUrl || null });
+      readFilesAsDataUrls(fileInput.files, (images) => {
+        state.memories.push({ id: uid(state.memories), title: title || "Yangi xotira", date, emoji, color: colors[state.memories.length % colors.length], note, images });
         persistAll();
         state.modal = null; render();
-      };
-      if (fileInput.files && fileInput.files[0]) readFileAsDataUrl(fileInput.files[0], finish);
-      else finish(null);
+      });
     }
     else if (action === "submitLetter") {
       const title = document.getElementById("lf-title").value.trim();
-      const date = document.getElementById("lf-date").value.trim();
-      const mood = document.getElementById("lf-mood").value || "🥰";
+      const date = document.getElementById("lf-date").value;
+      const mood = document.getElementById("lf-mood").value.trim() || "🥰";
       const body = document.getElementById("lf-body").value.trim();
-      state.letters.push({ id: uid(state.letters), title: title || "Yangi xat", date, mood, body });
-      persistAll();
-      state.modal = null; render();
+      const editId = el.dataset.editId ? Number(el.dataset.editId) : null;
+      if (editId) {
+        const l = state.letters.find(x => x.id === editId);
+        l.title = title || l.title; l.date = date || l.date; l.mood = mood; l.body = body;
+      } else {
+        state.letters.push({ id: uid(state.letters), title: title || "Yangi xat", date, mood, body });
+      }
+      persistAll(); state.modal = null; render();
     }
     else if (action === "submitTrack") {
       const title = document.getElementById("tf-title").value.trim();
       const story = document.getElementById("tf-story").value.trim();
       const link = document.getElementById("tf-link").value.trim();
-      state.tracks.push({ id: uid(state.tracks), title: title || "Yangi qoʻshiq", story, link });
-      persistAll();
-      state.modal = null; render();
+      const editId = el.dataset.editId ? Number(el.dataset.editId) : null;
+      if (editId) {
+        const t = state.tracks.find(x => x.id === editId);
+        t.title = title || t.title; t.story = story; t.link = link;
+      } else {
+        state.tracks.push({ id: uid(state.tracks), title: title || "Yangi qoʻshiq", story, link });
+      }
+      persistAll(); state.modal = null; render();
     }
     else if (action === "submitTimeline") {
       const title = document.getElementById("tl-title").value.trim();
-      const date = document.getElementById("tl-date").value.trim();
+      const date = document.getElementById("tl-date").value;
       const emoji = document.getElementById("tl-emoji").value.trim() || "🎉";
-      state.timeline.push({ id: uid(state.timeline), title: title || "Yangi voqea", date, emoji });
-      persistAll();
-      state.modal = null; render();
+      const editId = el.dataset.editId ? Number(el.dataset.editId) : null;
+      if (editId) {
+        const t = state.timeline.find(x => x.id === editId);
+        t.title = title || t.title; t.date = date || t.date; t.emoji = emoji;
+      } else {
+        state.timeline.push({ id: uid(state.timeline), title: title || "Yangi voqea", date, emoji });
+      }
+      persistAll(); state.modal = null; render();
     }
     else if (action === "saveMemoryDetail") {
       const id = Number(el.dataset.id);
       const m = state.memories.find(x => x.id === id);
-      const note = document.getElementById("memNoteInput").value;
-      m.note = note;
+      m.note = document.getElementById("memNoteInput").value;
       persistAll();
-      state.screen = "mem" === state.tab ? "main" : "main";
-      render();
+      state.screen = "main"; render();
     }
   });
 
-  // file input for memory detail image (change event, not click)
+  // fayl inputlar uchun "change" hodisasi (memory detail'da rasm qo'shish)
   app.addEventListener("change", e => {
     const el = e.target;
     if (el.dataset.action === "memImageSelected") {
       const id = Number(el.dataset.id);
       const m = state.memories.find(x => x.id === id);
-      if (el.files && el.files[0]) {
-        readFileAsDataUrl(el.files[0], dataUrl => { m.image = dataUrl; persistAll(); render(); });
+      if (el.files && el.files.length) {
+        readFilesAsDataUrls(el.files, (newImages) => {
+          m.images = (m.images || []).concat(newImages);
+          persistAll(); render();
+        });
       }
     }
   });
@@ -1018,6 +1204,14 @@ document.addEventListener("DOMContentLoaded", () => {
   render();
 });
 
+</script>
+<script>
+if (window.Telegram && window.Telegram.WebApp) {
+  const tg = window.Telegram.WebApp;
+  tg.ready();
+  tg.expand();
+  if (tg.themeParams && tg.themeParams.bg_color) document.body.style.background = tg.themeParams.bg_color;
+}
 </script>
 </body>
 </html>
