@@ -13,6 +13,7 @@
 
 require("dotenv").config();
 const path = require("path");
+const fs = require("fs");
 const express = require("express");
 const TelegramBot = require("node-telegram-bot-api");
 
@@ -20,14 +21,50 @@ const PORT = process.env.PORT || 3000;
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const WEB_APP_URL = process.env.WEB_APP_URL || `http://localhost:${PORT}`;
 
+/* ---------- shared "room" storage (juftlik umumiy maʼlumotlari) ----------
+   Har bir juftlik "kod" orqali aniqlanadi (ulash kodi). Rasm/audio kabi
+   katta fayllar ham shu yerda (base64 holida) saqlanadi — shuning uchun
+   JSON body limitini kattaroq qildik. Kichik loyiha uchun oddiy JSON fayl
+   bazasi yetarli; kattalashsa SQLite/Mongo'ga o'tish mumkin. */
+
+const DATA_DIR = path.join(__dirname, "data");
+if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
+
+function roomPath(code) {
+  const safe = String(code).toUpperCase().replace(/[^A-Z0-9_-]/g, "");
+  return path.join(DATA_DIR, `room-${safe}.json`);
+}
+function defaultRoom() {
+  return { memories: [], letters: [], tracks: [], timeline: [], plans: [], bucket: [], tasks: [], qa: {} };
+}
+function readRoom(code) {
+  try {
+    const p = roomPath(code);
+    if (!fs.existsSync(p)) return defaultRoom();
+    return JSON.parse(fs.readFileSync(p, "utf8"));
+  } catch (e) { return defaultRoom(); }
+}
+function writeRoom(code, data) {
+  fs.writeFileSync(roomPath(code), JSON.stringify(data));
+}
+
 /* ---------- web server ---------- */
 
 const app = express();
-app.use(express.json());
-app.use(express.static(__dirname)); // app.html, va agar boshqa statik fayllar qo'shsangiz ham shu yerdan xizmat qiladi
+app.use(express.json({ limit: "25mb" })); // rasm/audio base64 uchun katta limit
+app.use(express.static(__dirname));
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "app.html"));
+});
+
+app.get("/api/room/:code", (req, res) => {
+  res.json(readRoom(req.params.code));
+});
+
+app.put("/api/room/:code", (req, res) => {
+  writeRoom(req.params.code, req.body || defaultRoom());
+  res.json({ ok: true });
 });
 
 app.listen(PORT, () => {
@@ -62,16 +99,17 @@ if (!BOT_TOKEN) {
   console.log("Telegram bot ishga tushdi (polling rejimida).");
 }
 
-/* ---------- keyingi qadam uchun eslatma ----------
-   Hozircha "Mening profilim"dagi javoblar va xotiralar brauzerning
-   localStorage'ida saqlanadi — bu shaxsiy, faqat o'sha qurilmada qoladi.
+/* ---------- eslatma ----------
+   Endi juftlik maʼlumotlari (xotira, xatlar, musiqa, vaqt/rejalar/orzular/vazifalar)
+   /api/room/:code orqali serverda (data/room-KOD.json) saqlanadi va ikkala
+   sherik ham bir xil kodga ulanganda BIR XIL maʼlumotni koʻradi.
+   Faqat shaxsiy profil (ism, jins, "meni bilib olish" savol-javoblari — qa
+   maydoni ichida ismga bogʻlab) shaxsga tegishli boʻlib qoladi.
 
-   Ikkala sherikning ma'lumotlari HAQIQIY ravishda bir joyda uchrashishi
-   (masalan, siz yozgan javobni sherigingiz o'z tugmachasida ko'rishi) uchun
-   shu index.js ichiga:
-     1) bir baza (masalan SQLite, MongoDB yoki oddiy JSON fayl) qo'shish,
-     2) Telegram Web App'dan keladigan foydalanuvchi ID (Telegram.WebApp.initDataUnsafe.user.id)
-        orqali kimning javobi ekanini aniqlash,
-     3) /api/answers kabi endpoint orqali app.html'dan fetch() bilan saqlash/o'qish
-   kerak bo'ladi. Tayyor bo'lganingizda ayting — shu qismini ham qo'shib beraman.
+   Eslatma: bu oddiy fayl-baza — koʻp foydalanuvchi/katta miqyos uchun
+   emas, lekin bitta juftlik uchun yetarli. Hosting qayta ishga tushganda
+   fayllar saqlanib qoladi (agar hosting "ephemeral filesystem" ishlatmasa —
+   masalan Render'ning bepul rejasida disk vaqti-vaqti bilan tozalanishi
+   mumkin, shu holatda Render "Persistent Disk" qoʻshish yoki keyinchalik
+   haqiqiy bazaga (Postgres/Mongo) oʻtish tavsiya etiladi).
 ------------------------------------------------- */
