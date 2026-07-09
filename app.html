@@ -146,6 +146,42 @@ input, textarea, select { font-family: inherit; }
 .modal-cancel { flex: 1; border: none; background: #FFF3E3; color: #8A6E80; border-radius: 14px; padding: 12px 0; font-size: 13px; }
 .modal-save { flex: 1; border: none; background: #D4537E; color: #fff; border-radius: 14px; padding: 12px 0; font-size: 13px; }
 
+/* memory carousel */
+.carousel { position: relative; margin-bottom: 12px; }
+.carousel-img-wrap { width: 100%; height: 240px; border-radius: 18px; overflow: hidden; background: #FFF3E3; position: relative; }
+.carousel-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity 0.25s ease; }
+.carousel-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border-radius: 16px;
+                  background: rgba(255,255,255,0.85); border: none; font-size: 16px; color: #B4497A; display: flex; align-items: center; justify-content: center; }
+.carousel-arrow.left { left: 8px; }
+.carousel-arrow.right { right: 8px; }
+.carousel-del { position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; border-radius: 14px; background: rgba(44,36,48,0.55); color: #fff; border: none; font-size: 13px; }
+.carousel-dots { display: flex; justify-content: center; gap: 5px; margin-top: 8px; }
+.carousel-dot { width: 6px; height: 6px; border-radius: 3px; background: #F0D5E1; }
+.carousel-dot.active { background: #D4537E; width: 14px; }
+
+/* all pictures grid */
+.pic-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.pic-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 12px; }
+
+/* audio */
+.audio-player { width: 100%; margin-top: 8px; height: 32px; }
+
+/* home hero slideshow */
+.hero-time { position: relative; overflow: hidden; border-radius: 28px; padding: 28px 20px; text-align: center; background: linear-gradient(135deg,#FFE1EC,#E4E0FF); }
+.hero-slide-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1s ease; }
+.hero-slide-img.show { opacity: 0.38; }
+.hero-time-content { position: relative; z-index: 1; }
+
+/* pairing code chip (persistent) */
+.mycode-chip { display: flex; align-items: center; justify-content: space-between; background: #F1ECFF; border-radius: 14px; padding: 10px 14px; margin-bottom: 12px; }
+.mycode-chip .code-value-sm { font-family: Georgia, serif; font-size: 16px; letter-spacing: 2px; color: #5B3A56; }
+
+/* selectable question row */
+.q-row.selectable { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.q-checkbox { width: 22px; height: 22px; border-radius: 6px; border: 1.5px solid #E7C7D4; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #fff; flex-shrink: 0; }
+.q-checkbox.checked { background: #D4537E; border-color: #D4537E; }
+.stage-label-plain { font-family: Georgia, serif; font-size: 13px; color: #5B3A56; margin: 14px 0 6px; }
+
 </style>
 </head>
 <body>
@@ -173,6 +209,13 @@ window.APP_DATA = {
   emojiSuggestions: ["☕️", "🌸", "🎶", "😆", "🌙", "🎂", "✈️", "🏡", "🥰", "🎉", "📷", "🍕"],
   moodSuggestions: ["🥰", "🤍", "✨", "😊", "😢", "🌙", "😴", "🥳"],
   rewardSuggestions: ["☕️ Birga qahva", "🍫 Shokolad", "💆 Massaj", "🎬 Kino kechasi", "🍕 Pizza kechasi", "💐 Gul"],
+
+  // Demo maqsadida: "sherigingiz" sizdan shu ikki savolni so'ragan deb faraz qilamiz (backend ulanganda haqiqiy bo'ladi).
+  defaultSelectedByPartner: ["1-Oʻzi haqida-Toʻliq ismi", "1-Xarakteri-Introvertmi yoki ekstrovert"],
+  defaultPartnerAnswers: {
+    "1-Oʻzi haqida-Toʻliq ismi": "Aziz",
+    "1-Xarakteri-Introvertmi yoki ekstrovert": "Koʻproq introvert",
+  },
 
   // Bular faqat ilk marta ochilganda ko'rsatiladigan namuna — profil sozlangach (ism kiritilgach) tozalanadi.
   memories: [
@@ -276,7 +319,7 @@ const MONTHS = ["Yan", "Fev", "Mar", "Apr", "May", "Iyun", "Iyul", "Avg", "Sen",
 function formatDate(d) {
   if (!d) return "";
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d);
-  if (!m) return d; // eski qo'lda kiritilgan matnli sana ("12 Fev") bo'lsa, o'zgarishsiz ko'rsatiladi
+  if (!m) return d;
   return `${parseInt(m[3], 10)} ${MONTHS[parseInt(m[2], 10) - 1]}`;
 }
 
@@ -289,17 +332,20 @@ const state = {
   myName: safeGet("couple_myname", ""),
   partnerName: safeGet("couple_partnername", ""),
   meetDate: safeGet("couple_meetdate", ""),
+  greetingNickname: safeGet("couple_greeting_nickname", ""),
   myCode: safeGet("couple_mycode", null),
   partnerCodeEntered: safeGet("couple_partner_code_entered", ""),
   linked: safeGet("couple_linked", false),
   onboardSeen: safeGet("couple_onboard_seen", false),
   appStarted: safeGet("couple_app_started", false),
 
-  profileTab: "me",
+  profileTab: "pick", // pick | incoming | partnerAnswers
   openStages: { 1: true },
   editingKey: null,
   myAnswers: safeGet("couple_my_answers", {}),
-  partnerAnswers: safeGet("couple_partner_answers", {}),
+  partnerAnswers: safeGet("couple_partner_answers", D.defaultPartnerAnswers),
+  selectedByMe: safeGet("couple_selected_by_me", []),
+  selectedByPartner: safeGet("couple_selected_by_partner", D.defaultSelectedByPartner),
 
   memories: safeGet("couple_memories", D.memories),
   letters: safeGet("couple_letters", D.letters),
@@ -312,11 +358,16 @@ const state = {
   timeMode: "timeline",
   letterOpenId: null,
   memoryDetailId: null,
+  memoryCarouselIndex: {},
   openFolders: {},
-  editingItem: null, // { list, folderId, itemId }
+  editingItem: null,
 
-  modal: null, // { type, editId? , list? }
+  modal: null,
 };
+
+let heroSlideTimer = null;
+let heroImages = [];
+let heroIdx = 0;
 
 function persistAll() {
   safeSet("couple_memories", state.memories);
@@ -327,6 +378,7 @@ function persistAll() {
   safeSet("couple_bucket", state.bucket);
   safeSet("couple_tasks", state.tasks);
   safeSet("couple_my_answers", state.myAnswers);
+  safeSet("couple_selected_by_me", state.selectedByMe);
 }
 
 function genderConfig() {
@@ -353,8 +405,15 @@ function emptyState(text) {
 
 /* ================= HOME ================= */
 
+function allMemoryImages() {
+  const out = [];
+  state.memories.forEach(m => (m.images || []).forEach(img => out.push(img)));
+  return out;
+}
+
 function renderHome() {
   const gc = genderConfig();
+  const greetName = state.greetingNickname || state.myName;
   const memChips = state.memories.slice(0, 3).map(m => `
     <div class="mem-chip" style="background:${m.color}" data-action="openMemory" data-id="${m.id}">
       <div style="font-size:22px">${(m.images && m.images[0]) ? `<img src="${m.images[0]}" style="width:32px;height:32px;object-fit:cover;border-radius:8px">` : m.emoji}</div>
@@ -368,14 +427,17 @@ function renderHome() {
       <div class="content">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;cursor:pointer" data-action="openProfileEntry">
           <div style="width:36px;height:36px;border-radius:18px;background:#FFE1EC;display:flex;align-items:center;justify-content:center;font-size:17px">${gc.icon}</div>
-          <p class="baloo" style="font-size:21px;color:#5B3A56;margin:0">Xayrli tong${state.myName ? ", " + esc(state.myName) : ""} ${gc.sun}</p>
+          <p class="baloo" style="font-size:21px;color:#5B3A56;margin:0">Xayrli tong${greetName ? ", " + esc(greetName) : ""} ${gc.sun}</p>
         </div>
         <p style="font-size:13px;color:#B79AAE;margin:0 0 20px">10-iyul, juma</p>
 
         <div class="hero-time">
-          <p style="font-size:12px;color:#8A5C78;margin:0;letter-spacing:1px">BIRGA OʻTGAN VAQT</p>
-          <p class="baloo" style="font-size:42px;color:#5B3A56;margin:4px 0">171 kun</p>
-          <p style="font-size:12px;color:#8A5C78;margin:0">4,104 soat · 246,240 daqiqa</p>
+          <img class="hero-slide-img" id="heroSlideImg" src="">
+          <div class="hero-time-content">
+            <p style="font-size:12px;color:#8A5C78;margin:0;letter-spacing:1px">BIRGA OʻTGAN VAQT</p>
+            <p class="baloo" style="font-size:42px;color:#5B3A56;margin:4px 0">171 kun</p>
+            <p style="font-size:12px;color:#8A5C78;margin:0">4,104 soat · 246,240 daqiqa</p>
+          </div>
         </div>
 
         <div class="card-row" data-action="goTab" data-tab="letters">
@@ -403,6 +465,27 @@ function renderHome() {
     </div>`;
 }
 
+function startHeroSlideshow() {
+  clearInterval(heroSlideTimer);
+  heroImages = allMemoryImages();
+  const imgEl = document.getElementById("heroSlideImg");
+  if (!imgEl || !heroImages.length) return;
+  heroIdx = 0;
+  imgEl.src = heroImages[0];
+  requestAnimationFrame(() => imgEl.classList.add("show"));
+  if (heroImages.length < 2) return;
+  heroSlideTimer = setInterval(() => {
+    const el = document.getElementById("heroSlideImg");
+    if (!el) { clearInterval(heroSlideTimer); return; }
+    el.classList.remove("show");
+    setTimeout(() => {
+      heroIdx = (heroIdx + 1) % heroImages.length;
+      el.src = heroImages[heroIdx];
+      requestAnimationFrame(() => el.classList.add("show"));
+    }, 350);
+  }, 4000);
+}
+
 /* ================= MEMORIES ================= */
 
 function renderMem() {
@@ -419,23 +502,52 @@ function renderMem() {
         <button class="icon-btn danger" data-action="deleteMemory" data-id="${m.id}">🗑</button>
       </div>
     </div>`).join("");
-  return `<div class="screen">${renderTopBar("Xotiralar", { addAction: "openMemoryForm" })}<div class="content">${tiles || emptyState("Hali xotira yoʻq. + tugmasi orqali qoʻshing.")}</div></div>`;
+  const hasPics = allMemoryImages().length > 0;
+  return `<div class="screen">
+    ${renderTopBar("Xotiralar", { addAction: "openMemoryForm" })}
+    <div class="content">
+      ${hasPics ? `<div class="card-row" data-action="openAllPictures" style="margin-top:0;margin-bottom:14px"><div style="font-size:20px">🖼️</div><div><p style="margin:0;font-size:13px;font-weight:500;color:#5B3A56">Barcha rasmlar</p><p style="margin:0;font-size:12px;color:#B79AAE">Barcha xotiralardagi suratlar</p></div></div>` : ""}
+      ${tiles || emptyState("Hali xotira yoʻq. + tugmasi orqali qoʻshing.")}
+    </div>
+  </div>`;
+}
+
+function renderAllPictures() {
+  const items = [];
+  state.memories.forEach(m => (m.images || []).forEach((img, idx) => items.push({ img, memId: m.id, idx })));
+  const grid = items.map(it => `<img src="${it.img}" data-action="openMemoryAtImage" data-id="${it.memId}" data-idx="${it.idx}">`).join("");
+  return `<div class="screen">
+    ${renderTopBar("Barcha rasmlar", { hasBack: true, backAction: "back" })}
+    <div class="content">
+      ${items.length ? `<div class="pic-grid">${grid}</div>` : emptyState("Hali rasm yoʻq.")}
+    </div>
+  </div>`;
 }
 
 function renderMemoryDetail() {
   const m = state.memories.find(x => x.id === state.memoryDetailId);
   if (!m) { state.screen = "main"; return renderMem(); }
   const images = m.images || [];
-  const gallery = images.map((img, idx) => `
-    <div class="gallery-item">
-      <img src="${img}">
-      <button class="gallery-del" data-action="deleteMemoryImage" data-id="${m.id}" data-idx="${idx}">×</button>
-    </div>`).join("");
+  const idx = Math.min(state.memoryCarouselIndex[m.id] || 0, Math.max(images.length - 1, 0));
+  let carousel = "";
+  if (images.length) {
+    carousel = `
+      <div class="carousel">
+        <div class="carousel-img-wrap">
+          <img src="${images[idx]}">
+          <button class="carousel-del" data-action="deleteMemoryImage" data-id="${m.id}" data-idx="${idx}">🗑</button>
+          ${images.length > 1 ? `<button class="carousel-arrow left" data-action="carouselPrev" data-id="${m.id}">‹</button><button class="carousel-arrow right" data-action="carouselNext" data-id="${m.id}">›</button>` : ""}
+        </div>
+        ${images.length > 1 ? `<div class="carousel-dots">${images.map((_, i) => `<div class="carousel-dot ${i === idx ? "active" : ""}"></div>`).join("")}</div>` : ""}
+      </div>`;
+  } else {
+    carousel = `<div class="hero-time" style="margin-bottom:12px"><div class="hero-time-content"><span style="font-size:40px">${m.emoji}</span></div></div>`;
+  }
   return `
     <div class="screen">
       ${renderTopBar(m.title, { hasBack: true, backAction: "back" })}
       <div class="content">
-        ${images.length ? `<div class="gallery">${gallery}</div>` : `<div class="hero-time" style="margin-bottom:12px"><span style="font-size:40px">${m.emoji}</span></div>`}
+        ${carousel}
         <p style="font-size:12px;color:#B79AAE;margin:0 0 10px">${esc(formatDate(m.date))}</p>
         <div class="form-field">
           <label class="form-label">Yozuv</label>
@@ -454,21 +566,24 @@ function renderMemoryDetail() {
 
 function renderMusic() {
   const rows = state.tracks.map(t => `
-    <div class="track-row" style="background:#FFF3E3">
-      <div style="display:flex;align-items:flex-start;gap:12px;flex:1">
-        <div class="track-icon">🎵</div>
-        <div style="flex:1">
-          <p style="margin:0;font-size:13px;font-weight:500;color:#5B3A56">${esc(t.title)}</p>
-          <p style="margin:0;font-size:11px;color:#B79AAE">${esc(t.story || "")}</p>
-          ${t.link ? `<a class="track-link" href="${esc(t.link)}" target="_blank" rel="noopener">🔗 Tinglash havolasi</a>` : ""}
+    <div class="track-row" style="background:#FFF3E3;flex-direction:column;align-items:stretch">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+        <div style="display:flex;align-items:flex-start;gap:12px;flex:1">
+          <div class="track-icon">🎵</div>
+          <div style="flex:1">
+            <p style="margin:0;font-size:13px;font-weight:500;color:#5B3A56">${esc(t.title)}</p>
+            <p style="margin:0;font-size:11px;color:#B79AAE">${esc(t.story || "")}</p>
+            ${t.link ? `<a class="track-link" href="${esc(t.link)}" target="_blank" rel="noopener">🔗 Tashqi havola</a>` : ""}
+          </div>
+        </div>
+        <div class="row-actions">
+          <button class="icon-btn" data-action="editTrack" data-id="${t.id}">✎</button>
+          <button class="icon-btn danger" data-action="deleteTrack" data-id="${t.id}">🗑</button>
         </div>
       </div>
-      <div class="row-actions">
-        <button class="icon-btn" data-action="editTrack" data-id="${t.id}">✎</button>
-        <button class="icon-btn danger" data-action="deleteTrack" data-id="${t.id}">🗑</button>
-      </div>
+      ${t.audio ? `<audio class="audio-player" controls src="${t.audio}"></audio>` : ""}
     </div>`).join("");
-  return `<div class="screen">${renderTopBar("Bizning ovozlar", { addAction: "openTrackForm" })}<div class="content">${rows || emptyState("Hali qoʻshiq yoʻq. + tugmasi orqali maxsus qoʻshiq qoʻshing.")}</div></div>`;
+  return `<div class="screen">${renderTopBar("Bizning ovozlar", { addAction: "openTrackForm" })}<div class="content">${rows || emptyState("Hali qoʻshiq yoʻq. + tugmasi orqali telefondan qoʻshiq yuklang.")}</div></div>`;
 }
 
 /* ================= LETTERS ================= */
@@ -669,6 +784,10 @@ function renderSetup() {
         <input class="form-input" id="setupMyName" value="${esc(state.myName)}" placeholder="Ismingiz">
       </div>
       <div class="form-field">
+        <label class="form-label">Sizni qanday chaqirishsin? (ixtiyoriy, masalan: Sevgilim)</label>
+        <input class="form-input" id="setupNickname" value="${esc(state.greetingNickname)}" placeholder="Bosh sahifadagi salomlashuvda ishlatiladi">
+      </div>
+      <div class="form-field">
         <label class="form-label">Sherigingizning ismi</label>
         <input class="form-input" id="setupPartnerName" value="${esc(state.partnerName)}" placeholder="Sherigingizning ismi">
       </div>
@@ -681,7 +800,6 @@ function renderSetup() {
 }
 
 function renderLink() {
-  if (!state.myCode) { state.myCode = genCode(); safeSet("couple_mycode", state.myCode); }
   return `
     <div class="setup-screen">
       <p class="setup-title">Profilingizni ulang</p>
@@ -689,7 +807,7 @@ function renderLink() {
       <div class="code-box">
         <p style="font-size:11px;color:#8A6E80;margin:0">Sizning kodingiz</p>
         <p class="code-value">${state.myCode}</p>
-        <p style="font-size:11px;color:#8A6E80;margin:0">Buni sherigingizga yuboring</p>
+        <p style="font-size:11px;color:#8A6E80;margin:0">Buni sherigingizga yuboring. Bu kod hech qachon oʻzgarmaydi — istalgan payt profil sahifasida topasiz.</p>
       </div>
       <div class="form-field">
         <label class="form-label">Sherigingizning kodi</label>
@@ -700,83 +818,123 @@ function renderLink() {
     </div>`;
 }
 
-/* ================= PROFILE (stages) ================= */
+/* ================= PROFILE (selective questions) ================= */
 
 function questionKey(stageId, catTitle, q) { return `${stageId}-${catTitle}-${q}`; }
 
-function renderQuestionRow(stageId, cat, q, answers, readOnly) {
-  const key = questionKey(stageId, cat.title, q);
-  const answer = answers[key];
-  if (readOnly) {
+function renderPickTab() {
+  const body = D.stages.map(stage => {
+    const open = !!state.openStages[stage.id];
+    const catsHtml = stage.categories.map(cat => `
+      <div style="margin-bottom:10px">
+        <p class="cat-title">${esc(cat.title)}</p>
+        ${cat.questions.map(q => {
+          const key = questionKey(stage.id, cat.title, q);
+          const checked = state.selectedByMe.includes(key);
+          return `
+            <div class="q-row selectable" data-action="toggleSelect" data-key="${key}">
+              <p class="q-text" style="flex:1">${esc(q)}</p>
+              <div class="q-checkbox ${checked ? "checked" : ""}">${checked ? "✓" : ""}</div>
+            </div>`;
+        }).join("")}
+      </div>`).join("");
     return `
-      <div class="q-row">
-        <p class="q-text">${esc(q)}</p>
-        <p class="q-answer-ro" style="color:${answer ? "#7A5670" : "#C9B7C2"};font-style:${answer ? "normal" : "italic"}">${esc(answer || "Hali javob bermagan")}</p>
-      </div>`;
-  }
-  if (state.editingKey === key) {
-    return `
-      <div class="q-row">
-        <p class="q-text">${esc(q)}</p>
-        <textarea class="q-textarea" rows="2" id="edit-${key}">${esc(answer || "")}</textarea>
-        <div class="q-actions">
-          <button class="q-cancel" data-action="cancelEdit">Bekor qilish</button>
-          <button class="q-save" data-action="saveAnswer" data-key="${key}">Saqlash</button>
-        </div>
-      </div>`;
-  }
-  return `
-    <div class="q-row">
-      <p class="q-text">${esc(q)}</p>
-      <div data-action="editAnswer" data-key="${key}">
-        ${answer ? `<p class="q-answer">${esc(answer)}</p>` : `<p class="q-placeholder">Javob berish uchun bosing…</p>`}
-      </div>
-    </div>`;
-}
-
-function renderStage(stage, answers, readOnly) {
-  const open = !!state.openStages[stage.id];
-  const total = stage.categories.reduce((n, c) => n + c.questions.length, 0);
-  const answered = stage.categories.reduce((n, c) => n + c.questions.filter(q => answers[questionKey(stage.id, c.title, q)]).length, 0);
-  const body = stage.categories.map(cat => `
-    <div style="margin-bottom:10px">
-      <p class="cat-title">${esc(cat.title)}</p>
-      ${cat.questions.map(q => renderQuestionRow(stage.id, cat, q, answers, readOnly)).join("")}
-    </div>`).join("");
-  return `
-    <div class="stage-block" style="background:${stage.sensitive ? "#F1ECFF" : "#FFF3E3"}">
-      <div class="stage-head" data-action="toggleStage" data-stage="${stage.id}">
-        <div>
-          <p class="baloo" style="margin:0;font-size:14px;color:#5B3A56">${esc(stage.label)} · ${esc(stage.title)}</p>
-          <p style="margin:2px 0 0;font-size:11px;color:#8A6E80">${esc(stage.note)}</p>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:10px;color:#B4497A">${answered}/${total}</span>
+      <div class="stage-block" style="background:${stage.sensitive ? "#F1ECFF" : "#FFF3E3"}">
+        <div class="stage-head" data-action="toggleStage" data-stage="${stage.id}">
+          <div>
+            <p class="baloo" style="margin:0;font-size:14px;color:#5B3A56">${esc(stage.label)} · ${esc(stage.title)}</p>
+            <p style="margin:2px 0 0;font-size:11px;color:#8A6E80">${esc(stage.note)}</p>
+          </div>
           <span style="font-size:12px;color:#B79AAE;display:inline-block;transform:${open ? "rotate(180deg)" : "none"}">⌄</span>
         </div>
-      </div>
-      ${open ? `<div class="stage-body">${body}</div>` : ""}
-    </div>`;
+        ${open ? `<div class="stage-body">${catsHtml}</div>` : ""}
+      </div>`;
+  }).join("");
+  return `
+    <p style="font-size:12px;color:#8A6E80;margin:0 0 12px">Sherigingizga bilishni xohlagan savollaringizni belgilang — faqat shu savollarni ulardan soʻraysiz.</p>
+    ${body}`;
+}
+
+function renderIncomingTab() {
+  const rows = [];
+  D.stages.forEach(stage => {
+    stage.categories.forEach(cat => {
+      cat.questions.forEach(q => {
+        const key = questionKey(stage.id, cat.title, q);
+        if (!state.selectedByPartner.includes(key)) return;
+        if (state.editingKey === key) {
+          rows.push(`
+            <div class="q-row">
+              <p class="q-text">${esc(q)}</p>
+              <textarea class="q-textarea" rows="2" id="edit-${key}">${esc(state.myAnswers[key] || "")}</textarea>
+              <div class="q-actions">
+                <button class="q-cancel" data-action="cancelEdit">Bekor qilish</button>
+                <button class="q-save" data-action="saveAnswer" data-key="${key}">Saqlash</button>
+              </div>
+            </div>`);
+        } else {
+          const answer = state.myAnswers[key];
+          rows.push(`
+            <div class="q-row">
+              <p class="q-text">${esc(q)}</p>
+              <div data-action="editAnswer" data-key="${key}">
+                ${answer ? `<p class="q-answer">${esc(answer)}</p>` : `<p class="q-placeholder">Javob berish uchun bosing…</p>`}
+              </div>
+            </div>`);
+        }
+      });
+    });
+  });
+  return rows.length
+    ? `<p style="font-size:12px;color:#8A6E80;margin:0 0 12px">Sherigingiz sizdan shu savollarni soʻragan:</p>${rows.join("")}`
+    : emptyState("Hozircha sherigingiz sizdan hech narsa soʻramagan.");
+}
+
+function renderPartnerAnswersTab() {
+  const rows = [];
+  D.stages.forEach(stage => {
+    stage.categories.forEach(cat => {
+      cat.questions.forEach(q => {
+        const key = questionKey(stage.id, cat.title, q);
+        if (!state.selectedByMe.includes(key)) return;
+        const answer = state.partnerAnswers[key];
+        rows.push(`
+          <div class="q-row">
+            <p class="q-text">${esc(q)}</p>
+            <p class="q-answer-ro" style="color:${answer ? "#7A5670" : "#C9B7C2"};font-style:${answer ? "normal" : "italic"}">${esc(answer || "Hali javob bermagan")}</p>
+          </div>`);
+      });
+    });
+  });
+  return rows.length
+    ? rows.join("")
+    : emptyState("Hali sherigingizga savol tanlamagansiz — \"Savol tanlash\" boʻlimidan boshlang.");
 }
 
 function renderProfile() {
-  const answers = state.profileTab === "me" ? state.myAnswers : state.partnerAnswers;
-  const meLabel = state.gender === "qiz" ? "Men (Qiz)" : "Men (Yigit)";
-  const stageBlocks = D.stages.map(s => renderStage(s, answers, state.profileTab === "partner")).join("");
+  const tabs = [
+    { key: "pick", label: "Savol tanlash" },
+    { key: "incoming", label: "Menga kelgan" },
+    { key: "partnerAnswers", label: "Sherigim javobi" },
+  ];
+  let body = "";
+  if (state.profileTab === "pick") body = renderPickTab();
+  else if (state.profileTab === "incoming") body = renderIncomingTab();
+  else body = renderPartnerAnswersTab();
 
   return `
     <div class="screen">
       ${renderTopBar("Mening profilim", { hasBack: true, backAction: "back" })}
       <div class="content">
-        ${state.linked
-          ? `<div class="link-badge">🔗 ${esc(state.myName || "Siz")} &amp; ${esc(state.partnerName || "Sherigingiz")} ulangan</div>`
-          : `<div class="link-badge pending">⏳ Hali sherigingiz bilan ulanmagansiz — <span style="text-decoration:underline;cursor:pointer" data-action="goLinkFromProfile">ulash</span></div>`}
-        <div class="segment">
-          <button class="${state.profileTab === "me" ? "active" : ""}" data-action="setProfileTab" data-ptab="me">${meLabel}</button>
-          <button class="${state.profileTab === "partner" ? "active" : ""}" data-action="setProfileTab" data-ptab="partner">${esc(state.partnerName || "Sherigim")}</button>
+        <div class="mycode-chip">
+          <span>🔑 Mening kodim: <span class="code-value-sm">${state.myCode || "—"}</span></span>
+          ${state.linked ? `<span class="link-badge" style="margin:0">🔗 Ulangan</span>` : `<span style="font-size:11px;color:#B4497A;text-decoration:underline;cursor:pointer" data-action="goLinkFromProfile">ulash</span>`}
         </div>
-        ${stageBlocks}
-        <p style="font-size:10.5px;color:#B79AAE;text-align:center;margin-top:4px">
+        <div class="segment">
+          ${tabs.map(t => `<button class="${state.profileTab === t.key ? "active" : ""}" data-action="setProfileTab" data-ptab="${t.key}">${t.label}</button>`).join("")}
+        </div>
+        ${body}
+        <p style="font-size:10.5px;color:#B79AAE;text-align:center;margin-top:14px">
           "Maxfiy" bosqichdagi savollarni hech qachon majburlab soʻramang — ular ikkalangiz ham tayyor boʻlgandagina ochiladi. 🌙
         </p>
       </div>
@@ -833,7 +991,8 @@ function renderModal() {
       <p class="modal-title">${ex ? "Qoʻshiqni tahrirlash" : "Yangi maxsus qoʻshiq"}</p>
       <div class="form-field"><label class="form-label">Nomi</label><input class="form-input" id="tf-title" value="${esc(ex ? ex.title : "")}" placeholder="Qoʻshiq nomi"></div>
       <div class="form-field"><label class="form-label">Nega maxsus?</label><textarea class="form-textarea" rows="2" id="tf-story" placeholder="Masalan: birinchi uchrashuvda yangragan">${esc(ex ? ex.story : "")}</textarea></div>
-      <div class="form-field"><label class="form-label">Tinglash havolasi (ixtiyoriy)</label><input class="form-input" id="tf-link" value="${esc(ex ? ex.link : "")}" placeholder="Spotify / YouTube link"></div>
+      <div class="form-field"><label class="form-label">Telefondan qoʻshiq fayli ${ex && ex.audio ? "(mavjud — boʻsh qoldirsangiz eskisi qoladi)" : "(ixtiyoriy)"}</label><input class="form-input" type="file" accept="audio/*" id="tf-audio"></div>
+      <div class="form-field"><label class="form-label">Tashqi havola (ixtiyoriy)</label><input class="form-input" id="tf-link" value="${esc(ex ? ex.link : "")}" placeholder="Spotify / YouTube link"></div>
       <div class="modal-actions">
         <button type="button" class="modal-cancel" data-action="closeModal">Bekor qilish</button>
         <button type="button" class="modal-save" data-action="submitTrack" data-edit-id="${ex ? ex.id : ""}">${ex ? "Saqlash" : "Qoʻshish"}</button>
@@ -875,9 +1034,7 @@ function renderModal() {
       </div>`;
   }
 
-  return `<div class="modal-overlay">
-      <div class="modal-sheet">${inner}</div>
-    </div>`;
+  return `<div class="modal-overlay"><div class="modal-sheet">${inner}</div></div>`;
 }
 
 /* ================= NAV ================= */
@@ -905,6 +1062,7 @@ function renderBottomNav() {
 /* ================= MAIN RENDER ================= */
 
 function render() {
+  clearInterval(heroSlideTimer);
   let main = "";
   let nav = "";
 
@@ -914,6 +1072,7 @@ function render() {
   else if (state.screen === "link") main = renderLink();
   else if (state.screen === "profile") main = renderProfile();
   else if (state.screen === "memoryDetail") main = renderMemoryDetail();
+  else if (state.screen === "allPictures") main = renderAllPictures();
   else {
     const screens = { mem: renderMem, music: renderMusic, home: renderHome, letters: renderLetters, time: renderTime };
     main = screens[state.tab]();
@@ -922,14 +1081,14 @@ function render() {
 
   document.getElementById("app").innerHTML = `<div style="flex:1;overflow-y:auto">${main}</div>${nav}${renderModal()}`;
 
-  // emoji/quick-pick buttons: fill the target input (free typing on the same input still works too)
   document.querySelectorAll(".emoji-opt").forEach(btn => {
     btn.addEventListener("click", () => {
-      const targetId = btn.dataset.target;
-      const input = document.getElementById(targetId);
+      const input = document.getElementById(btn.dataset.target);
       if (input) input.value = btn.dataset.emoji;
     });
   });
+
+  if (state.screen === "main" && state.tab === "home") startHeroSlideshow();
 }
 
 /* ================= HELPERS ================= */
@@ -945,6 +1104,11 @@ function readFilesAsDataUrls(files, cb) {
     reader.readAsDataURL(file);
   });
 }
+function readFileAsDataUrl(file, cb) {
+  const reader = new FileReader();
+  reader.onload = () => cb(reader.result);
+  reader.readAsDataURL(file);
+}
 
 function resetContentToZero() {
   state.memories = [];
@@ -955,6 +1119,7 @@ function resetContentToZero() {
   state.bucket = [];
   state.tasks = [];
   state.myAnswers = {};
+  state.selectedByMe = [];
   persistAll();
 }
 
@@ -963,12 +1128,8 @@ function resetContentToZero() {
 document.addEventListener("DOMContentLoaded", () => {
   const app = document.getElementById("app");
 
-  // Faqat overlay foniga (sheet tashqarisiga) bosilganda modalni yopish — sheet ichidagi
-  // hech qanday tugma bosilishini to'xtatib qo'ymaydi (bu avvalgi versiyadagi asosiy xato edi).
   app.addEventListener("click", e => {
-    if (e.target.classList && e.target.classList.contains("modal-overlay")) {
-      state.modal = null; render();
-    }
+    if (e.target.classList && e.target.classList.contains("modal-overlay")) { state.modal = null; render(); }
   });
 
   app.addEventListener("click", e => {
@@ -981,6 +1142,27 @@ document.addEventListener("DOMContentLoaded", () => {
     else if (action === "closeLetter") { state.letterOpenId = null; render(); }
     else if (action === "openLetter") { state.letterOpenId = Number(el.dataset.id); render(); }
     else if (action === "openMemory") { state.memoryDetailId = Number(el.dataset.id); state.screen = "memoryDetail"; render(); }
+    else if (action === "openMemoryAtImage") {
+      const id = Number(el.dataset.id);
+      state.memoryDetailId = id;
+      state.memoryCarouselIndex[id] = Number(el.dataset.idx);
+      state.screen = "memoryDetail"; render();
+    }
+    else if (action === "openAllPictures") { state.screen = "allPictures"; render(); }
+    else if (action === "carouselPrev") {
+      const id = Number(el.dataset.id);
+      const m = state.memories.find(x => x.id === id);
+      const cur = state.memoryCarouselIndex[id] || 0;
+      state.memoryCarouselIndex[id] = (cur - 1 + m.images.length) % m.images.length;
+      render();
+    }
+    else if (action === "carouselNext") {
+      const id = Number(el.dataset.id);
+      const m = state.memories.find(x => x.id === id);
+      const cur = state.memoryCarouselIndex[id] || 0;
+      state.memoryCarouselIndex[id] = (cur + 1) % m.images.length;
+      render();
+    }
     else if (action === "setTimeMode") { state.timeMode = el.dataset.mode; render(); }
 
     // ---- profile entry flow ----
@@ -999,30 +1181,30 @@ document.addEventListener("DOMContentLoaded", () => {
     else if (action === "onboardSkip") { state.onboardSeen = true; safeSet("couple_onboard_seen", true); state.screen = "gender"; render(); }
     else if (action === "chooseGender") {
       state.gender = el.dataset.gender; safeSet("couple_gender", state.gender);
+      if (!state.myCode) { state.myCode = genCode(); safeSet("couple_mycode", state.myCode); }
       state.screen = "setup"; render();
     }
     else if (action === "saveSetup") {
       const wasStarted = state.appStarted;
       state.myName = document.getElementById("setupMyName").value.trim();
+      state.greetingNickname = document.getElementById("setupNickname").value.trim();
       state.partnerName = document.getElementById("setupPartnerName").value.trim();
       state.meetDate = document.getElementById("setupMeetDate").value;
       safeSet("couple_myname", state.myName);
+      safeSet("couple_greeting_nickname", state.greetingNickname);
       safeSet("couple_partnername", state.partnerName);
       safeSet("couple_meetdate", state.meetDate);
-      // Ilk marta ism kiritilganda — namuna ma'lumotlar tozalanadi, 0 dan boshlanadi.
       if (!wasStarted && state.myName) {
         resetContentToZero();
         state.appStarted = true;
         safeSet("couple_app_started", true);
       }
+      if (!state.myCode) { state.myCode = genCode(); safeSet("couple_mycode", state.myCode); }
       state.screen = "link"; render();
     }
     else if (action === "linkPartner") {
       const val = document.getElementById("partnerCodeInput").value.trim();
-      if (val) {
-        state.linked = true; safeSet("couple_linked", true);
-        state.partnerCodeEntered = val; safeSet("couple_partner_code_entered", val);
-      }
+      if (val) { state.linked = true; safeSet("couple_linked", true); state.partnerCodeEntered = val; safeSet("couple_partner_code_entered", val); }
       state.screen = "profile"; render();
     }
     else if (action === "skipLink") { safeSet("couple_link_skipped", true); state.screen = "profile"; render(); }
@@ -1030,6 +1212,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     else if (action === "setProfileTab") { state.profileTab = el.dataset.ptab; render(); }
     else if (action === "toggleStage") { const id = el.dataset.stage; state.openStages[id] = !state.openStages[id]; render(); }
+    else if (action === "toggleSelect") {
+      const key = el.dataset.key;
+      const idx = state.selectedByMe.indexOf(key);
+      if (idx === -1) state.selectedByMe.push(key); else state.selectedByMe.splice(idx, 1);
+      safeSet("couple_selected_by_me", state.selectedByMe);
+      render();
+    }
     else if (action === "editAnswer") { state.editingKey = el.dataset.key; render(); }
     else if (action === "cancelEdit") { state.editingKey = null; render(); }
     else if (action === "saveAnswer") {
@@ -1065,9 +1254,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const item = state[list].find(f => f.id === folderId).items.find(i => i.id === itemId);
       item.done = !item.done; persistAll(); render();
     }
-    else if (action === "editItem") {
-      state.editingItem = { list: el.dataset.list, folderId: Number(el.dataset.folder), itemId: Number(el.dataset.item) }; render();
-    }
+    else if (action === "editItem") { state.editingItem = { list: el.dataset.list, folderId: Number(el.dataset.folder), itemId: Number(el.dataset.item) }; render(); }
     else if (action === "cancelItemEdit") { state.editingItem = null; render(); }
     else if (action === "saveItemEdit") {
       const list = el.dataset.list, folderId = Number(el.dataset.folder), itemId = Number(el.dataset.item);
@@ -1087,20 +1274,13 @@ document.addEventListener("DOMContentLoaded", () => {
     else if (action === "openTaskForm") { state.modal = { type: "taskForm" }; render(); }
     else if (action === "editTask") { state.modal = { type: "taskForm", editId: Number(el.dataset.id) }; render(); }
     else if (action === "deleteTask") { state.tasks = state.tasks.filter(t => t.id !== Number(el.dataset.id)); persistAll(); render(); }
-    else if (action === "toggleTask") {
-      const t = state.tasks.find(x => x.id === Number(el.dataset.id));
-      t.done = !t.done; persistAll(); render();
-    }
+    else if (action === "toggleTask") { const t = state.tasks.find(x => x.id === Number(el.dataset.id)); t.done = !t.done; persistAll(); render(); }
     else if (action === "submitTask") {
       const text = document.getElementById("tk-text").value.trim();
       const reward = document.getElementById("tk-reward").value.trim();
       const editId = el.dataset.editId ? Number(el.dataset.editId) : null;
-      if (editId) {
-        const t = state.tasks.find(x => x.id === editId);
-        t.text = text || t.text; t.reward = reward;
-      } else if (text) {
-        state.tasks.push({ id: uid(state.tasks), text, reward, assignedBy: "me", done: false });
-      }
+      if (editId) { const t = state.tasks.find(x => x.id === editId); t.text = text || t.text; t.reward = reward; }
+      else if (text) state.tasks.push({ id: uid(state.tasks), text, reward, assignedBy: "me", done: false });
       persistAll(); state.modal = null; render();
     }
 
@@ -1120,6 +1300,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const id = Number(el.dataset.id), idx = Number(el.dataset.idx);
       const m = state.memories.find(x => x.id === id);
       m.images.splice(idx, 1);
+      const cur = state.memoryCarouselIndex[id] || 0;
+      if (cur >= m.images.length) state.memoryCarouselIndex[id] = Math.max(0, m.images.length - 1);
       persistAll(); render();
     }
     else if (action === "closeModal") { state.modal = null; render(); }
@@ -1143,38 +1325,36 @@ document.addEventListener("DOMContentLoaded", () => {
       const mood = document.getElementById("lf-mood").value.trim() || "🥰";
       const body = document.getElementById("lf-body").value.trim();
       const editId = el.dataset.editId ? Number(el.dataset.editId) : null;
-      if (editId) {
-        const l = state.letters.find(x => x.id === editId);
-        l.title = title || l.title; l.date = date || l.date; l.mood = mood; l.body = body;
-      } else {
-        state.letters.push({ id: uid(state.letters), title: title || "Yangi xat", date, mood, body });
-      }
+      if (editId) { const l = state.letters.find(x => x.id === editId); l.title = title || l.title; l.date = date || l.date; l.mood = mood; l.body = body; }
+      else state.letters.push({ id: uid(state.letters), title: title || "Yangi xat", date, mood, body });
       persistAll(); state.modal = null; render();
     }
     else if (action === "submitTrack") {
       const title = document.getElementById("tf-title").value.trim();
       const story = document.getElementById("tf-story").value.trim();
       const link = document.getElementById("tf-link").value.trim();
+      const audioInput = document.getElementById("tf-audio");
       const editId = el.dataset.editId ? Number(el.dataset.editId) : null;
-      if (editId) {
-        const t = state.tracks.find(x => x.id === editId);
-        t.title = title || t.title; t.story = story; t.link = link;
-      } else {
-        state.tracks.push({ id: uid(state.tracks), title: title || "Yangi qoʻshiq", story, link });
-      }
-      persistAll(); state.modal = null; render();
+      const finish = (audioDataUrl) => {
+        if (editId) {
+          const t = state.tracks.find(x => x.id === editId);
+          t.title = title || t.title; t.story = story; t.link = link;
+          if (audioDataUrl) t.audio = audioDataUrl;
+        } else {
+          state.tracks.push({ id: uid(state.tracks), title: title || "Yangi qoʻshiq", story, link, audio: audioDataUrl || null });
+        }
+        persistAll(); state.modal = null; render();
+      };
+      if (audioInput.files && audioInput.files[0]) readFileAsDataUrl(audioInput.files[0], finish);
+      else finish(null);
     }
     else if (action === "submitTimeline") {
       const title = document.getElementById("tl-title").value.trim();
       const date = document.getElementById("tl-date").value;
       const emoji = document.getElementById("tl-emoji").value.trim() || "🎉";
       const editId = el.dataset.editId ? Number(el.dataset.editId) : null;
-      if (editId) {
-        const t = state.timeline.find(x => x.id === editId);
-        t.title = title || t.title; t.date = date || t.date; t.emoji = emoji;
-      } else {
-        state.timeline.push({ id: uid(state.timeline), title: title || "Yangi voqea", date, emoji });
-      }
+      if (editId) { const t = state.timeline.find(x => x.id === editId); t.title = title || t.title; t.date = date || t.date; t.emoji = emoji; }
+      else state.timeline.push({ id: uid(state.timeline), title: title || "Yangi voqea", date, emoji });
       persistAll(); state.modal = null; render();
     }
     else if (action === "saveMemoryDetail") {
@@ -1186,7 +1366,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // fayl inputlar uchun "change" hodisasi (memory detail'da rasm qo'shish)
   app.addEventListener("change", e => {
     const el = e.target;
     if (el.dataset.action === "memImageSelected") {
