@@ -1,15 +1,17 @@
 {
-  "name": "biz-couple-app",
-  "version": "1.0.0",
-  "description": "Couple app — Telegram Mini App + bot",
+  "name": "studymind",
+  "version": "8.0.0",
+  "type": "module",
   "main": "index.js",
-  "type": "commonjs",
-  "scripts": {
-    "start": "node index.js"
-  },
+  "scripts": { "start": "node index.js" },
   "dependencies": {
-    "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "node-telegram-bot-api": "^0.66.0"
+    "express-session": "^1.18.0",
+    "connect-mongo": "^5.1.0",
+    "mongoose": "^8.4.0",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "telegraf": "^4.16.3",
+    "groq-sdk": "^0.3.0"
   }
 }
