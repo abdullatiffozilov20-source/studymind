@@ -35,7 +35,7 @@ function roomPath(code) {
   return path.join(DATA_DIR, `room-${safe}.json`);
 }
 function defaultRoom() {
-  return { memories: [], letters: [], tracks: [], timeline: [], plans: [], bucket: [], tasks: [], qa: {} };
+  return { memories: [], letters: [], tracks: [], timeline: [], plans: [], bucket: [], tasks: [], qa: {}, mapPins: [], anniversaries: [] };
 }
 function readRoom(code) {
   try {
