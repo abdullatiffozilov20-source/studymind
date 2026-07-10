@@ -384,6 +384,7 @@ const state = {
   appStarted: safeGet("couple_app_started", false),
 
   profileTab: "pick", // pick | incoming | partnerAnswers
+  showAnsweredIncoming: false,
   openStages: { 1: true },
   editingKey: null,
   draftSelected: [], // "Savol tanlash"da hali yuborilmagan tanlovlar
@@ -399,6 +400,9 @@ const state = {
   tasks: safeGet("couple_tasks", D.tasks),
   mapPins: safeGet("couple_map_pins", []),
   anniversaries: safeGet("couple_anniversaries", []),
+  stages: safeGet("couple_custom_stages", null) || JSON.parse(JSON.stringify(D.stages)),
+  editingQuestion: null, // { stageId, catTitle, idx }
+  addingQuestionFor: null, // { stageId, catTitle }
 
   memTab: "list", // list | map
 
@@ -412,6 +416,10 @@ const state = {
   modal: null,
   newMemoryImages: [], // "Yangi xotira" formasida asta-sekin to'planadigan rasmlar
   syncNote: "", // qisqa holat xabari (masalan "saqlanmadi")
+  linkError: "",
+  isRecording: false,
+  recordTarget: null, // 'new' | memory id
+  newMemoryVoice: null,
 };
 
 let heroSlideTimer = null;
@@ -429,6 +437,46 @@ function pickHomeReminderLetter() {
   homeReminderLetterId = state.letters[idx].id;
 }
 
+/* ================= TELEGRAM IDENTITY (doimiylik uchun) ================= */
+
+function tgUser() {
+  try {
+    return window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe
+      ? window.Telegram.WebApp.initDataUnsafe.user : null;
+  } catch (e) { return null; }
+}
+
+async function tryTelegramRecovery() {
+  const u = tgUser();
+  if (!u) return;
+  try {
+    const res = await fetch(`/api/identity/${u.id}`);
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data && data.found && data.roomCode) {
+      state.myCode = data.roomCode; safeSet("couple_mycode", state.myCode);
+      if (data.name) { state.myName = data.name; safeSet("couple_myname", state.myName); }
+      if (data.gender) { state.gender = data.gender; safeSet("couple_gender", state.gender); }
+      state.onboardSeen = true; safeSet("couple_onboard_seen", true);
+      state.appStarted = true; safeSet("couple_app_started", true);
+      state.linked = true; safeSet("couple_linked", true);
+    }
+  } catch (e) { /* server yo'q yoki offline — jim davom etamiz */ }
+}
+
+async function registerIdentity() {
+  const u = tgUser();
+  const code = getRoomCode();
+  if (!u || !code) return;
+  try {
+    await fetch("/api/identity", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tgId: u.id, roomCode: code, name: state.myName, gender: state.gender }),
+    });
+  } catch (e) { /* keyinroq urinamiz */ }
+}
+
 /* ================= ROOM (server bilan sinxronlash) ================= */
 
 function getRoomCode() {
@@ -443,6 +491,7 @@ function roomSnapshot() {
     memories: state.memories, letters: state.letters, tracks: state.tracks,
     timeline: state.timeline, plans: state.plans, bucket: state.bucket, tasks: state.tasks,
     qa: state.qa, meetDate: state.meetDate, mapPins: state.mapPins, anniversaries: state.anniversaries,
+    stages: state.stages,
   };
 }
 
@@ -459,6 +508,7 @@ function applyRoomData(data) {
   state.qa = data.qa || {};
   state.mapPins = data.mapPins || [];
   state.anniversaries = data.anniversaries || [];
+  if (data.stages) state.stages = data.stages;
   if (data.meetDate) { state.meetDate = data.meetDate; safeSet("couple_meetdate", state.meetDate); }
   cacheLocally();
   render();
@@ -475,6 +525,7 @@ function cacheLocally() {
   safeSet("couple_qa", state.qa);
   safeSet("couple_map_pins", state.mapPins);
   safeSet("couple_anniversaries", state.anniversaries);
+  safeSet("couple_custom_stages", state.stages);
 }
 
 async function fetchRoom() {
@@ -754,6 +805,10 @@ function renderMemoryDetail() {
         </div>
         <div class="form-field">
           <label class="form-label">${m.voice ? "Ovozli xabarni almashtirish" : "Ovozli xabar qoʻshish (ixtiyoriy)"}</label>
+          ${state.isRecording && state.recordTarget === m.id
+            ? `<button type="button" class="lock-unlock-btn" data-action="stopRecordExisting" data-id="${m.id}" style="background:#D4537E">⏹ Toʻxtatish (yozilmoqda...)</button>`
+            : `<button type="button" class="lock-unlock-btn" data-action="startRecordExisting" data-id="${m.id}" style="background:#5B3A56">🎙️ Ovoz yozish</button>`}
+          <p class="emoji-hint">Yoki fayldan tanlang:</p>
           <input class="form-input" type="file" accept="audio/*" data-action="memVoiceSelected" data-id="${m.id}">
         </div>
         <div class="form-field">
@@ -798,6 +853,7 @@ function isLetterLocked(l) {
   const unlock = new Date(l.unlockDate + "T00:00:00");
   return new Date() < unlock;
 }
+function isAuthor(item) { return !!(item.postedBy && item.postedBy === whoAmI()); }
 function daysUntil(dateStr) {
   const target = new Date(dateStr + "T00:00:00");
   const now = new Date();
@@ -808,6 +864,19 @@ function renderLetters() {
   const opened = state.letters.find(l => l.id === state.letterOpenId);
   if (opened) {
     if (isLetterLocked(opened)) {
+      const author = isAuthor(opened);
+      let actionBlock;
+      if (!opened.allowEarlyUnlock) {
+        actionBlock = `<p style="font-size:10.5px;color:#B79AAE;margin-top:10px">Bu xat muddatidan oldin ochilmaydi.</p>`;
+      } else if (author && opened.earlyUnlockRequested) {
+        actionBlock = `<p style="font-size:12px;color:#5B3A56;margin-top:10px">Sherigingiz bu xatni erta ochishni soʻrayapti.</p><button class="lock-unlock-btn" data-action="grantEarlyUnlock" data-id="${opened.id}">Ruxsat berish</button>`;
+      } else if (author) {
+        actionBlock = `<p style="font-size:10.5px;color:#B79AAE;margin-top:10px">Bu xatni faqat siz (yozgan kishi) erta ochishga ruxsat bera olasiz — sherigingiz soʻraguncha kuting.</p>`;
+      } else if (opened.earlyUnlockRequested) {
+        actionBlock = `<p style="font-size:12px;color:#8A6E80;margin-top:10px">Soʻrovingiz yuborildi — sherigingiz ruxsat berishini kutmoqdasiz.</p>`;
+      } else {
+        actionBlock = `<button class="lock-unlock-btn" data-action="requestEarlyUnlock" data-id="${opened.id}">Erta ochishni soʻrash</button>`;
+      }
       return `
         <div class="screen">
           ${renderTopBar("Xatlar", { hasBack: true, backAction: "closeLetter" })}
@@ -816,7 +885,7 @@ function renderLetters() {
               <div class="lock-icon">🔒</div>
               <p class="baloo" style="font-size:16px;color:#5B3A56;margin:10px 0 4px">${esc(opened.title)}</p>
               <p style="font-size:12px;color:#8A6E80;margin:0">${formatDate(opened.unlockDate)}gacha qulflangan · ${daysUntil(opened.unlockDate)} kun qoldi</p>
-              ${opened.allowEarlyUnlock ? `<button class="lock-unlock-btn" data-action="requestEarlyUnlock" data-id="${opened.id}">Kelishilgan holda hoziroq ochish</button>` : `<p style="font-size:10.5px;color:#B79AAE;margin-top:10px">Bu xat muddatidan oldin ochilmaydi.</p>`}
+              ${actionBlock}
             </div>
           </div>
         </div>`;
@@ -1024,7 +1093,9 @@ function renderOnboarding() {
   const dots = slides.map((_, idx) => `<div class="onboard-dot ${idx === i ? "active" : ""}"></div>`).join("");
   return `
     <div class="onboard-wrap">
-      <div></div>
+      <div>
+        <button class="backbtn" data-action="onboardBack">‹</button>
+      </div>
       <div>
         <div class="onboard-emoji">${s.emoji}</div>
         <p class="onboard-title">${esc(s.title)}</p>
@@ -1041,6 +1112,7 @@ function renderOnboarding() {
 function renderGenderPick() {
   return `
     <div class="setup-screen">
+      <button class="backbtn" data-action="genderBack" style="margin-bottom:14px">‹</button>
       <p class="setup-title">Siz kimsiz?</p>
       <p class="setup-sub">Profilingizni moslashtirish uchun tanlang.</p>
       <div style="display:flex;gap:12px;justify-content:center">
@@ -1059,6 +1131,7 @@ function renderGenderPick() {
 function renderSetup() {
   return `
     <div class="setup-screen">
+      <button class="backbtn" data-action="setupBack" style="margin-bottom:14px">‹</button>
       <p class="setup-title">Juftlik maʼlumotlari</p>
       <p class="setup-sub">Bir necha kichik maʼlumot — profilingiz shunga qarab moslashadi. Buni saqlagach, ilova sizniki uchun 0 dan boshlanadi.</p>
       <div class="form-field">
@@ -1084,6 +1157,7 @@ function renderSetup() {
 function renderLink() {
   return `
     <div class="setup-screen">
+      <button class="backbtn" data-action="linkBack" style="margin-bottom:14px">‹</button>
       <p class="setup-title">Profilingizni ulang</p>
       <p class="setup-sub">Kodlaringizni ulashib bir joyda uchrashing — ulangach xotira, musiqa, xat va vaqt ikkalangiz uchun bitta bo'ladi.</p>
       <div class="code-box">
@@ -1095,6 +1169,7 @@ function renderLink() {
         <label class="form-label">Sherigingizning kodi</label>
         <input class="form-input" id="partnerCodeInput" value="${esc(state.partnerCodeEntered)}" placeholder="Masalan: AB12CD">
       </div>
+      ${state.linkError ? `<p style="font-size:12px;color:#D4537E;margin:0 0 10px">${esc(state.linkError)}</p>` : ""}
       <button class="primary-btn" data-action="linkPartner">Ulash</button>
       <button class="ghost-btn" data-action="skipLink">Hozircha oʻtkazib yuborish</button>
     </div>`;
@@ -1105,20 +1180,40 @@ function renderLink() {
 function questionKey(stageId, catTitle, q) { return `${stageId}-${catTitle}-${q}`; }
 
 function renderPickTab() {
-  const body = D.stages.map(stage => {
+  const body = state.stages.map(stage => {
     const open = !!state.openStages[stage.id];
     const catsHtml = stage.categories.map(cat => `
       <div style="margin-bottom:10px">
         <p class="cat-title">${esc(cat.title)}</p>
-        ${cat.questions.map(q => {
+        ${cat.questions.map((q, idx) => {
           const key = questionKey(stage.id, cat.title, q);
           const checked = state.draftSelected.includes(key);
+          const editing = state.editingQuestion && state.editingQuestion.stageId === stage.id && state.editingQuestion.catTitle === cat.title && state.editingQuestion.idx === idx;
+          if (editing) {
+            return `
+              <div class="q-row">
+                <input class="form-input" id="edit-q-input" value="${esc(q)}">
+                <div class="q-actions">
+                  <button class="q-cancel" data-action="cancelEditQuestion">Bekor qilish</button>
+                  <button class="q-save" data-action="saveEditQuestion" data-stage="${stage.id}" data-cat="${esc(cat.title)}" data-idx="${idx}">Saqlash</button>
+                </div>
+              </div>`;
+          }
           return `
-            <div class="q-row selectable" data-action="toggleSelect" data-key="${key}">
-              <p class="q-text" style="flex:1">${esc(q)}</p>
-              <div class="q-checkbox ${checked ? "checked" : ""}">${checked ? "✓" : ""}</div>
+            <div class="q-row selectable">
+              <div style="flex:1;display:flex;align-items:center;gap:8px;cursor:pointer" data-action="toggleSelect" data-key="${key}">
+                <div class="q-checkbox ${checked ? "checked" : ""}">${checked ? "✓" : ""}</div>
+                <p class="q-text">${esc(q)}</p>
+              </div>
+              <div class="row-actions">
+                <button class="icon-btn" data-action="editQuestion" data-stage="${stage.id}" data-cat="${esc(cat.title)}" data-idx="${idx}">✎</button>
+                <button class="icon-btn danger" data-action="deleteQuestion" data-stage="${stage.id}" data-cat="${esc(cat.title)}" data-idx="${idx}">🗑</button>
+              </div>
             </div>`;
         }).join("")}
+        ${state.addingQuestionFor && state.addingQuestionFor.stageId === stage.id && state.addingQuestionFor.catTitle === cat.title
+          ? `<div class="add-item-row"><input type="text" id="new-question-input" placeholder="Yangi savol matni..."><button data-action="submitNewQuestion" data-stage="${stage.id}" data-cat="${esc(cat.title)}">Qoʻsh</button></div>`
+          : `<button type="button" class="add-folder-btn" data-action="openAddQuestion" data-stage="${stage.id}" data-cat="${esc(cat.title)}" style="margin-top:6px">+ Savol qoʻshish</button>`}
       </div>`).join("");
     return `
       <div class="stage-block" style="background:${stage.sensitive ? "#F1ECFF" : "#FFF3E3"}">
@@ -1134,7 +1229,8 @@ function renderPickTab() {
   }).join("");
   const changed = JSON.stringify([...state.draftSelected].sort()) !== JSON.stringify([...myQA().selectedForPartner].sort());
   return `
-    <p style="font-size:12px;color:#8A6E80;margin:0 0 12px">Sherigingizga bilishni xohlagan savollaringizni belgilang, keyin pastdagi tugma bilan yuboring.</p>
+    <p style="font-size:12px;color:#8A6E80;margin:0 0 4px">Sherigingizga bilishni xohlagan savollaringizni belgilang, keyin pastdagi tugma bilan yuboring.</p>
+    <p style="font-size:10.5px;color:#B79AAE;margin:0 0 12px">✎ — matnini tahrirlash, 🗑 — butunlay oʻchirish, "+ Savol qoʻshish" — oʻzingizniki qoʻshish. Eslatma: savol matnini oʻzgartirsangiz, unga avval berilgan javob koʻrinishdan yoʻqolishi mumkin.</p>
     ${changed ? `<div class="link-badge pending" style="width:100%;box-sizing:border-box;justify-content:center">⚠️ Oʻzgartirildi — hali yuborilmagan</div>` : ""}
     ${body}
     <button class="primary-btn" data-action="sendSelected" style="margin-top:8px">${changed ? "Tanlanganlarni yuborish" : "✓ Yuborilgan"}</button>`;
@@ -1144,36 +1240,42 @@ function renderIncomingTab() {
   const pq = partnerQA();
   const incomingKeys = pq ? pq.selectedForPartner : [];
   const rows = [];
-  D.stages.forEach(stage => {
+  let answeredCount = 0;
+  state.stages.forEach(stage => {
     stage.categories.forEach(cat => {
       cat.questions.forEach(q => {
         const key = questionKey(stage.id, cat.title, q);
         if (!incomingKeys.includes(key)) return;
+        const answer = myQA().answers[key];
+        if (answer) answeredCount++;
+        if (answer && !state.showAnsweredIncoming) return; // javob berilganini yashiramiz
         if (state.editingKey === key) {
           rows.push(`
             <div class="q-row">
               <p class="q-text">${esc(q)}</p>
-              <textarea class="q-textarea" rows="2" id="edit-${key}">${esc(myQA().answers[key] || "")}</textarea>
+              <textarea class="q-textarea" rows="2" id="edit-${key}">${esc(answer || "")}</textarea>
               <div class="q-actions">
                 <button class="q-cancel" data-action="cancelEdit">Bekor qilish</button>
                 <button class="q-save" data-action="saveAnswer" data-key="${key}">Saqlash</button>
               </div>
             </div>`);
         } else {
-          const answer = myQA().answers[key];
           rows.push(`
             <div class="q-row">
               <p class="q-text">${esc(q)}</p>
               <div data-action="editAnswer" data-key="${key}">
-                ${answer ? `<p class="q-answer">${esc(answer)}</p>` : `<p class="q-placeholder">Javob berish uchun bosing…</p>`}
+                ${answer ? `<p class="q-answer">✓ ${esc(answer)}</p>` : `<p class="q-placeholder">Javob berish uchun bosing…</p>`}
               </div>
             </div>`);
         }
       });
     });
   });
-  return rows.length
-    ? `<p style="font-size:12px;color:#8A6E80;margin:0 0 12px">Sherigingiz sizdan shu savollarni soʻragan:</p>${rows.join("")}`
+  const toggle = answeredCount > 0
+    ? `<p style="font-size:11px;color:#B4497A;text-decoration:underline;cursor:pointer;margin:0 0 10px" data-action="toggleShowAnswered">${state.showAnsweredIncoming ? "Javob berilganlarni yashirish" : `Javob berilgan ${answeredCount} tasini ko'rsatish`}</p>`
+    : "";
+  return rows.length || toggle
+    ? `<p style="font-size:12px;color:#8A6E80;margin:0 0 12px">Sherigingiz sizdan shu savollarni soʻragan:</p>${toggle}${rows.join("") || emptyState("Barchasiga javob berdingiz! 🎉")}`
     : emptyState("Hozircha sherigingiz sizdan hech narsa soʻramagan.");
 }
 
@@ -1181,7 +1283,7 @@ function renderPartnerAnswersTab() {
   const sentKeys = myQA().selectedForPartner;
   const pq = partnerQA();
   const rows = [];
-  D.stages.forEach(stage => {
+  state.stages.forEach(stage => {
     stage.categories.forEach(cat => {
       cat.questions.forEach(q => {
         const key = questionKey(stage.id, cat.title, q);
@@ -1263,7 +1365,15 @@ function renderModal() {
         <div class="emoji-pick">${D.emojiSuggestions.map(e => `<button type="button" data-emoji="${e}" data-target="mf-emoji" class="emoji-opt">${e}</button>`).join("")}</div>
       </div>
       <div class="form-field"><label class="form-label">Yozuv (ixtiyoriy)</label><textarea class="form-textarea" rows="3" id="mf-note" placeholder="Bu xotira haqida..."></textarea></div>
-      <div class="form-field"><label class="form-label">Ovozli xabar (ixtiyoriy)</label><input class="form-input" type="file" accept="audio/*" id="mf-voice"></div>
+      <div class="form-field">
+        <label class="form-label">Ovozli xabar (ixtiyoriy)</label>
+        ${state.isRecording && state.recordTarget === "new"
+          ? `<button type="button" class="lock-unlock-btn" data-action="stopRecordNew" style="background:#D4537E">⏹ Toʻxtatish (yozilmoqda...)</button>`
+          : `<button type="button" class="lock-unlock-btn" data-action="startRecordNew" style="background:#5B3A56">🎙️ Ovoz yozish</button>`}
+        ${state.newMemoryVoice ? `<div style="margin-top:8px"><audio class="audio-player" controls src="${state.newMemoryVoice}"></audio><button type="button" class="icon-btn danger" data-action="clearNewVoice">🗑 Ovozni oʻchirish</button></div>` : ""}
+        <p class="emoji-hint">Yoki fayldan tanlang:</p>
+        <input class="form-input" type="file" accept="audio/*" id="mf-voice">
+      </div>
       <div class="form-field">
         <label class="form-label">Rasmlar (ixtiyoriy — bir nechta marta tanlashingiz mumkin, har biri qo'shilib boradi)</label>
         <input class="form-input" type="file" accept="image/*" multiple id="mf-image" data-action-change="pickNewMemoryImages">
@@ -1451,6 +1561,37 @@ function readFileAsDataUrl(file, cb) {
 }
 function whoAmI() { return state.myName || "Siz"; }
 
+/* ---------- mikrofon orqali ovoz yozish ---------- */
+let activeMediaRecorder = null;
+let activeRecordedChunks = [];
+let activeStream = null;
+
+function startVoiceRecording(target, onDone) {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    alert("Bu qurilma/brauzer mikrofon yozishni qo'llamaydi.");
+    return;
+  }
+  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+    activeStream = stream;
+    activeRecordedChunks = [];
+    activeMediaRecorder = new MediaRecorder(stream);
+    activeMediaRecorder.ondataavailable = e => { if (e.data.size > 0) activeRecordedChunks.push(e.data); };
+    activeMediaRecorder.onstop = () => {
+      const blob = new Blob(activeRecordedChunks, { type: "audio/webm" });
+      const reader = new FileReader();
+      reader.onload = () => onDone(reader.result);
+      reader.readAsDataURL(blob);
+      stream.getTracks().forEach(t => t.stop());
+    };
+    activeMediaRecorder.start();
+    state.isRecording = true; state.recordTarget = target; render();
+  }).catch(() => alert("Mikrofonga ruxsat berilmadi."));
+}
+function stopVoiceRecording() {
+  if (activeMediaRecorder && activeMediaRecorder.state !== "inactive") activeMediaRecorder.stop();
+  state.isRecording = false; state.recordTarget = null;
+}
+
 function resetContentToZero() {
   state.memories = [];
   state.letters = [];
@@ -1465,8 +1606,9 @@ function resetContentToZero() {
 
 /* ================= ACTIONS ================= */
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const app = document.getElementById("app");
+  await tryTelegramRecovery();
   state.draftSelected = (myQA().selectedForPartner || []).slice();
   pickHomeReminderLetter();
   startRoomPolling();
@@ -1553,6 +1695,13 @@ document.addEventListener("DOMContentLoaded", () => {
       else { state.screen = "profile"; }
       render();
     }
+    else if (action === "onboardBack") {
+      if (state.onboardIdx > 0) { state.onboardIdx--; render(); }
+      else { state.screen = "main"; state.tab = "home"; render(); }
+    }
+    else if (action === "genderBack") { state.screen = "onboarding"; state.onboardIdx = D.onboarding.length - 1; render(); }
+    else if (action === "setupBack") { state.screen = "gender"; render(); }
+    else if (action === "linkBack") { state.screen = "setup"; render(); }
     else if (action === "onboardNext") {
       if (state.onboardIdx < D.onboarding.length - 1) { state.onboardIdx++; render(); }
       else { state.onboardSeen = true; safeSet("couple_onboard_seen", true); state.screen = "gender"; render(); }
@@ -1580,24 +1729,73 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       if (!state.myCode) { state.myCode = genCode(); safeSet("couple_mycode", state.myCode); }
       pushRoom();
+      registerIdentity();
       state.screen = "link"; render();
     }
     else if (action === "linkPartner") {
       const val = document.getElementById("partnerCodeInput").value.trim();
-      if (val) {
-        state.linked = true; safeSet("couple_linked", true);
-        state.partnerCodeEntered = val; safeSet("couple_partner_code_entered", val);
-        // Avval sherigingizning mavjud xonasini olib kelamiz (uni bo'sh mahalliy
-        // ma'lumot bilan ustidan yozib qo'ymaslik uchun), keyin muntazam yangilanishni boshlaymiz.
-        fetchRoom().then(() => startRoomPolling());
-      }
-      state.screen = "profile"; render();
+      if (!val) { state.linkError = "Kodni kiriting."; render(); return; }
+      state.linkError = "Tekshirilmoqda…"; render();
+      fetch(`/api/room-exists/${encodeURIComponent(val)}`)
+        .then(r => r.json())
+        .then(data => {
+          if (!data.exists) {
+            state.linkError = "❗ Bunday kod topilmadi. Kodni sherigingizdan qayta tekshirib, aniq kiriting (katta-kichik harf farq qilmaydi).";
+            render();
+            return;
+          }
+          state.linkError = "";
+          state.linked = true; safeSet("couple_linked", true);
+          state.partnerCodeEntered = val; safeSet("couple_partner_code_entered", val);
+          fetchRoom().then(() => { startRoomPolling(); registerIdentity(); });
+          state.screen = "profile"; render();
+        })
+        .catch(() => {
+          state.linkError = "❗ Serverga ulanib boʻlmadi. Internetni tekshirib, qaytadan urining.";
+          render();
+        });
     }
     else if (action === "skipLink") { safeSet("couple_link_skipped", true); state.screen = "profile"; render(); }
     else if (action === "goLinkFromProfile") { state.screen = "link"; render(); }
 
     else if (action === "setProfileTab") { state.profileTab = el.dataset.ptab; render(); }
     else if (action === "toggleStage") { const id = el.dataset.stage; state.openStages[id] = !state.openStages[id]; render(); }
+    else if (action === "openAddQuestion") { state.addingQuestionFor = { stageId: Number(el.dataset.stage), catTitle: el.dataset.cat }; render(); }
+    else if (action === "submitNewQuestion") {
+      const input = document.getElementById("new-question-input");
+      const text = input ? input.value.trim() : "";
+      const stageId = Number(el.dataset.stage), catTitle = el.dataset.cat;
+      if (text) {
+        const stage = state.stages.find(s => s.id === stageId);
+        const cat = stage.categories.find(c => c.title === catTitle);
+        cat.questions.push(text);
+        pushRoom();
+      }
+      state.addingQuestionFor = null; render();
+    }
+    else if (action === "editQuestion") { state.editingQuestion = { stageId: Number(el.dataset.stage), catTitle: el.dataset.cat, idx: Number(el.dataset.idx) }; render(); }
+    else if (action === "cancelEditQuestion") { state.editingQuestion = null; render(); }
+    else if (action === "saveEditQuestion") {
+      const stageId = Number(el.dataset.stage), catTitle = el.dataset.cat, idx = Number(el.dataset.idx);
+      const input = document.getElementById("edit-q-input");
+      const text = input ? input.value.trim() : "";
+      if (text) {
+        const stage = state.stages.find(s => s.id === stageId);
+        const cat = stage.categories.find(c => c.title === catTitle);
+        cat.questions[idx] = text;
+        pushRoom();
+      }
+      state.editingQuestion = null; render();
+    }
+    else if (action === "deleteQuestion") {
+      const stageId = Number(el.dataset.stage), catTitle = el.dataset.cat, idx = Number(el.dataset.idx);
+      if (window.confirm("Bu savolni butunlay o'chirasizmi?")) {
+        const stage = state.stages.find(s => s.id === stageId);
+        const cat = stage.categories.find(c => c.title === catTitle);
+        cat.questions.splice(idx, 1);
+        pushRoom(); render();
+      }
+    }
     else if (action === "toggleSelect") {
       const key = el.dataset.key;
       const idx = state.draftSelected.indexOf(key);
@@ -1608,6 +1806,7 @@ document.addEventListener("DOMContentLoaded", () => {
       myQA().selectedForPartner = state.draftSelected.slice();
       pushRoom(); render();
     }
+    else if (action === "toggleShowAnswered") { state.showAnsweredIncoming = !state.showAnsweredIncoming; render(); }
     else if (action === "editAnswer") { state.editingKey = el.dataset.key; render(); }
     else if (action === "cancelEdit") { state.editingKey = null; render(); }
     else if (action === "saveAnswer") {
@@ -1688,6 +1887,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     else if (action === "requestEarlyUnlock") {
       const l = state.letters.find(x => x.id === Number(el.dataset.id));
+      if (l) { l.earlyUnlockRequested = true; persistAll(); }
+      render();
+    }
+    else if (action === "grantEarlyUnlock") {
+      const l = state.letters.find(x => x.id === Number(el.dataset.id));
       if (l) { l.unlockedEarly = true; persistAll(); }
       render();
     }
@@ -1701,6 +1905,18 @@ document.addEventListener("DOMContentLoaded", () => {
     else if (action === "editTimeline") { state.modal = { type: "timelineForm", editId: Number(el.dataset.id) }; render(); }
     else if (action === "deleteTimeline") { state.timeline = state.timeline.filter(t => t.id !== Number(el.dataset.id)); persistAll(); render(); }
     else if (action === "deleteMemory") { state.memories = state.memories.filter(m => m.id !== Number(el.dataset.id)); persistAll(); render(); }
+    else if (action === "startRecordExisting") {
+      const id = Number(el.dataset.id);
+      startVoiceRecording(id, (dataUrl) => {
+        const m = state.memories.find(x => x.id === id);
+        if (m) { m.voice = dataUrl; persistAll(); }
+        render();
+      });
+    }
+    else if (action === "stopRecordExisting") { stopVoiceRecording(); render(); }
+    else if (action === "startRecordNew") { startVoiceRecording("new", (dataUrl) => { state.newMemoryVoice = dataUrl; render(); }); }
+    else if (action === "stopRecordNew") { stopVoiceRecording(); render(); }
+    else if (action === "clearNewVoice") { state.newMemoryVoice = null; render(); }
     else if (action === "removeNewMemoryImage") {
       state.newMemoryImages.splice(Number(el.dataset.idx), 1);
       render();
@@ -1745,11 +1961,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const colors = ["#FFE1EC", "#E4E0FF", "#FFF0D9", "#DBF7EF"];
       const finish = (voiceDataUrl) => {
         state.memories.push({ id: uid(state.memories), title: title || "Yangi xotira", kind, date, emoji, color: colors[state.memories.length % colors.length], note, voice: voiceDataUrl || null, images: state.newMemoryImages.slice(), postedBy: whoAmI() });
-        state.newMemoryImages = [];
+        state.newMemoryImages = []; state.newMemoryVoice = null;
         persistAll();
         state.modal = null; render();
       };
-      if (voiceInput.files && voiceInput.files[0]) readFileAsDataUrl(voiceInput.files[0], finish);
+      if (state.newMemoryVoice) finish(state.newMemoryVoice);
+      else if (voiceInput.files && voiceInput.files[0]) readFileAsDataUrl(voiceInput.files[0], finish);
       else finish(null);
     }
     else if (action === "submitLetter") {
