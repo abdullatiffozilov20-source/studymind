@@ -69,7 +69,14 @@ function redactRoom(room) {
     Object.entries(person.answers || {}).forEach(([key, val]) => {
       if (askedKeys.has(key)) answers[key] = val;
     });
-    redactedQa[name] = { answers, selectedForPartner: person.selectedForPartner || [], avatar: person.avatar };
+    redactedQa[name] = {
+      answers,
+      selectedForPartner: person.selectedForPartner || [],
+      avatar: person.avatar,
+      mood: person.mood,
+      favorites: person.favorites || {},
+      personality: person.personality || {},
+    };
   });
   return { ...room, qa: redactedQa };
 }
@@ -126,6 +133,43 @@ app.post("/api/identity", (req, res) => {
   identities[String(tgId)] = { roomCode, name, gender, savedAt: Date.now() };
   writeIdentities(identities);
   res.json({ ok: true });
+});
+
+app.post("/api/our-story/:code", async (req, res) => {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    return res.json({ ok: false, error: "ANTHROPIC_API_KEY sozlanmagan. .env fayliga API kalitingizni qo'shing." });
+  }
+  try {
+    const room = readRoom(req.params.code);
+    const summary = {
+      memories: (room.memories || []).map(m => ({ title: m.title, date: m.date, note: m.note, postedBy: m.postedBy })),
+      letters: (room.letters || []).map(l => ({ title: l.title, date: l.date })),
+      anniversaries: (room.anniversaries || []).map(a => ({ type: a.type, date: a.date })),
+      tracks: (room.tracks || []).map(t => ({ title: t.title, story: t.story })),
+    };
+    const prompt = `Quyida bir juftlikning ilova ichidagi ma'lumotlari (JSON) berilgan: xotiralar, xatlar, muhim sanalar, qo'shiqlar. Shu ma'lumotlar asosida, iliq, samimiy, qisqa (150-220 so'z) o'zbek tilida "Our Story" uslubidagi oylik/umumiy sevgi hikoyasi yozing — xuddi ularning sevgi kitobidagi bir sahifa kabi. Aniq sana va sarlavhalarga tayaning, lekin haddan tashqari uzun ro'yxat qilmang, hikoya uslubida yozing.\n\nMa'lumotlar:\n${JSON.stringify(summary)}`;
+
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 600,
+        messages: [{ role: "user", content: prompt }],
+      }),
+    });
+    const data = await response.json();
+    if (data.error) return res.json({ ok: false, error: data.error.message || "AI xatosi" });
+    const text = (data.content || []).map(c => c.text || "").join("\n").trim();
+    res.json({ ok: true, story: text });
+  } catch (err) {
+    res.json({ ok: false, error: err.message });
+  }
 });
 
 app.listen(PORT, () => {
