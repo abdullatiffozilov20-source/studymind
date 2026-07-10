@@ -168,9 +168,10 @@ input, textarea, select { font-family: inherit; }
 
 /* home hero slideshow */
 .hero-time { position: relative; overflow: hidden; border-radius: 28px; padding: 28px 20px; text-align: center; background: linear-gradient(135deg,#FFE1EC,#E4E0FF); }
-.hero-slide-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1s ease; }
-.hero-slide-img.show { opacity: 0.38; }
-.hero-time-content { position: relative; z-index: 1; }
+.hero-slide-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 28px; opacity: 0; transition: opacity 0.8s ease; }
+.hero-slide-img.show { opacity: 0.55; }
+.hero-overlay { position: absolute; inset: 0; border-radius: 28px; background: linear-gradient(135deg, rgba(255,225,236,0.55), rgba(228,224,255,0.55)); z-index: 1; }
+.hero-time-content { position: relative; z-index: 2; }
 
 /* pairing code chip (persistent) */
 .mycode-chip { display: flex; align-items: center; justify-content: space-between; background: #F1ECFF; border-radius: 14px; padding: 10px 14px; margin-bottom: 12px; }
@@ -181,6 +182,28 @@ input, textarea, select { font-family: inherit; }
 .q-checkbox { width: 22px; height: 22px; border-radius: 6px; border: 1.5px solid #E7C7D4; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #fff; flex-shrink: 0; }
 .q-checkbox.checked { background: #D4537E; border-color: #D4537E; }
 .stage-label-plain { font-family: Georgia, serif; font-size: 13px; color: #5B3A56; margin: 14px 0 6px; }
+
+/* locked letters */
+.letter-locked { background: #F1ECFF; border-radius: 20px; padding: 20px 18px; text-align: center; margin-bottom: 12px; }
+.letter-locked .lock-icon { font-size: 26px; }
+.lock-unlock-btn { border: none; background: #D4537E; color: #fff; border-radius: 12px; padding: 9px 16px; font-size: 12px; margin-top: 10px; }
+.lock-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; color: #B4497A; background: #FFE1EC; padding: 2px 8px; border-radius: 8px; }
+
+/* map */
+.map-area { position: relative; width: 100%; height: 320px; border-radius: 22px; overflow: hidden;
+            background: radial-gradient(circle at 25% 30%, #FFE1EC 0%, transparent 45%),
+                        radial-gradient(circle at 75% 65%, #E4E0FF 0%, transparent 45%),
+                        radial-gradient(circle at 50% 90%, #FFF0D9 0%, transparent 40%),
+                        #FFF9F6; cursor: crosshair; border: 1.5px dashed #F0D5E1; }
+.map-pin { position: absolute; transform: translate(-50%, -100%); font-size: 22px; cursor: pointer; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.15)); }
+.map-pin-label { position: absolute; transform: translate(-50%, 4px); font-size: 9px; color: #5B3A56; background: rgba(255,255,255,0.85); padding: 2px 6px; border-radius: 6px; white-space: nowrap; }
+.map-hint { font-size: 11px; color: #B79AAE; text-align: center; margin: 8px 0 14px; }
+
+/* anniversary calendar */
+.anniv-row { background: #FFF3E3; border-radius: 18px; padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.anniv-badge { min-width: 46px; text-align: center; background: #FFFFFF; border-radius: 12px; padding: 6px 8px; flex-shrink: 0; }
+.anniv-badge .num { font-family: Georgia, serif; font-size: 15px; color: #D4537E; display: block; }
+.anniv-badge .lbl { font-size: 8.5px; color: #B79AAE; }
 
 </style>
 </head>
@@ -209,6 +232,13 @@ window.APP_DATA = {
   emojiSuggestions: ["☕️", "🌸", "🎶", "😆", "🌙", "🎂", "✈️", "🏡", "🥰", "🎉", "📷", "🍕"],
   moodSuggestions: ["🥰", "🤍", "✨", "😊", "😢", "🌙", "😴", "🥳"],
   rewardSuggestions: ["☕️ Birga qahva", "🍫 Shokolad", "💆 Massaj", "🎬 Kino kechasi", "🍕 Pizza kechasi", "💐 Gul"],
+
+  memoryKinds: ["Umumiy", "🎫 Chipta", "🧾 Chek", "📱 Ekran surati", "🎙️ Ovozli xabar", "🎬 Video", "📄 Hujjat"],
+  mapPinSuggestions: ["❤️ Birinchi oʻpish", "❤️ Birinchi uchrashuv", "❤️ Sayohat", "❤️ Sevimli kafe", "❤️ Sevimli bogʻ"],
+  anniversaryTypes: [
+    "Birinchi xabar", "Birinchi qoʻngʻiroq", "Birinchi uchrashuv", "Taklif (Proposal)",
+    "Turmush qurish", "Tugʻilgan kun", "Birinchi sayohat", "Birinchi sovgʻa",
+  ],
 
   // Demo maqsadida: "sherigingiz" sizdan shu ikki savolni so'ragan deb faraz qilamiz (backend ulanganda haqiqiy bo'ladi).
   defaultSelectedByPartner: ["1-Oʻzi haqida-Toʻliq ismi", "1-Xarakteri-Introvertmi yoki ekstrovert"],
@@ -367,6 +397,10 @@ const state = {
   plans: safeGet("couple_plans", D.plans),
   bucket: safeGet("couple_bucket", D.bucket),
   tasks: safeGet("couple_tasks", D.tasks),
+  mapPins: safeGet("couple_map_pins", []),
+  anniversaries: safeGet("couple_anniversaries", []),
+
+  memTab: "list", // list | map
 
   timeMode: "timeline",
   letterOpenId: null,
@@ -376,14 +410,24 @@ const state = {
   editingItem: null,
 
   modal: null,
+  newMemoryImages: [], // "Yangi xotira" formasida asta-sekin to'planadigan rasmlar
   syncNote: "", // qisqa holat xabari (masalan "saqlanmadi")
 };
 
 let heroSlideTimer = null;
+let heroRunning = false;
 let heroImages = [];
 let heroIdx = 0;
 let roomPollTimer = null;
 let pushInFlight = false;
+let localVersion = 0;
+let homeReminderLetterId = null;
+
+function pickHomeReminderLetter() {
+  if (!state.letters.length) { homeReminderLetterId = null; return; }
+  const idx = Math.floor(Math.random() * state.letters.length);
+  homeReminderLetterId = state.letters[idx].id;
+}
 
 /* ================= ROOM (server bilan sinxronlash) ================= */
 
@@ -398,7 +442,7 @@ function roomSnapshot() {
   return {
     memories: state.memories, letters: state.letters, tracks: state.tracks,
     timeline: state.timeline, plans: state.plans, bucket: state.bucket, tasks: state.tasks,
-    qa: state.qa, meetDate: state.meetDate,
+    qa: state.qa, meetDate: state.meetDate, mapPins: state.mapPins, anniversaries: state.anniversaries,
   };
 }
 
@@ -413,6 +457,8 @@ function applyRoomData(data) {
   state.bucket = data.bucket || [];
   state.tasks = data.tasks || [];
   state.qa = data.qa || {};
+  state.mapPins = data.mapPins || [];
+  state.anniversaries = data.anniversaries || [];
   if (data.meetDate) { state.meetDate = data.meetDate; safeSet("couple_meetdate", state.meetDate); }
   cacheLocally();
   render();
@@ -427,24 +473,32 @@ function cacheLocally() {
   safeSet("couple_bucket", state.bucket);
   safeSet("couple_tasks", state.tasks);
   safeSet("couple_qa", state.qa);
+  safeSet("couple_map_pins", state.mapPins);
+  safeSet("couple_anniversaries", state.anniversaries);
 }
 
 async function fetchRoom() {
   const code = getRoomCode();
   if (!code) return;
+  const versionAtStart = localVersion;
   try {
     const res = await fetch(`/api/room/${code}`);
     if (!res.ok) return;
     const data = await res.json();
+    // Shu fetch boshlangandan beri mahalliy o'zgarish (qo'shish/o'chirish/tahrirlash) bo'lgan bo'lsa,
+    // bu javob allaqachon eskirgan — uni qo'llasak, endigina qo'shilgan narsa bir zumga
+    // yo'qolib ketardi. Shuning uchun bunday holatda e'tiborsiz qoldiramiz.
+    if (localVersion !== versionAtStart) return;
     applyRoomData(data);
   } catch (e) { /* offline yoki server yo'q — mahalliy nusxa bilan davom etamiz */ }
 }
 
 async function pushRoom() {
+  localVersion++;
   const code = getRoomCode();
   cacheLocally();
   if (!code) return;
-  if (pushInFlight) return; // ketma-ket yuborishlarni soddalashtiramiz
+  if (pushInFlight) return;
   pushInFlight = true;
   try {
     await fetch(`/api/room/${code}`, {
@@ -510,6 +564,7 @@ function allMemoryImages() {
 function renderHome() {
   const gc = genderConfig();
   const greetName = state.greetingNickname || state.myName;
+  const avatar = myQA().avatar;
   const dt = daysTogether();
   const memChips = state.memories.slice(0, 3).map(m => `
     <div class="mem-chip" style="background:${m.color}" data-action="openMemory" data-id="${m.id}">
@@ -522,14 +577,15 @@ function renderHome() {
     <div class="screen">
       ${renderTopBar("", {})}
       <div class="content">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;cursor:pointer" data-action="openProfileEntry">
-          <div style="width:36px;height:36px;border-radius:18px;background:#FFE1EC;display:flex;align-items:center;justify-content:center;font-size:17px">${gc.icon}</div>
-          <p class="baloo" style="font-size:21px;color:#5B3A56;margin:0">Xayrli tong${greetName ? ", " + esc(greetName) : ""} ${gc.sun}</p>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+          <div data-action="pickAvatar" style="width:36px;height:36px;border-radius:18px;background:#FFE1EC;display:flex;align-items:center;justify-content:center;font-size:17px;overflow:hidden;cursor:pointer;flex-shrink:0">${avatar ? `<img src="${avatar}" style="width:100%;height:100%;object-fit:cover">` : gc.icon}</div>
+          <p class="baloo" style="font-size:21px;color:#5B3A56;margin:0;cursor:pointer" data-action="openProfileEntry">Xayrli tong${greetName ? ", " + esc(greetName) : ""} ${gc.sun}</p>
         </div>
         <p style="font-size:13px;color:#B79AAE;margin:0 0 20px">10-iyul, juma</p>
 
         <div class="hero-time">
           <img class="hero-slide-img" id="heroSlideImg" src="">
+          <div class="hero-overlay"></div>
           <div class="hero-time-content">
             <p style="font-size:12px;color:#8A5C78;margin:0;letter-spacing:1px">BIRGA OʻTGAN VAQT</p>
             ${dt
@@ -540,13 +596,24 @@ function renderHome() {
           </div>
         </div>
 
-        <div class="card-row" data-action="goTab" data-tab="letters">
-          <div style="font-size:22px">💭</div>
-          <div>
-            <p style="margin:0;font-size:13px;font-weight:500;color:#5B3A56">Bugungi savol</p>
-            <p style="margin:0;font-size:12px;color:#B79AAE">Bugun sizni nima tabassum qildirdi?</p>
-          </div>
-        </div>
+        ${(() => {
+          const letter = state.letters.find(l => l.id === homeReminderLetterId);
+          return letter
+            ? `<div class="card-row" data-action="openLetterFromHome" data-id="${letter.id}">
+                 <div style="font-size:22px">${letter.mood || "✉️"}</div>
+                 <div>
+                   <p style="margin:0;font-size:13px;font-weight:500;color:#5B3A56">Eski bir xatni eslang</p>
+                   <p style="margin:0;font-size:12px;color:#B79AAE">"${esc(letter.title)}"</p>
+                 </div>
+               </div>`
+            : `<div class="card-row" data-action="goTab" data-tab="letters">
+                 <div style="font-size:22px">💭</div>
+                 <div>
+                   <p style="margin:0;font-size:13px;font-weight:500;color:#5B3A56">Bugungi savol</p>
+                   <p style="margin:0;font-size:12px;color:#B79AAE">Bugun sizni nima tabassum qildirdi?</p>
+                 </div>
+               </div>`;
+        })()}
 
         <div class="card-purple" data-action="openProfileEntry">
           <div style="display:flex;align-items:center;gap:12px">
@@ -565,37 +632,46 @@ function renderHome() {
     </div>`;
 }
 
-function startHeroSlideshow() {
-  clearInterval(heroSlideTimer);
+function ensureHeroSlideshow() {
   heroImages = allMemoryImages();
   const imgEl = document.getElementById("heroSlideImg");
-  if (!imgEl || !heroImages.length) return;
-  heroIdx = 0;
-  imgEl.src = heroImages[0];
-  requestAnimationFrame(() => imgEl.classList.add("show"));
-  if (heroImages.length < 2) return;
+  if (!imgEl) return;
+  if (!heroImages.length) { imgEl.style.display = "none"; return; }
+  imgEl.style.display = "";
+  if (heroIdx >= heroImages.length) heroIdx = 0;
+  // Har renderda joriy rasmni darhol chizamiz — bo'sh (yo'qolgandek) ko'rinish bo'lmasin.
+  imgEl.src = heroImages[heroIdx];
+  imgEl.classList.add("show");
+  if (heroImages.length < 2) { clearInterval(heroSlideTimer); heroRunning = false; return; }
+  if (heroRunning) return; // interval allaqachon ishlayapti — qayta boshlab, aylanishni uzmaymiz
+  heroRunning = true;
   heroSlideTimer = setInterval(() => {
+    heroImages = allMemoryImages();
+    if (heroImages.length < 2) return;
     const el = document.getElementById("heroSlideImg");
-    if (!el) { clearInterval(heroSlideTimer); return; }
+    if (!el) return; // Home'dan boshqa joyga o'tilgan — keyingi safar to'xtatiladi
     el.classList.remove("show");
     setTimeout(() => {
       heroIdx = (heroIdx + 1) % heroImages.length;
-      el.src = heroImages[heroIdx];
-      requestAnimationFrame(() => el.classList.add("show"));
-    }, 350);
-  }, 4000);
+      const el2 = document.getElementById("heroSlideImg");
+      if (!el2) return;
+      el2.src = heroImages[heroIdx];
+      requestAnimationFrame(() => el2.classList.add("show"));
+    }, 400);
+  }, 4200);
 }
 
 /* ================= MEMORIES ================= */
 
 function renderMem() {
+  if (state.memTab === "map") return renderMemMap();
   const tiles = state.memories.map(m => `
     <div class="mem-tile" style="background:${m.color}">
       <div class="mem-tile-main" data-action="openMemory" data-id="${m.id}">
         <div class="mem-icon">${(m.images && m.images[0]) ? `<img src="${m.images[0]}">` : m.emoji}</div>
         <div>
-          <p style="margin:0;font-size:14px;font-weight:500;color:#5B3A56">${esc(m.title)}</p>
-          <p style="margin:0;font-size:11px;color:#8A6E80">${esc(formatDate(m.date))}${m.note ? " · yozuv bor" : ""}${m.images && m.images.length ? ` · ${m.images.length} rasm` : ""}</p>
+          <p style="margin:0;font-size:14px;font-weight:500;color:#5B3A56">${esc(m.title)}${m.kind && m.kind !== "Umumiy" ? ` <span style="font-size:10px;color:#B4497A">· ${esc(m.kind)}</span>` : ""}</p>
+          <p style="margin:0;font-size:11px;color:#8A6E80">${esc(formatDate(m.date))}${m.note ? " · yozuv bor" : ""}${m.images && m.images.length ? ` · ${m.images.length} rasm` : ""}${m.voice ? " · 🎙️ ovozli" : ""}</p>
           ${posted(m)}
         </div>
       </div>
@@ -607,8 +683,29 @@ function renderMem() {
   return `<div class="screen">
     ${renderTopBar("Xotiralar", { addAction: "openMemoryForm" })}
     <div class="content">
+      <div class="segment">
+        <button class="active" data-action="setMemTab" data-mtab="list">Roʻyxat</button>
+        <button data-action="setMemTab" data-mtab="map">🗺️ Xarita</button>
+      </div>
       ${hasPics ? `<div class="card-row" data-action="openAllPictures" style="margin-top:0;margin-bottom:14px"><div style="font-size:20px">🖼️</div><div><p style="margin:0;font-size:13px;font-weight:500;color:#5B3A56">Barcha rasmlar</p><p style="margin:0;font-size:12px;color:#B79AAE">Barcha xotiralardagi suratlar</p></div></div>` : ""}
       ${tiles || emptyState("Hali xotira yoʻq. + tugmasi orqali qoʻshing.")}
+    </div>
+  </div>`;
+}
+
+function renderMemMap() {
+  const pins = state.mapPins.map(p => `
+    <div class="map-pin" style="left:${p.x}%;top:${p.y}%" data-action="openPin" data-id="${p.id}" title="${esc(p.label)}">📍</div>
+    <div class="map-pin-label" style="left:${p.x}%;top:${p.y}%">${esc(p.label)}</div>`).join("");
+  return `<div class="screen">
+    ${renderTopBar("Xotiralar", {})}
+    <div class="content">
+      <div class="segment">
+        <button data-action="setMemTab" data-mtab="list">Roʻyxat</button>
+        <button class="active" data-action="setMemTab" data-mtab="map">🗺️ Xarita</button>
+      </div>
+      <p class="map-hint">Bizga muhim joylarni belgilang — xaritaning istalgan joyiga bosing.</p>
+      <div class="map-area" data-action="addMapPin">${pins}</div>
     </div>
   </div>`;
 }
@@ -650,9 +747,14 @@ function renderMemoryDetail() {
       <div class="content">
         ${carousel}
         <p style="font-size:12px;color:#B79AAE;margin:0 0 10px">${esc(formatDate(m.date))}${m.postedBy ? " · " + esc(m.postedBy) + " qoʻshgan" : ""}</p>
+        ${m.voice ? `<div class="form-field"><label class="form-label">🎙️ Ovozli xabar</label><audio class="audio-player" controls src="${m.voice}"></audio></div>` : ""}
         <div class="form-field">
           <label class="form-label">Yozuv</label>
           <textarea class="form-textarea" rows="4" id="memNoteInput" placeholder="Bu xotira haqida yozing...">${esc(m.note || "")}</textarea>
+        </div>
+        <div class="form-field">
+          <label class="form-label">${m.voice ? "Ovozli xabarni almashtirish" : "Ovozli xabar qoʻshish (ixtiyoriy)"}</label>
+          <input class="form-input" type="file" accept="audio/*" data-action="memVoiceSelected" data-id="${m.id}">
         </div>
         <div class="form-field">
           <label class="form-label">Yana rasm qoʻshish (bir nechtasini birga tanlashingiz mumkin)</label>
@@ -690,9 +792,35 @@ function renderMusic() {
 
 /* ================= LETTERS ================= */
 
+function isLetterLocked(l) {
+  if (!l.unlockDate) return false;
+  if (l.unlockedEarly) return false;
+  const unlock = new Date(l.unlockDate + "T00:00:00");
+  return new Date() < unlock;
+}
+function daysUntil(dateStr) {
+  const target = new Date(dateStr + "T00:00:00");
+  const now = new Date();
+  return Math.max(0, Math.ceil((target - now) / 86400000));
+}
+
 function renderLetters() {
   const opened = state.letters.find(l => l.id === state.letterOpenId);
   if (opened) {
+    if (isLetterLocked(opened)) {
+      return `
+        <div class="screen">
+          ${renderTopBar("Xatlar", { hasBack: true, backAction: "closeLetter" })}
+          <div class="content">
+            <div class="letter-locked">
+              <div class="lock-icon">🔒</div>
+              <p class="baloo" style="font-size:16px;color:#5B3A56;margin:10px 0 4px">${esc(opened.title)}</p>
+              <p style="font-size:12px;color:#8A6E80;margin:0">${formatDate(opened.unlockDate)}gacha qulflangan · ${daysUntil(opened.unlockDate)} kun qoldi</p>
+              ${opened.allowEarlyUnlock ? `<button class="lock-unlock-btn" data-action="requestEarlyUnlock" data-id="${opened.id}">Kelishilgan holda hoziroq ochish</button>` : `<p style="font-size:10.5px;color:#B79AAE;margin-top:10px">Bu xat muddatidan oldin ochilmaydi.</p>`}
+            </div>
+          </div>
+        </div>`;
+    }
     return `
       <div class="screen">
         ${renderTopBar("Xatlar", { hasBack: true, backAction: "closeLetter" })}
@@ -706,7 +834,22 @@ function renderLetters() {
         </div>
       </div>`;
   }
-  const rows = state.letters.map(l => `
+  const rows = state.letters.map(l => {
+    const locked = isLetterLocked(l);
+    if (locked) {
+      return `
+        <div class="letter-row" data-action="openLetter" data-id="${l.id}" style="cursor:pointer">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="font-size:20px">🔒</div>
+            <div>
+              <p style="margin:0;font-size:13px;font-weight:500;color:#5B3A56">${esc(l.title)}</p>
+              <p style="margin:0;font-size:11px;color:#B79AAE">${daysUntil(l.unlockDate)} kun qoldi</p>
+            </div>
+          </div>
+          <span class="lock-badge">🔒 qulflangan</span>
+        </div>`;
+    }
+    return `
     <div class="letter-row">
       <div class="letter-row-main" data-action="openLetter" data-id="${l.id}">
         <div style="font-size:20px">✉️</div>
@@ -723,8 +866,11 @@ function renderLetters() {
           <button class="icon-btn danger" data-action="deleteLetter" data-id="${l.id}">🗑</button>
         </div>
       </div>
-    </div>`).join("");
-  return `<div class="screen">${renderTopBar("Xatlar", { addAction: "openLetterForm" })}<div class="content">${rows || emptyState("Hali xat yoʻq. + tugmasi orqali yozing.")}</div></div>`;
+    </div>`;
+  }).join("");
+  return `<div class="screen">${renderTopBar("Xatlar", { addAction: "openLetterForm" })}<div class="content">
+    <p style="font-size:10.5px;color:#B79AAE;margin:0 0 12px">🔒 Qulflangan xatlar hech qachon oʻzi oʻchib ketmaydi — faqat muddati kelganda yoki sherigingiz roziligi bilan ochiladi.</p>
+    ${rows || emptyState("Hali xat yoʻq. + tugmasi orqali yozing.")}</div></div>`;
 }
 
 /* ================= TIME (timeline / plans / bucket / tasks) ================= */
@@ -795,12 +941,37 @@ function renderTasks() {
   return `${rows || emptyState("Hali vazifa yoʻq. + tugmasi orqali sherigingizga vazifa bering.")}`;
 }
 
+function renderAnniversaries() {
+  const sorted = state.anniversaries.slice().sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+  const rows = sorted.map(a => {
+    const days = a.date ? daysUntil(a.date) : null;
+    return `
+    <div class="anniv-row">
+      <div class="anniv-badge">
+        <span class="num">${days !== null ? (days === 0 ? "🎉" : days) : "—"}</span>
+        <span class="lbl">${days === 0 ? "BUGUN" : "KUN"}</span>
+      </div>
+      <div style="flex:1">
+        <p style="margin:0;font-size:13px;font-weight:500;color:#5B3A56">${esc(a.type)}</p>
+        <p style="margin:2px 0 0;font-size:11px;color:#8A6E80">${esc(formatDate(a.date))}${a.note ? " · " + esc(a.note) : ""}</p>
+        ${a.postedBy ? `<p style="margin:2px 0 0;font-size:10px;color:#C9A9BB">— ${esc(a.postedBy)} qoʻshgan</p>` : ""}
+      </div>
+      <div class="row-actions">
+        <button class="icon-btn" data-action="editAnniversary" data-id="${a.id}">✎</button>
+        <button class="icon-btn danger" data-action="deleteAnniversary" data-id="${a.id}">🗑</button>
+      </div>
+    </div>`;
+  }).join("");
+  return rows || emptyState("Hali muhim sana yoʻq. + tugmasi orqali qoʻshing (birinchi uchrashuv, taklif, tugʻilgan kun va h.k.)");
+}
+
 function renderTime() {
   const modes = [
     { key: "timeline", label: "Xronologiya" },
     { key: "plans", label: "Rejalar" },
     { key: "bucket", label: "Orzular" },
     { key: "tasks", label: "Vazifalar" },
+    { key: "anniv", label: "Sanalar" },
   ];
   const segBtns = modes.map(o => `<button class="${state.timeMode === o.key ? "active" : ""}" data-action="setTimeMode" data-mode="${o.key}">${o.label}</button>`).join("");
 
@@ -825,6 +996,9 @@ function renderTime() {
     body = renderFolderList("plans", state.plans);
   } else if (state.timeMode === "bucket") {
     body = renderFolderList("bucket", state.bucket);
+  } else if (state.timeMode === "anniv") {
+    addAction = "openAnniversaryForm";
+    body = renderAnniversaries();
   } else {
     addAction = "openTaskForm";
     body = renderTasks();
@@ -961,8 +1135,9 @@ function renderPickTab() {
   const changed = JSON.stringify([...state.draftSelected].sort()) !== JSON.stringify([...myQA().selectedForPartner].sort());
   return `
     <p style="font-size:12px;color:#8A6E80;margin:0 0 12px">Sherigingizga bilishni xohlagan savollaringizni belgilang, keyin pastdagi tugma bilan yuboring.</p>
+    ${changed ? `<div class="link-badge pending" style="width:100%;box-sizing:border-box;justify-content:center">⚠️ Oʻzgartirildi — hali yuborilmagan</div>` : ""}
     ${body}
-    <button class="primary-btn" data-action="sendSelected" style="margin-top:8px">${changed ? "Tanlanganlarni yuborish" : "Yuborilgan (qayta yuborish)"}</button>`;
+    <button class="primary-btn" data-action="sendSelected" style="margin-top:8px">${changed ? "Tanlanganlarni yuborish" : "✓ Yuborilgan"}</button>`;
 }
 
 function renderIncomingTab() {
@@ -1051,6 +1226,7 @@ function renderProfile() {
         <p style="font-size:10.5px;color:#B79AAE;text-align:center;margin-top:14px">
           "Maxfiy" bosqichdagi savollarni hech qachon majburlab soʻramang — ular ikkalangiz ham tayyor boʻlgandagina ochiladi. 🌙
         </p>
+        <button class="ghost-btn" data-action="deleteProfile" style="color:#D4537E;margin-top:10px">🗑 Profilni oʻchirish va qaytadan boshlash</button>
       </div>
     </div>`;
 }
@@ -1070,16 +1246,29 @@ function renderModal() {
   let inner = "";
 
   if (m.type === "memoryForm") {
+    const previews = state.newMemoryImages.map((img, idx) => `
+      <div class="gallery-item" style="flex-shrink:0">
+        <img src="${img}" style="width:70px;height:70px;object-fit:cover;border-radius:12px">
+        <button type="button" class="gallery-del" data-action="removeNewMemoryImage" data-idx="${idx}">×</button>
+      </div>`).join("");
     inner = `
       <p class="modal-title">Yangi xotira</p>
       <div class="form-field"><label class="form-label">Sarlavha</label><input class="form-input" id="mf-title" placeholder="Masalan: Bogʻda sayr"></div>
+      <div class="form-field"><label class="form-label">Turi</label>
+        <select class="form-input" id="mf-kind">${D.memoryKinds.map(k => `<option value="${esc(k)}">${esc(k)}</option>`).join("")}</select>
+      </div>
       <div class="form-field"><label class="form-label">Sana</label><input class="form-input" type="date" id="mf-date"></div>
       <div class="form-field"><label class="form-label">Belgi (istalgan emoji yozing yoki tanlang)</label>
         <input class="form-input" id="mf-emoji" maxlength="4" value="☕️">
         <div class="emoji-pick">${D.emojiSuggestions.map(e => `<button type="button" data-emoji="${e}" data-target="mf-emoji" class="emoji-opt">${e}</button>`).join("")}</div>
       </div>
       <div class="form-field"><label class="form-label">Yozuv (ixtiyoriy)</label><textarea class="form-textarea" rows="3" id="mf-note" placeholder="Bu xotira haqida..."></textarea></div>
-      <div class="form-field"><label class="form-label">Rasmlar (ixtiyoriy, bir nechtasini birga tanlashingiz mumkin)</label><input class="form-input" type="file" accept="image/*" multiple id="mf-image"></div>
+      <div class="form-field"><label class="form-label">Ovozli xabar (ixtiyoriy)</label><input class="form-input" type="file" accept="audio/*" id="mf-voice"></div>
+      <div class="form-field">
+        <label class="form-label">Rasmlar (ixtiyoriy — bir nechta marta tanlashingiz mumkin, har biri qo'shilib boradi)</label>
+        <input class="form-input" type="file" accept="image/*" multiple id="mf-image" data-action-change="pickNewMemoryImages">
+        ${previews ? `<div style="display:flex;gap:8px;overflow-x:auto;margin-top:8px">${previews}</div>` : ""}
+      </div>
       <div class="modal-actions">
         <button type="button" class="modal-cancel" data-action="closeModal">Bekor qilish</button>
         <button type="button" class="modal-save" data-action="submitMemory">Qoʻshish</button>
@@ -1095,6 +1284,15 @@ function renderModal() {
         <div class="emoji-pick">${D.moodSuggestions.map(e => `<button type="button" data-emoji="${e}" data-target="lf-mood" class="emoji-opt">${e}</button>`).join("")}</div>
       </div>
       <div class="form-field"><label class="form-label">Matn</label><textarea class="form-textarea" rows="5" id="lf-body" placeholder="Xat matnini yozing...">${esc(ex ? ex.body : "")}</textarea></div>
+      <div class="form-field">
+        <label class="form-label">🔒 Vaqt qulfi (ixtiyoriy) — masalan "5 yildan keyin och"</label>
+        <input class="form-input" type="date" id="lf-unlock" value="${ex && ex.unlockDate ? ex.unlockDate : ""}">
+        <p class="emoji-hint">Bu sanagacha xat qulflangan turadi. Boʻsh qoldirsangiz, xat darhol ochiq boʻladi.</p>
+      </div>
+      <div class="form-field" style="display:flex;align-items:center;gap:8px">
+        <input type="checkbox" id="lf-allow-early" ${ex && ex.allowEarlyUnlock ? "checked" : ""} style="width:18px;height:18px">
+        <label class="form-label" style="margin:0">Sherigim vaqtidan oldin ochishni soʻrasa — ochilsin</label>
+      </div>
       <div class="modal-actions">
         <button type="button" class="modal-cancel" data-action="closeModal">Bekor qilish</button>
         <button type="button" class="modal-save" data-action="submitLetter" data-edit-id="${ex ? ex.id : ""}">${ex ? "Saqlash" : "Qoʻshish"}</button>
@@ -1146,6 +1344,30 @@ function renderModal() {
         <button type="button" class="modal-cancel" data-action="closeModal">Bekor qilish</button>
         <button type="button" class="modal-save" data-action="submitTask" data-edit-id="${ex ? ex.id : ""}">${ex ? "Saqlash" : "Berish"}</button>
       </div>`;
+  } else if (m.type === "mapPinForm") {
+    inner = `
+      <p class="modal-title">Xaritaga belgi qoʻyish</p>
+      <div class="form-field"><label class="form-label">Nima uchun bu joy muhim?</label>
+        <input class="form-input" id="mp-label" placeholder="Masalan: Sevimli kafe">
+        <div class="emoji-pick">${D.mapPinSuggestions.map(s => `<button type="button" data-emoji="${esc(s)}" data-target="mp-label" class="emoji-opt" style="width:auto;padding:0 10px;font-size:11.5px">${esc(s)}</button>`).join("")}</div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="modal-cancel" data-action="closeModal">Bekor qilish</button>
+        <button type="button" class="modal-save" data-action="submitMapPin" data-x="${m.x}" data-y="${m.y}">Qoʻshish</button>
+      </div>`;
+  } else if (m.type === "anniversaryForm") {
+    const ex = m.editId ? state.anniversaries.find(x => x.id === m.editId) : null;
+    inner = `
+      <p class="modal-title">${ex ? "Sanani tahrirlash" : "Yangi muhim sana"}</p>
+      <div class="form-field"><label class="form-label">Turi</label>
+        <select class="form-input" id="an-type">${D.anniversaryTypes.map(t => `<option value="${esc(t)}" ${ex && ex.type === t ? "selected" : ""}>${esc(t)}</option>`).join("")}</select>
+      </div>
+      <div class="form-field"><label class="form-label">Sana</label><input class="form-input" type="date" id="an-date" value="${ex ? esc(ex.date) : ""}"></div>
+      <div class="form-field"><label class="form-label">Izoh (ixtiyoriy)</label><input class="form-input" id="an-note" value="${ex ? esc(ex.note) : ""}" placeholder="Masalan: restoranda"></div>
+      <div class="modal-actions">
+        <button type="button" class="modal-cancel" data-action="closeModal">Bekor qilish</button>
+        <button type="button" class="modal-save" data-action="submitAnniversary" data-edit-id="${ex ? ex.id : ""}">${ex ? "Saqlash" : "Qoʻshish"}</button>
+      </div>`;
   }
 
   return `<div class="modal-overlay"><div class="modal-sheet">${inner}</div></div>`;
@@ -1176,7 +1398,6 @@ function renderBottomNav() {
 /* ================= MAIN RENDER ================= */
 
 function render() {
-  clearInterval(heroSlideTimer);
   let main = "";
   let nav = "";
 
@@ -1202,7 +1423,12 @@ function render() {
     });
   });
 
-  if (state.screen === "main" && state.tab === "home") startHeroSlideshow();
+  if (state.screen === "main" && state.tab === "home") {
+    ensureHeroSlideshow();
+  } else {
+    clearInterval(heroSlideTimer);
+    heroRunning = false;
+  }
 }
 
 /* ================= HELPERS ================= */
@@ -1242,6 +1468,7 @@ function resetContentToZero() {
 document.addEventListener("DOMContentLoaded", () => {
   const app = document.getElementById("app");
   state.draftSelected = (myQA().selectedForPartner || []).slice();
+  pickHomeReminderLetter();
   startRoomPolling();
 
   app.addEventListener("click", e => {
@@ -1253,7 +1480,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!el) return;
     const action = el.dataset.action;
 
-    if (action === "goTab") { state.tab = el.dataset.tab; state.screen = "main"; render(); }
+    if (action === "goTab") {
+      state.tab = el.dataset.tab; state.screen = "main";
+      if (el.dataset.tab === "home") pickHomeReminderLetter();
+      render();
+    }
+    else if (action === "openLetterFromHome") {
+      state.tab = "letters"; state.letterOpenId = Number(el.dataset.id); state.screen = "main"; render();
+    }
     else if (action === "back") { state.screen = "main"; state.letterOpenId = null; state.memoryDetailId = null; render(); }
     else if (action === "closeLetter") { state.letterOpenId = null; render(); }
     else if (action === "openLetter") { state.letterOpenId = Number(el.dataset.id); render(); }
@@ -1263,6 +1497,19 @@ document.addEventListener("DOMContentLoaded", () => {
       state.memoryDetailId = id;
       state.memoryCarouselIndex[id] = Number(el.dataset.idx);
       state.screen = "memoryDetail"; render();
+    }
+    else if (action === "pickAvatar") {
+      const inp = document.createElement("input");
+      inp.type = "file"; inp.accept = "image/*";
+      inp.onchange = () => {
+        if (inp.files && inp.files[0]) {
+          readFileAsDataUrl(inp.files[0], (dataUrl) => {
+            myQA().avatar = dataUrl;
+            pushRoom(); render();
+          });
+        }
+      };
+      inp.click();
     }
     else if (action === "openAllPictures") { state.screen = "allPictures"; render(); }
     else if (action === "carouselPrev") {
@@ -1278,6 +1525,22 @@ document.addEventListener("DOMContentLoaded", () => {
       const cur = state.memoryCarouselIndex[id] || 0;
       state.memoryCarouselIndex[id] = (cur + 1) % m.images.length;
       render();
+    }
+    else if (action === "setMemTab") { state.memTab = el.dataset.mtab; render(); }
+    else if (action === "addMapPin") {
+      const rect = el.getBoundingClientRect();
+      const clickEvent = e; // asl bosilgan joy koordinatalari
+      const x = ((clickEvent.clientX - rect.left) / rect.width) * 100;
+      const y = ((clickEvent.clientY - rect.top) / rect.height) * 100;
+      state.modal = { type: "mapPinForm", x: Math.max(3, Math.min(97, x)), y: Math.max(5, Math.min(95, y)) };
+      render();
+    }
+    else if (action === "openPin") {
+      const pin = state.mapPins.find(p => p.id === Number(el.dataset.id));
+      if (pin && window.confirm(`"${pin.label}" pinini oʻchirasizmi?`)) {
+        state.mapPins = state.mapPins.filter(p => p.id !== pin.id);
+        persistAll(); render();
+      }
     }
     else if (action === "setTimeMode") { state.timeMode = el.dataset.mode; render(); }
 
@@ -1333,11 +1596,7 @@ document.addEventListener("DOMContentLoaded", () => {
     else if (action === "skipLink") { safeSet("couple_link_skipped", true); state.screen = "profile"; render(); }
     else if (action === "goLinkFromProfile") { state.screen = "link"; render(); }
 
-    else if (action === "setProfileTab") {
-      state.profileTab = el.dataset.ptab;
-      if (el.dataset.ptab === "pick") state.draftSelected = (myQA().selectedForPartner || []).slice();
-      render();
-    }
+    else if (action === "setProfileTab") { state.profileTab = el.dataset.ptab; render(); }
     else if (action === "toggleStage") { const id = el.dataset.stage; state.openStages[id] = !state.openStages[id]; render(); }
     else if (action === "toggleSelect") {
       const key = el.dataset.key;
@@ -1414,7 +1673,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ---- memory / letter / track / timeline modals ----
-    else if (action === "openMemoryForm") { state.modal = { type: "memoryForm" }; render(); }
+    else if (action === "openMemoryForm") { state.modal = { type: "memoryForm" }; state.newMemoryImages = []; render(); }
+    else if (action === "deleteProfile") {
+      const ok = window.confirm("Profilingiz butunlay o'chiriladi (ism, kod, ulanish holati). Ilova 0 dan qaytadan boshlanadi. Bu qaytarib bo'lmaydi. Davom etamizmi?");
+      if (ok) {
+        [
+          "couple_gender", "couple_myname", "couple_partnername", "couple_meetdate", "couple_greeting_nickname",
+          "couple_mycode", "couple_partner_code_entered", "couple_linked", "couple_onboard_seen", "couple_app_started",
+          "couple_link_skipped", "couple_memories", "couple_letters", "couple_tracks", "couple_timeline",
+          "couple_plans", "couple_bucket", "couple_tasks", "couple_qa",
+        ].forEach(k => { try { localStorage.removeItem(k); } catch (e) {} });
+        location.reload();
+      }
+    }
+    else if (action === "requestEarlyUnlock") {
+      const l = state.letters.find(x => x.id === Number(el.dataset.id));
+      if (l) { l.unlockedEarly = true; persistAll(); }
+      render();
+    }
     else if (action === "openLetterForm") { state.modal = { type: "letterForm" }; render(); }
     else if (action === "editLetter") { state.modal = { type: "letterForm", editId: Number(el.dataset.id) }; render(); }
     else if (action === "deleteLetter") { state.letters = state.letters.filter(l => l.id !== Number(el.dataset.id)); persistAll(); render(); }
@@ -1425,6 +1701,10 @@ document.addEventListener("DOMContentLoaded", () => {
     else if (action === "editTimeline") { state.modal = { type: "timelineForm", editId: Number(el.dataset.id) }; render(); }
     else if (action === "deleteTimeline") { state.timeline = state.timeline.filter(t => t.id !== Number(el.dataset.id)); persistAll(); render(); }
     else if (action === "deleteMemory") { state.memories = state.memories.filter(m => m.id !== Number(el.dataset.id)); persistAll(); render(); }
+    else if (action === "removeNewMemoryImage") {
+      state.newMemoryImages.splice(Number(el.dataset.idx), 1);
+      render();
+    }
     else if (action === "deleteMemoryImage") {
       const id = Number(el.dataset.id), idx = Number(el.dataset.idx);
       const m = state.memories.find(x => x.id === id);
@@ -1433,29 +1713,60 @@ document.addEventListener("DOMContentLoaded", () => {
       if (cur >= m.images.length) state.memoryCarouselIndex[id] = Math.max(0, m.images.length - 1);
       persistAll(); render();
     }
+    else if (action === "submitMapPin") {
+      const label = document.getElementById("mp-label").value.trim();
+      if (label) {
+        state.mapPins.push({ id: uid(state.mapPins), label, x: Number(el.dataset.x), y: Number(el.dataset.y), postedBy: whoAmI() });
+        persistAll();
+      }
+      state.modal = null; render();
+    }
+    else if (action === "openAnniversaryForm") { state.modal = { type: "anniversaryForm" }; render(); }
+    else if (action === "editAnniversary") { state.modal = { type: "anniversaryForm", editId: Number(el.dataset.id) }; render(); }
+    else if (action === "deleteAnniversary") { state.anniversaries = state.anniversaries.filter(a => a.id !== Number(el.dataset.id)); persistAll(); render(); }
+    else if (action === "submitAnniversary") {
+      const type = document.getElementById("an-type").value;
+      const date = document.getElementById("an-date").value;
+      const note = document.getElementById("an-note").value.trim();
+      const editId = el.dataset.editId ? Number(el.dataset.editId) : null;
+      if (editId) { const a = state.anniversaries.find(x => x.id === editId); a.type = type; a.date = date; a.note = note; }
+      else if (date) state.anniversaries.push({ id: uid(state.anniversaries), type, date, note, postedBy: whoAmI() });
+      persistAll(); state.modal = null; render();
+    }
     else if (action === "closeModal") { state.modal = null; render(); }
 
     else if (action === "submitMemory") {
       const title = document.getElementById("mf-title").value.trim();
+      const kind = document.getElementById("mf-kind").value;
       const date = document.getElementById("mf-date").value;
       const emoji = document.getElementById("mf-emoji").value.trim() || "☕️";
       const note = document.getElementById("mf-note").value.trim();
-      const fileInput = document.getElementById("mf-image");
+      const voiceInput = document.getElementById("mf-voice");
       const colors = ["#FFE1EC", "#E4E0FF", "#FFF0D9", "#DBF7EF"];
-      readFilesAsDataUrls(fileInput.files, (images) => {
-        state.memories.push({ id: uid(state.memories), title: title || "Yangi xotira", date, emoji, color: colors[state.memories.length % colors.length], note, images, postedBy: whoAmI() });
+      const finish = (voiceDataUrl) => {
+        state.memories.push({ id: uid(state.memories), title: title || "Yangi xotira", kind, date, emoji, color: colors[state.memories.length % colors.length], note, voice: voiceDataUrl || null, images: state.newMemoryImages.slice(), postedBy: whoAmI() });
+        state.newMemoryImages = [];
         persistAll();
         state.modal = null; render();
-      });
+      };
+      if (voiceInput.files && voiceInput.files[0]) readFileAsDataUrl(voiceInput.files[0], finish);
+      else finish(null);
     }
     else if (action === "submitLetter") {
       const title = document.getElementById("lf-title").value.trim();
       const date = document.getElementById("lf-date").value;
       const mood = document.getElementById("lf-mood").value.trim() || "🥰";
       const body = document.getElementById("lf-body").value.trim();
+      const unlockDate = document.getElementById("lf-unlock").value;
+      const allowEarlyUnlock = document.getElementById("lf-allow-early").checked;
       const editId = el.dataset.editId ? Number(el.dataset.editId) : null;
-      if (editId) { const l = state.letters.find(x => x.id === editId); l.title = title || l.title; l.date = date || l.date; l.mood = mood; l.body = body; }
-      else state.letters.push({ id: uid(state.letters), title: title || "Yangi xat", date, mood, body, postedBy: whoAmI() });
+      if (editId) {
+        const l = state.letters.find(x => x.id === editId);
+        l.title = title || l.title; l.date = date || l.date; l.mood = mood; l.body = body;
+        l.unlockDate = unlockDate || null; l.allowEarlyUnlock = allowEarlyUnlock;
+      } else {
+        state.letters.push({ id: uid(state.letters), title: title || "Yangi xat", date, mood, body, unlockDate: unlockDate || null, allowEarlyUnlock, unlockedEarly: false, postedBy: whoAmI() });
+      }
       persistAll(); state.modal = null; render();
     }
     else if (action === "submitTrack") {
@@ -1497,6 +1808,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
   app.addEventListener("change", e => {
     const el = e.target;
+    if (el.id === "mf-image" && el.files && el.files.length) {
+      readFilesAsDataUrls(el.files, (newImages) => {
+        state.newMemoryImages = state.newMemoryImages.concat(newImages);
+        el.value = ""; // xuddi shu fayllarni ikki marta qo'shib yubormaslik uchun
+        render();
+      });
+      return;
+    }
+    if (el.dataset.action === "memVoiceSelected") {
+      const id = Number(el.dataset.id);
+      const m = state.memories.find(x => x.id === id);
+      if (el.files && el.files[0]) {
+        readFileAsDataUrl(el.files[0], (dataUrl) => { m.voice = dataUrl; persistAll(); render(); });
+      }
+      return;
+    }
     if (el.dataset.action === "memImageSelected") {
       const id = Number(el.dataset.id);
       const m = state.memories.find(x => x.id === id);
