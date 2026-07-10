@@ -4,100 +4,121 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Biz — Couple App</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
+:root {
+  --bg: #FFF9F7;
+  --primary: #FF7BA7;
+  --primary-deep: #E85D8F;
+  --lavender: #C8B6FF;
+  --lavender-light: #F0EAFF;
+  --cream: #FFF2DD;
+  --peach: #FFD8C2;
+  --peach-light: #FFEEE3;
+  --mint: #D8F5E8;
+  --sky: #DDEEFF;
+  --pink-light: #FFE3EF;
+  --text: #5B445C;
+  --text-secondary: #A88EA4;
+  --radius: 28px;
+  --radius-sm: 18px;
+  --shadow-soft: 0 10px 40px rgba(255,150,180,0.14);
+}
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html, body { margin: 0; padding: 0; background: #FBEFE8; font-family: -apple-system, 'Segoe UI', sans-serif; }
-#app { max-width: 480px; margin: 0 auto; min-height: 100vh; background: #FFF9F6; display: flex; flex-direction: column; position: relative; }
+html, body { margin: 0; padding: 0; background: var(--bg); font-family: 'Pretendard', -apple-system, 'Segoe UI', sans-serif; }
+#app { max-width: 480px; margin: 0 auto; min-height: 100vh; background: var(--bg); display: flex; flex-direction: column; position: relative; }
 button { font-family: inherit; cursor: pointer; }
 input, textarea, select { font-family: inherit; }
 ::-webkit-scrollbar { width: 0; height: 0; }
 
-.baloo { font-family: Georgia, serif; }
+.baloo { font-family: 'Pretendard', sans-serif; font-weight: 700; letter-spacing: -0.2px; }
+.glass { background: rgba(255,255,255,0.55); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
 .topbar { display: flex; align-items: center; justify-content: space-between; padding: 22px 20px 10px; }
 .topbar-left { display: flex; align-items: center; }
-.backbtn { border: none; background: #FFE1EC; width: 34px; height: 34px; border-radius: 17px;
+.backbtn { border: none; background: var(--pink-light); width: 34px; height: 34px; border-radius: 17px;
            display: flex; align-items: center; justify-content: center; margin-right: 10px;
-           font-size: 18px; color: #B4497A; line-height: 1; }
-.topbar-title { font-size: 21px; font-weight: 600; color: #5B3A56; }
-.addbtn { border: none; background: #D4537E; color: #fff; width: 34px; height: 34px; border-radius: 17px;
-          display: flex; align-items: center; justify-content: center; font-size: 18px; line-height: 1; }
+           font-size: 18px; color: var(--primary-deep); line-height: 1; }
+.topbar-title { font-size: 21px; font-weight: 700; color: var(--text); }
+.addbtn { border: none; background: var(--primary); color: #fff; width: 34px; height: 34px; border-radius: 17px;
+          display: flex; align-items: center; justify-content: center; font-size: 18px; line-height: 1;
+          box-shadow: var(--shadow-soft); }
 .screen { padding: 0 0 100px; }
 .content { padding: 0 20px; }
 
-.hero-time { background: linear-gradient(135deg,#FFE1EC,#E4E0FF); border-radius: 28px; padding: 28px 20px; text-align: center; }
-.card-row { margin-top: 16px; background: #FFF3E3; border-radius: 22px; padding: 16px 18px; display: flex; align-items: center; gap: 12px; cursor: pointer; }
-.card-purple { margin-top: 12px; background: #F1ECFF; border-radius: 22px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+.hero-time { background: linear-gradient(135deg,var(--pink-light),var(--lavender-light)); border-radius: var(--radius); padding: 28px 20px; text-align: center; }
+.card-row { margin-top: 16px; background: #FFEEE3; border-radius: 26px; padding: 16px 18px; display: flex; align-items: center; gap: 12px; cursor: pointer; }
+.card-purple { margin-top: 12px; background: #F0EAFF; border-radius: 26px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
 .mem-strip { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 6px; }
-.mem-chip { min-width: 100px; border-radius: 18px; padding: 14px 10px; text-align: center; flex-shrink: 0; cursor: pointer; }
-.mem-tile { border-radius: 20px; padding: 16px 18px; display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+.mem-chip { min-width: 100px; border-radius: 22px; padding: 14px 10px; text-align: center; flex-shrink: 0; cursor: pointer; }
+.mem-tile { border-radius: 26px; padding: 16px 18px; display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
 .mem-tile-main { display: flex; align-items: center; gap: 14px; flex: 1; cursor: pointer; }
 .mem-icon { width: 48px; height: 48px; border-radius: 16px; background: rgba(255,255,255,0.6); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; overflow: hidden; }
 .mem-icon img { width: 100%; height: 100%; object-fit: cover; }
 .gallery { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 12px; }
 .gallery-item { position: relative; flex-shrink: 0; }
 .gallery-item img { width: 90px; height: 90px; object-fit: cover; border-radius: 14px; }
-.gallery-del { position: absolute; top: -6px; right: -6px; width: 22px; height: 22px; border-radius: 11px; background: #5B3A56; color: #fff; border: none; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+.gallery-del { position: absolute; top: -6px; right: -6px; width: 22px; height: 22px; border-radius: 11px; background: #5B445C; color: #fff; border: none; font-size: 12px; display: flex; align-items: center; justify-content: center; }
 
-.track-row { border-radius: 18px; padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
-.track-icon { width: 36px; height: 36px; border-radius: 18px; background: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
-.track-link { display: inline-block; margin-top: 6px; font-size: 11px; color: #D4537E; text-decoration: none; }
+.track-row { border-radius: 22px; padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.track-icon { width: 36px; height: 36px; border-radius: 22px; background: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.track-link { display: inline-block; margin-top: 6px; font-size: 11px; color: #FF7BA7; text-decoration: none; }
 
-.letter-row { background: #FFF3E3; border-radius: 20px; padding: 16px 18px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.letter-row { background: #FFEEE3; border-radius: 26px; padding: 16px 18px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 .letter-row-main { display: flex; align-items: center; gap: 12px; cursor: pointer; flex: 1; }
-.letter-open { background: #FFF9F6; border: 1.5px dashed #F0B8CE; border-radius: 22px; padding: 28px 20px; min-height: 200px; }
+.letter-open { background: #FFF9F7; border: 1.5px dashed #F0B8CE; border-radius: 26px; padding: 28px 20px; min-height: 200px; }
 
-.segment { display: flex; background: #FFF3E3; border-radius: 16px; padding: 4px; margin-bottom: 16px; overflow-x: auto; }
-.segment button { flex: 1; border: none; border-radius: 12px; padding: 9px 4px; font-size: 11.5px; background: transparent; color: #B79AAE; white-space: nowrap; }
-.segment button.active { background: #FFFFFF; color: #D4537E; box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
+.segment { display: flex; background: #FFEEE3; border-radius: 16px; padding: 4px; margin-bottom: 16px; overflow-x: auto; }
+.segment button { flex: 1; border: none; border-radius: 12px; padding: 9px 4px; font-size: 11.5px; background: transparent; color: #A88EA4; white-space: nowrap; }
+.segment button.active { background: #FFFFFF; color: #FF7BA7; box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
 
 .timeline { position: relative; padding-left: 18px; }
 .timeline::before { content: ""; position: absolute; left: 5px; top: 6px; bottom: 6px; width: 2px; background: #F5D6E4; }
 .timeline-item { position: relative; margin-bottom: 18px; display: flex; align-items: flex-start; justify-content: space-between; }
-.timeline-dot { position: absolute; left: -18px; top: 3px; width: 10px; height: 10px; border-radius: 5px; background: #D4537E; }
+.timeline-dot { position: absolute; left: -18px; top: 3px; width: 10px; height: 10px; border-radius: 5px; background: #FF7BA7; }
 
-.folder-block { background: #FFF3E3; border-radius: 18px; margin-bottom: 12px; padding: 14px 16px; }
+.folder-block { background: #FFEEE3; border-radius: 22px; margin-bottom: 12px; padding: 14px 16px; }
 .folder-head { display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
-.folder-title { font-family: Georgia, serif; font-size: 14px; color: #5B3A56; margin: 0; }
-.folder-count { font-size: 10px; color: #B4497A; }
+.folder-title { font-family: Georgia, serif; font-size: 14px; color: #5B445C; margin: 0; }
+.folder-count { font-size: 10px; color: #E85D8F; }
 .folder-body { margin-top: 10px; }
 .bucket-row { display: flex; align-items: center; gap: 10px; border-radius: 16px; padding: 10px 12px; margin-bottom: 8px; background: #FFFDFB; }
 .bucket-check { width: 20px; height: 20px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 11px; color: #fff; border: 1.5px solid #E7C7D4; background: #fff; }
 .bucket-check.done { background: #4FBF9B; border-color: #4FBF9B; }
 .add-item-row { display: flex; gap: 8px; margin-top: 4px; }
 .add-item-row input { flex: 1; border: 1px solid #F0B8CE; border-radius: 10px; padding: 8px 10px; font-size: 12px; }
-.add-item-row button, .add-folder-btn { border: none; background: #D4537E; color: #fff; border-radius: 10px; padding: 8px 12px; font-size: 12px; }
-.add-folder-btn { width: 100%; margin-top: 4px; background: #FFFFFF; color: #D4537E; border: 1.5px dashed #F0B8CE; }
+.add-item-row button, .add-folder-btn { border: none; background: #FF7BA7; color: #fff; border-radius: 10px; padding: 8px 12px; font-size: 12px; }
+.add-folder-btn { width: 100%; margin-top: 4px; background: #FFFFFF; color: #FF7BA7; border: 1.5px dashed #F0B8CE; }
 
 .icon-btn { border: none; background: transparent; color: #C9A9BB; font-size: 13px; padding: 4px 6px; flex-shrink: 0; }
-.icon-btn.danger { color: #D4537E; }
+.icon-btn.danger { color: #FF7BA7; }
 .row-actions { display: flex; gap: 2px; flex-shrink: 0; }
 
-.gender-btn { border: none; background: #FFF3E3; border-radius: 20px; padding: 22px 26px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.gender-btn { border: none; background: #FFEEE3; border-radius: 26px; padding: 22px 26px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
 
-.stage-block { border-radius: 18px; margin-bottom: 12px; overflow: hidden; }
+.stage-block { border-radius: 22px; margin-bottom: 12px; overflow: hidden; }
 .stage-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; cursor: pointer; }
 .stage-body { padding: 0 14px 14px; }
-.cat-title { font-size: 11px; color: #B4497A; font-weight: 600; margin: 6px 0; }
+.cat-title { font-size: 11px; color: #E85D8F; font-weight: 600; margin: 6px 0; }
 .q-row { background: #FFFDFB; border: 1px solid #F5E3EA; border-radius: 14px; padding: 10px 12px; margin-bottom: 8px; }
-.q-text { margin: 0; font-size: 12.5px; color: #5B3A56; font-weight: 500; }
+.q-text { margin: 0; font-size: 12.5px; color: #5B445C; font-weight: 500; }
 .q-answer { margin: 4px 0 0; font-size: 12px; color: #7A5670; cursor: pointer; }
 .q-placeholder { margin: 4px 0 0; font-size: 12px; color: #C9B7C2; font-style: italic; cursor: pointer; }
 .q-answer-ro { margin: 4px 0 0; font-size: 12px; }
-.q-textarea { width: 100%; box-sizing: border-box; border: 1px solid #F0B8CE; border-radius: 10px; padding: 8px; font-size: 12px; color: #5B3A56; resize: none; margin-top: 6px; }
+.q-textarea { width: 100%; box-sizing: border-box; border: 1px solid #F0B8CE; border-radius: 10px; padding: 8px; font-size: 12px; color: #5B445C; resize: none; margin-top: 6px; }
 .q-actions { display: flex; gap: 8px; margin-top: 6px; justify-content: flex-end; }
-.q-cancel { border: none; background: transparent; color: #B79AAE; font-size: 11px; }
-.q-save { border: none; background: #D4537E; color: #fff; border-radius: 10px; padding: 5px 12px; font-size: 11px; }
+.q-cancel { border: none; background: transparent; color: #A88EA4; font-size: 11px; }
+.q-save { border: none; background: #FF7BA7; color: #fff; border-radius: 10px; padding: 5px 12px; font-size: 11px; }
 
-.link-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: #4FBF9B; background: #DBF7EF; padding: 4px 10px; border-radius: 10px; margin-bottom: 10px; }
-.link-badge.pending { color: #B4497A; background: #FFE1EC; }
+.link-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: #4FBF9B; background: #D8F5E8; padding: 4px 10px; border-radius: 10px; margin-bottom: 10px; }
+.link-badge.pending { color: #E85D8F; background: #FFE3EF; }
 
-.task-row { background: #FFF3E3; border-radius: 18px; padding: 14px 16px; margin-bottom: 10px; }
-.task-row.done { background: #DBF7EF; }
-.task-text { margin: 0; font-size: 13px; color: #5B3A56; font-weight: 500; }
-.task-reward { margin: 6px 0 0; font-size: 12px; color: #B4497A; }
+.task-row { background: #FFEEE3; border-radius: 22px; padding: 14px 16px; margin-bottom: 10px; }
+.task-row.done { background: #D8F5E8; }
+.task-text { margin: 0; font-size: 13px; color: #5B445C; font-weight: 500; }
+.task-reward { margin: 6px 0 0; font-size: 12px; color: #E85D8F; }
 .task-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
-.task-done-btn { border: none; background: #D4537E; color: #fff; border-radius: 10px; padding: 6px 12px; font-size: 11.5px; }
+.task-done-btn { border: none; background: #FF7BA7; color: #fff; border-radius: 10px; padding: 6px 12px; font-size: 11.5px; }
 .task-done-btn.completed { background: #4FBF9B; }
 .reward-pop { text-align: center; font-size: 12px; color: #4FBF9B; margin-top: 4px; }
 
@@ -107,57 +128,57 @@ input, textarea, select { font-family: inherit; }
 .nav-btn { border: none; background: transparent; display: flex; flex-direction: column; align-items: center; gap: 3px; }
 .nav-emoji { font-size: 18px; }
 .nav-label { font-size: 9px; color: #C9B7C2; }
-.nav-label.active { color: #D4537E; font-weight: 600; }
+.nav-label.active { color: #FF7BA7; font-weight: 600; }
 
 /* onboarding */
 .onboard-wrap { display: flex; flex-direction: column; justify-content: space-between; min-height: 100vh; padding: 40px 28px 30px; text-align: center; }
 .onboard-emoji { font-size: 56px; margin-bottom: 18px; }
-.onboard-title { font-family: Georgia, serif; font-size: 22px; color: #5B3A56; margin: 0 0 10px; }
+.onboard-title { font-family: Georgia, serif; font-size: 22px; color: #5B445C; margin: 0 0 10px; }
 .onboard-text { font-size: 13.5px; color: #8A6E80; line-height: 1.6; }
 .onboard-dots { display: flex; justify-content: center; gap: 6px; margin: 18px 0; }
 .onboard-dot { width: 7px; height: 7px; border-radius: 4px; background: #F0D5E1; }
-.onboard-dot.active { background: #D4537E; width: 18px; }
+.onboard-dot.active { background: #FF7BA7; width: 18px; }
 .onboard-actions { display: flex; justify-content: space-between; align-items: center; }
-.onboard-skip { border: none; background: transparent; color: #B79AAE; font-size: 13px; }
-.onboard-next { border: none; background: #D4537E; color: #fff; border-radius: 20px; padding: 12px 26px; font-size: 14px; font-family: Georgia, serif; }
+.onboard-skip { border: none; background: transparent; color: #A88EA4; font-size: 13px; }
+.onboard-next { border: none; background: #FF7BA7; color: #fff; border-radius: 26px; padding: 12px 26px; font-size: 14px; font-family: Georgia, serif; }
 
 /* forms */
 .form-field { margin-bottom: 14px; text-align: left; }
-.form-label { font-size: 11.5px; color: #B4497A; font-weight: 600; margin-bottom: 5px; display: block; }
-.form-input, .form-textarea { width: 100%; border: 1px solid #F0B8CE; border-radius: 12px; padding: 10px 12px; font-size: 13px; color: #5B3A56; }
+.form-label { font-size: 11.5px; color: #E85D8F; font-weight: 600; margin-bottom: 5px; display: block; }
+.form-input, .form-textarea { width: 100%; border: 1px solid #F0B8CE; border-radius: 12px; padding: 10px 12px; font-size: 13px; color: #5B445C; }
 .form-textarea { resize: none; }
 .emoji-pick { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
 .emoji-pick button { border: 1.5px solid #F0D5E1; background: #FFFDFB; border-radius: 12px; width: 36px; height: 36px; font-size: 16px; }
-.emoji-pick button.active { border-color: #D4537E; background: #FFE1EC; }
-.emoji-hint { font-size: 10.5px; color: #B79AAE; margin-top: 4px; }
+.emoji-pick button.active { border-color: #FF7BA7; background: #FFE3EF; }
+.emoji-hint { font-size: 10.5px; color: #A88EA4; margin-top: 4px; }
 .setup-screen { padding: 30px 26px; text-align: center; }
-.setup-title { font-family: Georgia, serif; font-size: 20px; color: #5B3A56; margin: 0 0 6px; }
+.setup-title { font-family: Georgia, serif; font-size: 20px; color: #5B445C; margin: 0 0 6px; }
 .setup-sub { font-size: 12.5px; color: #8A6E80; margin: 0 0 22px; }
-.primary-btn { border: none; background: #D4537E; color: #fff; border-radius: 16px; padding: 13px 0; width: 100%; font-size: 14px; font-family: Georgia, serif; margin-top: 6px; }
-.ghost-btn { border: none; background: transparent; color: #B79AAE; font-size: 12.5px; padding: 10px 0; width: 100%; }
-.code-box { background: #F1ECFF; border-radius: 16px; padding: 16px; margin-bottom: 16px; }
-.code-value { font-family: Georgia, serif; font-size: 24px; letter-spacing: 4px; color: #5B3A56; margin: 4px 0; }
+.primary-btn { border: none; background: #FF7BA7; color: #fff; border-radius: 16px; padding: 13px 0; width: 100%; font-size: 14px; font-family: Georgia, serif; margin-top: 6px; }
+.ghost-btn { border: none; background: transparent; color: #A88EA4; font-size: 12.5px; padding: 10px 0; width: 100%; }
+.code-box { background: #F0EAFF; border-radius: 16px; padding: 16px; margin-bottom: 16px; }
+.code-value { font-family: Georgia, serif; font-size: 24px; letter-spacing: 4px; color: #5B445C; margin: 4px 0; }
 
 /* modal */
 .modal-overlay { position: fixed; inset: 0; background: rgba(44,36,48,0.45); display: flex; align-items: flex-end; justify-content: center; z-index: 50; }
-.modal-sheet { background: #FFF9F6; width: 100%; max-width: 480px; border-radius: 24px 24px 0 0; padding: 20px 22px calc(24px + env(safe-area-inset-bottom)); max-height: 85vh; overflow-y: auto; }
-.modal-title { font-family: Georgia, serif; font-size: 17px; color: #5B3A56; margin: 0 0 14px; }
+.modal-sheet { background: #FFF9F7; width: 100%; max-width: 480px; border-radius: 24px 24px 0 0; padding: 20px 22px calc(24px + env(safe-area-inset-bottom)); max-height: 85vh; overflow-y: auto; }
+.modal-title { font-family: Georgia, serif; font-size: 17px; color: #5B445C; margin: 0 0 14px; }
 .modal-actions { display: flex; gap: 10px; margin-top: 6px; }
-.modal-cancel { flex: 1; border: none; background: #FFF3E3; color: #8A6E80; border-radius: 14px; padding: 12px 0; font-size: 13px; }
-.modal-save { flex: 1; border: none; background: #D4537E; color: #fff; border-radius: 14px; padding: 12px 0; font-size: 13px; }
+.modal-cancel { flex: 1; border: none; background: #FFEEE3; color: #8A6E80; border-radius: 14px; padding: 12px 0; font-size: 13px; }
+.modal-save { flex: 1; border: none; background: #FF7BA7; color: #fff; border-radius: 14px; padding: 12px 0; font-size: 13px; }
 
 /* memory carousel */
 .carousel { position: relative; margin-bottom: 12px; }
-.carousel-img-wrap { width: 100%; height: 240px; border-radius: 18px; overflow: hidden; background: #FFF3E3; position: relative; }
+.carousel-img-wrap { width: 100%; height: 240px; border-radius: 22px; overflow: hidden; background: #FFEEE3; position: relative; }
 .carousel-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity 0.25s ease; }
 .carousel-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border-radius: 16px;
-                  background: rgba(255,255,255,0.85); border: none; font-size: 16px; color: #B4497A; display: flex; align-items: center; justify-content: center; }
+                  background: rgba(255,255,255,0.85); border: none; font-size: 16px; color: #E85D8F; display: flex; align-items: center; justify-content: center; }
 .carousel-arrow.left { left: 8px; }
 .carousel-arrow.right { right: 8px; }
 .carousel-del { position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; border-radius: 14px; background: rgba(44,36,48,0.55); color: #fff; border: none; font-size: 13px; }
 .carousel-dots { display: flex; justify-content: center; gap: 5px; margin-top: 8px; }
 .carousel-dot { width: 6px; height: 6px; border-radius: 3px; background: #F0D5E1; }
-.carousel-dot.active { background: #D4537E; width: 14px; }
+.carousel-dot.active { background: #FF7BA7; width: 14px; }
 
 /* all pictures grid */
 .pic-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -167,43 +188,124 @@ input, textarea, select { font-family: inherit; }
 .audio-player { width: 100%; margin-top: 8px; height: 32px; }
 
 /* home hero slideshow */
-.hero-time { position: relative; overflow: hidden; border-radius: 28px; padding: 28px 20px; text-align: center; background: linear-gradient(135deg,#FFE1EC,#E4E0FF); }
+.hero-time { position: relative; overflow: hidden; border-radius: 28px; padding: 28px 20px; text-align: center; background: linear-gradient(135deg,#FFE3EF,#ECE5FF); }
 .hero-slide-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 28px; opacity: 0; transition: opacity 0.8s ease; }
 .hero-slide-img.show { opacity: 0.55; }
 .hero-overlay { position: absolute; inset: 0; border-radius: 28px; background: linear-gradient(135deg, rgba(255,225,236,0.55), rgba(228,224,255,0.55)); z-index: 1; }
 .hero-time-content { position: relative; z-index: 2; }
 
 /* pairing code chip (persistent) */
-.mycode-chip { display: flex; align-items: center; justify-content: space-between; background: #F1ECFF; border-radius: 14px; padding: 10px 14px; margin-bottom: 12px; }
-.mycode-chip .code-value-sm { font-family: Georgia, serif; font-size: 16px; letter-spacing: 2px; color: #5B3A56; }
+.mycode-chip { display: flex; align-items: center; justify-content: space-between; background: #F0EAFF; border-radius: 14px; padding: 10px 14px; margin-bottom: 12px; }
+.mycode-chip .code-value-sm { font-family: Georgia, serif; font-size: 16px; letter-spacing: 2px; color: #5B445C; }
 
 /* selectable question row */
 .q-row.selectable { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .q-checkbox { width: 22px; height: 22px; border-radius: 6px; border: 1.5px solid #E7C7D4; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #fff; flex-shrink: 0; }
-.q-checkbox.checked { background: #D4537E; border-color: #D4537E; }
-.stage-label-plain { font-family: Georgia, serif; font-size: 13px; color: #5B3A56; margin: 14px 0 6px; }
+.q-checkbox.checked { background: #FF7BA7; border-color: #FF7BA7; }
+.stage-label-plain { font-family: Georgia, serif; font-size: 13px; color: #5B445C; margin: 14px 0 6px; }
 
 /* locked letters */
-.letter-locked { background: #F1ECFF; border-radius: 20px; padding: 20px 18px; text-align: center; margin-bottom: 12px; }
+.letter-locked { background: #F0EAFF; border-radius: 26px; padding: 20px 18px; text-align: center; margin-bottom: 12px; }
 .letter-locked .lock-icon { font-size: 26px; }
-.lock-unlock-btn { border: none; background: #D4537E; color: #fff; border-radius: 12px; padding: 9px 16px; font-size: 12px; margin-top: 10px; }
-.lock-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; color: #B4497A; background: #FFE1EC; padding: 2px 8px; border-radius: 8px; }
+.lock-unlock-btn { border: none; background: #FF7BA7; color: #fff; border-radius: 12px; padding: 9px 16px; font-size: 12px; margin-top: 10px; }
+.lock-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; color: #E85D8F; background: #FFE3EF; padding: 2px 8px; border-radius: 8px; }
 
 /* map */
-.map-area { position: relative; width: 100%; height: 320px; border-radius: 22px; overflow: hidden;
-            background: radial-gradient(circle at 25% 30%, #FFE1EC 0%, transparent 45%),
-                        radial-gradient(circle at 75% 65%, #E4E0FF 0%, transparent 45%),
-                        radial-gradient(circle at 50% 90%, #FFF0D9 0%, transparent 40%),
-                        #FFF9F6; cursor: crosshair; border: 1.5px dashed #F0D5E1; }
+.map-area { position: relative; width: 100%; height: 320px; border-radius: 26px; overflow: hidden;
+            background: radial-gradient(circle at 25% 30%, #FFE3EF 0%, transparent 45%),
+                        radial-gradient(circle at 75% 65%, #ECE5FF 0%, transparent 45%),
+                        radial-gradient(circle at 50% 90%, #FFF2DD 0%, transparent 40%),
+                        #FFF9F7; cursor: crosshair; border: 1.5px dashed #F0D5E1; }
 .map-pin { position: absolute; transform: translate(-50%, -100%); font-size: 22px; cursor: pointer; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.15)); }
-.map-pin-label { position: absolute; transform: translate(-50%, 4px); font-size: 9px; color: #5B3A56; background: rgba(255,255,255,0.85); padding: 2px 6px; border-radius: 6px; white-space: nowrap; }
-.map-hint { font-size: 11px; color: #B79AAE; text-align: center; margin: 8px 0 14px; }
+.map-pin-label { position: absolute; transform: translate(-50%, 4px); font-size: 9px; color: #5B445C; background: rgba(255,255,255,0.85); padding: 2px 6px; border-radius: 6px; white-space: nowrap; }
+.map-hint { font-size: 11px; color: #A88EA4; text-align: center; margin: 8px 0 14px; }
 
 /* anniversary calendar */
-.anniv-row { background: #FFF3E3; border-radius: 18px; padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.anniv-row { background: #FFEEE3; border-radius: 22px; padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .anniv-badge { min-width: 46px; text-align: center; background: #FFFFFF; border-radius: 12px; padding: 6px 8px; flex-shrink: 0; }
-.anniv-badge .num { font-family: Georgia, serif; font-size: 15px; color: #D4537E; display: block; }
-.anniv-badge .lbl { font-size: 8.5px; color: #B79AAE; }
+.anniv-badge .num { font-family: Georgia, serif; font-size: 15px; color: #FF7BA7; display: block; }
+.anniv-badge .lbl { font-size: 8.5px; color: #A88EA4; }
+
+/* ---------- premium redesign additions ---------- */
+
+/* floating decorative hearts/sparkles (Home only, lightweight) */
+.floaties { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+.floaty { position: absolute; opacity: 0.35; animation: floatUp 9s ease-in-out infinite; }
+@keyframes floatUp { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-14px) rotate(8deg); } }
+
+/* glass premium card */
+.premium-card { background: linear-gradient(135deg, rgba(255,255,255,0.75), rgba(255,255,255,0.45));
+                backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+                border-radius: var(--radius); box-shadow: var(--shadow-soft); padding: 18px 20px; margin-bottom: 14px; }
+
+/* Daily Capsule */
+.capsule-card { background: linear-gradient(135deg,#FFE3EF,#F0EAFF); border-radius: var(--radius); padding: 22px 20px; text-align: center; margin-bottom: 14px; box-shadow: var(--shadow-soft); }
+.capsule-tag { display: inline-block; font-size: 10px; color: #E85D8F; background: rgba(255,255,255,0.7); padding: 3px 10px; border-radius: 10px; margin-bottom: 8px; }
+.capsule-text { font-family: 'Pretendard', sans-serif; font-weight: 600; font-size: 15px; color: #5B445C; margin: 4px 0 12px; line-height: 1.5; }
+.capsule-done-row { display: flex; justify-content: center; gap: 18px; margin-bottom: 10px; }
+.capsule-done-pill { font-size: 11px; padding: 6px 12px; border-radius: 12px; background: rgba(255,255,255,0.6); color: #A88EA4; }
+.capsule-done-pill.done { background: #D8F5E8; color: #2F8B6C; font-weight: 600; }
+.capsule-btn { border: none; background: #FF7BA7; color: #fff; border-radius: 14px; padding: 10px 22px; font-size: 13px; font-weight: 600; box-shadow: var(--shadow-soft); }
+.capsule-btn.done { background: #A8E6CC; color: #2F8B6C; }
+
+/* Garden */
+.garden-card { background: linear-gradient(135deg,#F0FFF6,#EAFBF2); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 14px; }
+.garden-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; min-height: 30px; }
+.garden-flower { font-size: 20px; }
+
+/* Streak */
+.streak-chip { display: inline-flex; align-items: center; gap: 6px; background: #FFF2DD; color: #B8752E; font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 14px; }
+
+/* mood */
+.mood-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.mood-btn { border: none; background: #FFFDFB; border-radius: 16px; width: 44px; height: 44px; font-size: 20px; border: 1.5px solid #F5E3EA; }
+.mood-btn.active { background: #FFE3EF; border-color: #FF7BA7; transform: scale(1.08); }
+.partner-mood-card { background: linear-gradient(135deg,#DDEEFF,#F0EAFF); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 14px; display: flex; align-items: center; gap: 12px; }
+
+/* random love / today's memory flashback */
+.flashback-card { border-radius: var(--radius); overflow: hidden; position: relative; margin-bottom: 14px; min-height: 140px; display: flex; align-items: flex-end; }
+.flashback-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.flashback-overlay { position: relative; z-index: 1; width: 100%; background: linear-gradient(to top, rgba(0,0,0,0.55), transparent); padding: 30px 16px 14px; color: #fff; }
+
+/* reactions */
+.reaction-row { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.reaction-btn { border: 1.5px solid #F5E3EA; background: #FFFDFB; border-radius: 12px; padding: 3px 8px; font-size: 13px; display: flex; align-items: center; gap: 3px; }
+.reaction-btn.mine { background: #FFE3EF; border-color: #FF7BA7; }
+.reaction-count { font-size: 10px; color: #A88EA4; }
+
+/* letter envelope open animation */
+@keyframes envelopeOpen { from { transform: scale(0.9) rotateX(20deg); opacity: 0; } to { transform: scale(1) rotateX(0); opacity: 1; } }
+.letter-open { animation: envelopeOpen 0.45s ease; }
+
+/* vinyl spin for playing track */
+@keyframes vinylSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.vinyl-spin { animation: vinylSpin 3.5s linear infinite; display: inline-block; }
+
+/* My Space */
+.myspace-avatar-wrap { display: flex; flex-direction: column; align-items: center; padding: 20px 0 6px; }
+.myspace-avatar { width: 84px; height: 84px; border-radius: 42px; background: #FFE3EF; display: flex; align-items: center; justify-content: center; font-size: 34px; overflow: hidden; cursor: pointer; box-shadow: var(--shadow-soft); }
+.myspace-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.section-title { font-family: 'Pretendard', sans-serif; font-weight: 700; font-size: 14px; color: #5B445C; margin: 20px 0 10px; display: flex; align-items: center; gap: 6px; }
+.fav-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.fav-field label { font-size: 10.5px; color: #A88EA4; display: block; margin-bottom: 3px; }
+.fav-field input { width: 100%; border: 1.5px solid #F5E3EA; border-radius: 12px; padding: 8px 10px; font-size: 12.5px; color: #5B445C; background: #FFFDFB; }
+.wishlist-row { display: flex; align-items: center; gap: 10px; background: #FFFDFB; border-radius: 16px; padding: 10px 14px; margin-bottom: 8px; }
+.journal-entry { background: #FFFDFB; border-radius: 18px; padding: 14px 16px; margin-bottom: 10px; border-left: 3px solid #C8B6FF; }
+.stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.stat-box { background: #FFFDFB; border-radius: 16px; padding: 12px 8px; text-align: center; }
+.stat-box .n { font-family: 'Pretendard', sans-serif; font-weight: 700; font-size: 18px; color: #FF7BA7; display: block; }
+.stat-box .l { font-size: 9px; color: #A88EA4; }
+.theme-swatch-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.theme-swatch { width: 44px; height: 44px; border-radius: 14px; border: 2px solid transparent; cursor: pointer; }
+.theme-swatch.active { border-color: #5B445C; }
+.pin-dots { display: flex; justify-content: center; gap: 10px; margin: 16px 0; }
+.pin-dot { width: 14px; height: 14px; border-radius: 7px; background: #F0D5E1; }
+.pin-dot.filled { background: #FF7BA7; }
+.pin-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 240px; margin: 0 auto; }
+.pin-key { border: none; background: #FFFDFB; border-radius: 16px; padding: 16px 0; font-size: 18px; color: #5B445C; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
+.our-story-page { background: linear-gradient(135deg,#FFF2DD,#FFE3EF); border-radius: var(--radius); padding: 22px 20px; margin-bottom: 14px; }
+.our-story-page h3 { font-family: 'Pretendard', sans-serif; margin: 0 0 8px; color: #5B445C; }
+.our-story-page p { font-size: 13px; color: #5B445C; line-height: 1.8; white-space: pre-wrap; }
 
 </style>
 </head>
@@ -239,6 +341,34 @@ window.APP_DATA = {
     "Birinchi xabar", "Birinchi qoʻngʻiroq", "Birinchi uchrashuv", "Taklif (Proposal)",
     "Turmush qurish", "Tugʻilgan kun", "Birinchi sayohat", "Birinchi sovgʻa",
   ],
+
+  moodEmojis: ["😊", "🥰", "😔", "😡", "😴", "🥳", "😌", "🤒"],
+  reactionEmojis: ["❤️", "🥹", "😂", "😭", "🔥"],
+  wishlistSuggestions: ["🏕️ Birga camping", "🌅 Sunset koʻrish", "🍦 Ice cream", "✉️ Xat", "🤗 Quchoq"],
+
+  dailyCapsulePool: [
+    { type: "savol", text: "Bugun sizni eng ko'p nima tabassum qildirdi?" },
+    { type: "challenge", text: "Bir-biringizga 20 soniya jim qarab turing." },
+    { type: "savol", text: "Hozir eng ko'p sog'ingan lahzangiz qaysi?" },
+    { type: "challenge", text: "Bir-biringizga bugun uchta narsa uchun rahmat ayting." },
+    { type: "savol", text: "Agar bugun kuningizni rangga o'xshatsangiz, u qanday rang bo'lardi?" },
+    { type: "challenge", text: "Sevimli qo'shig'ingizni birga tinglang." },
+    { type: "savol", text: "Sherigingizda eng ko'p yoqadigan xususiyati nima?" },
+    { type: "challenge", text: "Bir-biringizga qo'lyozma qisqa xat yozing (keyin sindirib qo'yasiz)." },
+  ],
+
+  themePresets: [
+    { name: "Pastel Pink", bg: "#FFF9F7", primary: "#FF7BA7", accent: "#FFE3EF" },
+    { name: "Lavender", bg: "#FBF9FF", primary: "#9C8CFF", accent: "#F0EAFF" },
+    { name: "Sky Blue", bg: "#F7FBFF", primary: "#5EA8E0", accent: "#DDEEFF" },
+    { name: "Mint", bg: "#F6FFFB", primary: "#3FBF8F", accent: "#D8F5E8" },
+    { name: "Cream", bg: "#FFFDF7", primary: "#D9A441", accent: "#FFF2DD" },
+    { name: "Peach", bg: "#FFF9F5", primary: "#FF9466", accent: "#FFD8C2" },
+  ],
+
+  mbtiTypes: ["INTJ","INTP","ENTJ","ENTP","INFJ","INFP","ENFJ","ENFP","ISTJ","ISFJ","ESTJ","ESFJ","ISTP","ISFP","ESTP","ESFP"],
+  loveLanguages: ["Sovgʻa olish/berish", "Birga vaqt oʻtkazish", "Yordam berish", "Shirin soʻzlar", "Quchoqlash/tegish"],
+  attachmentStyles: ["Xavfsiz (Secure)", "Xavotirli (Anxious)", "Qochuvchi (Avoidant)", "Aralash (Fearful-avoidant)"],
 
   // Demo maqsadida: "sherigingiz" sizdan shu ikki savolni so'ragan deb faraz qilamiz (backend ulanganda haqiqiy bo'ladi).
   defaultSelectedByPartner: ["1-Oʻzi haqida-Toʻliq ismi", "1-Xarakteri-Introvertmi yoki ekstrovert"],
@@ -404,6 +534,18 @@ const state = {
   editingQuestion: null, // { stageId, catTitle, idx }
   addingQuestionFor: null, // { stageId, catTitle }
 
+  mySpaceTab: "dashboard", // dashboard | questions
+  wishlist: safeGet("couple_wishlist", []),
+  journal: safeGet("couple_journal_private", []), // MAHALLIY, HECH QACHON serverga jo'natilmaydi
+  theme: safeGet("couple_theme", "Pastel Pink"),
+  pin: safeGet("couple_pin", ""), // bo'sh = qulf o'chirilgan
+  pinUnlocked: false,
+  capsule: { date: null, doneBy: [] },
+  streak: { lastDate: null, count: 0 },
+  gardenCount: 0,
+  ourStory: "",
+  ourStoryLoading: false,
+
   memTab: "list", // list | map
 
   timeMode: "timeline",
@@ -491,7 +633,8 @@ function roomSnapshot() {
     memories: state.memories, letters: state.letters, tracks: state.tracks,
     timeline: state.timeline, plans: state.plans, bucket: state.bucket, tasks: state.tasks,
     qa: state.qa, meetDate: state.meetDate, mapPins: state.mapPins, anniversaries: state.anniversaries,
-    stages: state.stages,
+    stages: state.stages, wishlist: state.wishlist, capsule: state.capsule, streak: state.streak,
+    gardenCount: state.gardenCount,
   };
 }
 
@@ -509,6 +652,10 @@ function applyRoomData(data) {
   state.mapPins = data.mapPins || [];
   state.anniversaries = data.anniversaries || [];
   if (data.stages) state.stages = data.stages;
+  state.wishlist = data.wishlist || [];
+  state.capsule = data.capsule || { date: null, doneBy: [] };
+  state.streak = data.streak || { lastDate: null, count: 0 };
+  state.gardenCount = data.gardenCount || 0;
   if (data.meetDate) { state.meetDate = data.meetDate; safeSet("couple_meetdate", state.meetDate); }
   cacheLocally();
   render();
@@ -526,6 +673,9 @@ function cacheLocally() {
   safeSet("couple_map_pins", state.mapPins);
   safeSet("couple_anniversaries", state.anniversaries);
   safeSet("couple_custom_stages", state.stages);
+  safeSet("couple_wishlist", state.wishlist);
+  // Eslatma: couple_journal_private, couple_theme, couple_pin ATAYLAB bu yerda YO'Q —
+  // ular hech qachon serverga jo'natilmaydi, faqat shu qurilmada qoladi.
 }
 
 async function fetchRoom() {
@@ -573,8 +723,11 @@ function startRoomPolling() {
 /* ================= QA HELPERS ================= */
 
 function myQA() {
-  if (!state.qa[state.myName || "Men"]) state.qa[state.myName || "Men"] = { answers: {}, selectedForPartner: [] };
-  return state.qa[state.myName || "Men"];
+  if (!state.qa[state.myName || "Men"]) state.qa[state.myName || "Men"] = { answers: {}, selectedForPartner: [], mood: "", favorites: {}, personality: {} };
+  const q = state.qa[state.myName || "Men"];
+  if (!q.favorites) q.favorites = {};
+  if (!q.personality) q.personality = {};
+  return q;
 }
 function partnerQA() {
   const myKey = state.myName || "Men";
@@ -587,6 +740,37 @@ function genderConfig() {
 }
 function posted(item) {
   return item.postedBy ? `<p style="margin:4px 0 0;font-size:10px;color:#C9A9BB">— ${esc(item.postedBy)} qoʻshgan</p>` : "";
+}
+
+/* ---------- Daily Capsule / Streak / Garden ---------- */
+
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+function dayOfYear() {
+  const d = new Date();
+  const start = new Date(d.getFullYear(), 0, 0);
+  return Math.floor((d - start) / 86400000);
+}
+function getTodayCapsule() {
+  const pool = D.dailyCapsulePool;
+  return pool[dayOfYear() % pool.length];
+}
+function ensureCapsuleFresh() {
+  const today = todayStr();
+  if (state.capsule.date !== today) {
+    state.capsule = { date: today, doneBy: [] };
+  }
+}
+function updateStreakOnOpen() {
+  const today = todayStr();
+  if (state.streak.lastDate === today) return; // bugun allaqachon hisoblangan
+  const y = new Date(); y.setDate(y.getDate() - 1);
+  const yesterday = `${y.getFullYear()}-${String(y.getMonth() + 1).padStart(2, "0")}-${String(y.getDate()).padStart(2, "0")}`;
+  state.streak.count = state.streak.lastDate === yesterday ? state.streak.count + 1 : 1;
+  state.streak.lastDate = today;
+  pushRoom();
 }
 
 /* ---------- top bar ---------- */
@@ -602,7 +786,7 @@ function renderTopBar(title, opts) {
       ${opts.addAction ? `<button class="addbtn" data-action="${opts.addAction}">+</button>` : ""}
     </div>`;
 }
-function emptyState(text) { return `<p style="text-align:center;color:#B79AAE;font-size:12.5px;margin-top:30px">${esc(text)}</p>`; }
+function emptyState(text) { return `<p style="text-align:center;color:#A88EA4;font-size:12.5px;margin-top:30px">${esc(text)}</p>`; }
 
 /* ================= HOME ================= */
 
@@ -617,22 +801,31 @@ function renderHome() {
   const greetName = state.greetingNickname || state.myName;
   const avatar = myQA().avatar;
   const dt = daysTogether();
+  ensureCapsuleFresh();
+  const capsule = getTodayCapsule();
+  const iDone = state.capsule.doneBy.includes(whoAmI());
+  const partnerDone = state.capsule.doneBy.some(n => n !== whoAmI());
+  const pq = partnerQA();
+  const flashback = state.memories.length ? state.memories[dayOfYear() % state.memories.length] : null;
   const memChips = state.memories.slice(0, 3).map(m => `
     <div class="mem-chip" style="background:${m.color}" data-action="openMemory" data-id="${m.id}">
       <div style="font-size:22px">${(m.images && m.images[0]) ? `<img src="${m.images[0]}" style="width:32px;height:32px;object-fit:cover;border-radius:8px">` : m.emoji}</div>
       <p style="font-size:11px;color:#7A5670;margin:6px 0 0;font-weight:500">${esc(m.title)}</p>
-      <p style="font-size:10px;color:#B79AAE;margin:0">${esc(formatDate(m.date))}${m.postedBy ? " · " + esc(m.postedBy) : ""}</p>
+      <p style="font-size:10px;color:#A88EA4;margin:0">${esc(formatDate(m.date))}${m.postedBy ? " · " + esc(m.postedBy) : ""}</p>
     </div>`).join("");
 
   return `
     <div class="screen">
       ${renderTopBar("", {})}
       <div class="content">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
-          <div data-action="pickAvatar" style="width:36px;height:36px;border-radius:18px;background:#FFE1EC;display:flex;align-items:center;justify-content:center;font-size:17px;overflow:hidden;cursor:pointer;flex-shrink:0">${avatar ? `<img src="${avatar}" style="width:100%;height:100%;object-fit:cover">` : gc.icon}</div>
-          <p class="baloo" style="font-size:21px;color:#5B3A56;margin:0;cursor:pointer" data-action="openProfileEntry">Xayrli tong${greetName ? ", " + esc(greetName) : ""} ${gc.sun}</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div data-action="pickAvatar" style="width:36px;height:36px;border-radius:18px;background:#FFE3EF;display:flex;align-items:center;justify-content:center;font-size:17px;overflow:hidden;cursor:pointer;flex-shrink:0">${avatar ? `<img src="${avatar}" style="width:100%;height:100%;object-fit:cover">` : gc.icon}</div>
+            <p class="baloo" style="font-size:21px;color:#5B445C;margin:0;cursor:pointer" data-action="openProfileEntry">Xayrli tong${greetName ? ", " + esc(greetName) : ""} ${gc.sun}</p>
+          </div>
+          ${state.streak.count > 1 ? `<span class="streak-chip">🔥 ${state.streak.count}</span>` : ""}
         </div>
-        <p style="font-size:13px;color:#B79AAE;margin:0 0 20px">10-iyul, juma</p>
+        <p style="font-size:13px;color:#A88EA4;margin:0 0 20px">10-iyul, juma</p>
 
         <div class="hero-time">
           <img class="hero-slide-img" id="heroSlideImg" src="">
@@ -640,12 +833,40 @@ function renderHome() {
           <div class="hero-time-content">
             <p style="font-size:12px;color:#8A5C78;margin:0;letter-spacing:1px">BIRGA OʻTGAN VAQT</p>
             ${dt
-              ? `<p class="baloo" style="font-size:42px;color:#5B3A56;margin:4px 0">${dt.days} kun</p>
+              ? `<p class="baloo" style="font-size:42px;color:#5B445C;margin:4px 0">${dt.days} kun</p>
                  <p style="font-size:12px;color:#8A5C78;margin:0">${withCommas(dt.hours)} soat · ${withCommas(dt.minutes)} daqiqa</p>`
-              : `<p class="baloo" style="font-size:20px;color:#5B3A56;margin:4px 0">Tanishgan sanangiz kiritilmagan</p>
+              : `<p class="baloo" style="font-size:20px;color:#5B445C;margin:4px 0">Tanishgan sanangiz kiritilmagan</p>
                  <p style="font-size:12px;color:#8A5C78;margin:0">Profil sozlamalarida qo'shing</p>`}
           </div>
         </div>
+
+        ${pq && pq.mood ? `
+          <div class="partner-mood-card">
+            <span style="font-size:26px">${pq.mood}</span>
+            <div>
+              <p style="margin:0;font-size:12px;font-weight:600;color:#5B445C">${esc(state.partnerName || "Sherigingiz")} bugun shunday his qilyapti</p>
+              <p style="margin:0;font-size:11px;color:#A88EA4">Partner Today</p>
+            </div>
+          </div>` : ""}
+
+        <div class="capsule-card">
+          <span class="capsule-tag">🌸 Daily Capsule · ${capsule.type === "challenge" ? "Bugungi challenge" : "Bugungi savol"}</span>
+          <p class="capsule-text">${esc(capsule.text)}</p>
+          <div class="capsule-done-row">
+            <span class="capsule-done-pill ${iDone ? "done" : ""}">${whoAmI()} ${iDone ? "✓" : ""}</span>
+            <span class="capsule-done-pill ${partnerDone ? "done" : ""}">${state.partnerName || "Sherigim"} ${partnerDone ? "✓" : ""}</span>
+          </div>
+          <button class="capsule-btn ${iDone ? "done" : ""}" data-action="completeCapsule">${iDone ? "✓ Bajardingiz" : "Bajardim"}</button>
+        </div>
+
+        ${flashback ? `
+          <div class="flashback-card" data-action="openMemory" data-id="${flashback.id}">
+            ${flashback.images && flashback.images[0] ? `<img src="${flashback.images[0]}">` : `<div style="width:100%;background:${flashback.color};height:140px"></div>`}
+            <div class="flashback-overlay">
+              <p style="margin:0;font-size:10px;opacity:0.85">💌 Random Love</p>
+              <p style="margin:2px 0 0;font-size:13px;font-weight:600">${flashback.emoji} ${esc(flashback.title)}</p>
+            </div>
+          </div>` : ""}
 
         ${(() => {
           const letter = state.letters.find(l => l.id === homeReminderLetterId);
@@ -653,31 +874,37 @@ function renderHome() {
             ? `<div class="card-row" data-action="openLetterFromHome" data-id="${letter.id}">
                  <div style="font-size:22px">${letter.mood || "✉️"}</div>
                  <div>
-                   <p style="margin:0;font-size:13px;font-weight:500;color:#5B3A56">Eski bir xatni eslang</p>
-                   <p style="margin:0;font-size:12px;color:#B79AAE">"${esc(letter.title)}"</p>
+                   <p style="margin:0;font-size:13px;font-weight:500;color:#5B445C">Eski bir xatni eslang</p>
+                   <p style="margin:0;font-size:12px;color:#A88EA4">"${esc(letter.title)}"</p>
                  </div>
                </div>`
             : `<div class="card-row" data-action="goTab" data-tab="letters">
                  <div style="font-size:22px">💭</div>
                  <div>
-                   <p style="margin:0;font-size:13px;font-weight:500;color:#5B3A56">Bugungi savol</p>
-                   <p style="margin:0;font-size:12px;color:#B79AAE">Bugun sizni nima tabassum qildirdi?</p>
+                   <p style="margin:0;font-size:13px;font-weight:500;color:#5B445C">Bugungi savol</p>
+                   <p style="margin:0;font-size:12px;color:#A88EA4">Bugun sizni nima tabassum qildirdi?</p>
                  </div>
                </div>`;
         })()}
 
         <div class="card-purple" data-action="openProfileEntry">
           <div style="display:flex;align-items:center;gap:12px">
-            <div style="font-size:20px">🗂️</div>
+            <div style="font-size:20px">🌷</div>
             <div>
-              <p style="margin:0;font-size:13px;font-weight:500;color:#5B3A56">Mening profilim</p>
-              <p style="margin:0;font-size:12px;color:#B79AAE">${state.linked ? "Sherigingiz bilan ulangansiz" : "Bir-birimizni yaqinroq bilib olamiz"}</p>
+              <p style="margin:0;font-size:13px;font-weight:500;color:#5B445C">My Space</p>
+              <p style="margin:0;font-size:12px;color:#A88EA4">${state.linked ? "Sherigingiz bilan ulangansiz" : "Bir-birimizni yaqinroq bilib olamiz"}</p>
             </div>
           </div>
-          <span style="color:#B79AAE;font-size:16px">›</span>
+          <span style="color:#A88EA4;font-size:16px">›</span>
         </div>
 
-        <p class="baloo" style="font-size:15px;color:#5B3A56;margin:22px 0 10px">Soʻnggi xotiralar</p>
+        <div class="garden-card">
+          <p style="margin:0;font-size:12px;font-weight:600;color:#5B445C">🌱 Relationship Garden</p>
+          <p style="margin:2px 0 0;font-size:11px;color:#A88EA4">Har bajarilgan challenge, xotira va sana bir gul qo'shadi</p>
+          <div class="garden-grid">${Array.from({ length: Math.min(state.gardenCount, 40) }).map(() => `<span class="garden-flower">🌸</span>`).join("") || `<span style="font-size:11px;color:#A88EA4">Hali bo'sh — birinchi challenge bilan boshlang</span>`}</div>
+        </div>
+
+        <p class="baloo" style="font-size:15px;color:#5B445C;margin:22px 0 10px">Soʻnggi xotiralar</p>
         <div class="mem-strip">${memChips || emptyState("Hali xotira yoʻq")}</div>
       </div>
     </div>`;
@@ -721,7 +948,7 @@ function renderMem() {
       <div class="mem-tile-main" data-action="openMemory" data-id="${m.id}">
         <div class="mem-icon">${(m.images && m.images[0]) ? `<img src="${m.images[0]}">` : m.emoji}</div>
         <div>
-          <p style="margin:0;font-size:14px;font-weight:500;color:#5B3A56">${esc(m.title)}${m.kind && m.kind !== "Umumiy" ? ` <span style="font-size:10px;color:#B4497A">· ${esc(m.kind)}</span>` : ""}</p>
+          <p style="margin:0;font-size:14px;font-weight:500;color:#5B445C">${esc(m.title)}${m.kind && m.kind !== "Umumiy" ? ` <span style="font-size:10px;color:#E85D8F">· ${esc(m.kind)}</span>` : ""}</p>
           <p style="margin:0;font-size:11px;color:#8A6E80">${esc(formatDate(m.date))}${m.note ? " · yozuv bor" : ""}${m.images && m.images.length ? ` · ${m.images.length} rasm` : ""}${m.voice ? " · 🎙️ ovozli" : ""}</p>
           ${posted(m)}
         </div>
@@ -738,7 +965,7 @@ function renderMem() {
         <button class="active" data-action="setMemTab" data-mtab="list">Roʻyxat</button>
         <button data-action="setMemTab" data-mtab="map">🗺️ Xarita</button>
       </div>
-      ${hasPics ? `<div class="card-row" data-action="openAllPictures" style="margin-top:0;margin-bottom:14px"><div style="font-size:20px">🖼️</div><div><p style="margin:0;font-size:13px;font-weight:500;color:#5B3A56">Barcha rasmlar</p><p style="margin:0;font-size:12px;color:#B79AAE">Barcha xotiralardagi suratlar</p></div></div>` : ""}
+      ${hasPics ? `<div class="card-row" data-action="openAllPictures" style="margin-top:0;margin-bottom:14px"><div style="font-size:20px">🖼️</div><div><p style="margin:0;font-size:13px;font-weight:500;color:#5B445C">Barcha rasmlar</p><p style="margin:0;font-size:12px;color:#A88EA4">Barcha xotiralardagi suratlar</p></div></div>` : ""}
       ${tiles || emptyState("Hali xotira yoʻq. + tugmasi orqali qoʻshing.")}
     </div>
   </div>`;
@@ -797,7 +1024,14 @@ function renderMemoryDetail() {
       ${renderTopBar(m.title, { hasBack: true, backAction: "back" })}
       <div class="content">
         ${carousel}
-        <p style="font-size:12px;color:#B79AAE;margin:0 0 10px">${esc(formatDate(m.date))}${m.postedBy ? " · " + esc(m.postedBy) + " qoʻshgan" : ""}</p>
+        <p style="font-size:12px;color:#A88EA4;margin:0 0 10px">${esc(formatDate(m.date))}${m.postedBy ? " · " + esc(m.postedBy) + " qoʻshgan" : ""}</p>
+        <div class="reaction-row">
+          ${D.reactionEmojis.map(e => {
+            const reactors = (m.reactions && m.reactions[e]) || [];
+            const mine = reactors.includes(whoAmI());
+            return `<button type="button" class="reaction-btn ${mine ? "mine" : ""}" data-action="toggleReaction" data-id="${m.id}" data-emoji="${e}">${e}${reactors.length ? `<span class="reaction-count">${reactors.length}</span>` : ""}</button>`;
+          }).join("")}
+        </div>
         ${m.voice ? `<div class="form-field"><label class="form-label">🎙️ Ovozli xabar</label><audio class="audio-player" controls src="${m.voice}"></audio></div>` : ""}
         <div class="form-field">
           <label class="form-label">Yozuv</label>
@@ -806,8 +1040,8 @@ function renderMemoryDetail() {
         <div class="form-field">
           <label class="form-label">${m.voice ? "Ovozli xabarni almashtirish" : "Ovozli xabar qoʻshish (ixtiyoriy)"}</label>
           ${state.isRecording && state.recordTarget === m.id
-            ? `<button type="button" class="lock-unlock-btn" data-action="stopRecordExisting" data-id="${m.id}" style="background:#D4537E">⏹ Toʻxtatish (yozilmoqda...)</button>`
-            : `<button type="button" class="lock-unlock-btn" data-action="startRecordExisting" data-id="${m.id}" style="background:#5B3A56">🎙️ Ovoz yozish</button>`}
+            ? `<button type="button" class="lock-unlock-btn" data-action="stopRecordExisting" data-id="${m.id}" style="background:#FF7BA7">⏹ Toʻxtatish (yozilmoqda...)</button>`
+            : `<button type="button" class="lock-unlock-btn" data-action="startRecordExisting" data-id="${m.id}" style="background:#5B445C">🎙️ Ovoz yozish</button>`}
           <p class="emoji-hint">Yoki fayldan tanlang:</p>
           <input class="form-input" type="file" accept="audio/*" data-action="memVoiceSelected" data-id="${m.id}">
         </div>
@@ -824,13 +1058,13 @@ function renderMemoryDetail() {
 
 function renderMusic() {
   const rows = state.tracks.map(t => `
-    <div class="track-row" style="background:#FFF3E3;flex-direction:column;align-items:stretch">
+    <div class="track-row" style="background:#FFEEE3;flex-direction:column;align-items:stretch">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
         <div style="display:flex;align-items:flex-start;gap:12px;flex:1">
-          <div class="track-icon">🎵</div>
+          <div class="track-icon" id="vinyl-${t.id}">🎵</div>
           <div style="flex:1">
-            <p style="margin:0;font-size:13px;font-weight:500;color:#5B3A56">${esc(t.title)}</p>
-            <p style="margin:0;font-size:11px;color:#B79AAE">${esc(t.story || "")}</p>
+            <p style="margin:0;font-size:13px;font-weight:500;color:#5B445C">${esc(t.title)}</p>
+            <p style="margin:0;font-size:11px;color:#A88EA4">${esc(t.story || "")}</p>
             ${t.link ? `<a class="track-link" href="${esc(t.link)}" target="_blank" rel="noopener">🔗 Tashqi havola</a>` : ""}
             ${posted(t)}
           </div>
@@ -840,7 +1074,10 @@ function renderMusic() {
           <button class="icon-btn danger" data-action="deleteTrack" data-id="${t.id}">🗑</button>
         </div>
       </div>
-      ${t.audio ? `<audio class="audio-player" controls src="${t.audio}"></audio>` : ""}
+      ${t.audio ? `<audio class="audio-player" controls src="${t.audio}"
+          onplay="document.getElementById('vinyl-${t.id}').classList.add('vinyl-spin')"
+          onpause="document.getElementById('vinyl-${t.id}').classList.remove('vinyl-spin')"
+          onended="document.getElementById('vinyl-${t.id}').classList.remove('vinyl-spin')"></audio>` : ""}
     </div>`).join("");
   return `<div class="screen">${renderTopBar("Bizning ovozlar", { addAction: "openTrackForm" })}<div class="content">${rows || emptyState("Hali qoʻshiq yoʻq. + tugmasi orqali telefondan qoʻshiq yuklang.")}</div></div>`;
 }
@@ -867,11 +1104,11 @@ function renderLetters() {
       const author = isAuthor(opened);
       let actionBlock;
       if (!opened.allowEarlyUnlock) {
-        actionBlock = `<p style="font-size:10.5px;color:#B79AAE;margin-top:10px">Bu xat muddatidan oldin ochilmaydi.</p>`;
+        actionBlock = `<p style="font-size:10.5px;color:#A88EA4;margin-top:10px">Bu xat muddatidan oldin ochilmaydi.</p>`;
       } else if (author && opened.earlyUnlockRequested) {
-        actionBlock = `<p style="font-size:12px;color:#5B3A56;margin-top:10px">Sherigingiz bu xatni erta ochishni soʻrayapti.</p><button class="lock-unlock-btn" data-action="grantEarlyUnlock" data-id="${opened.id}">Ruxsat berish</button>`;
+        actionBlock = `<p style="font-size:12px;color:#5B445C;margin-top:10px">Sherigingiz bu xatni erta ochishni soʻrayapti.</p><button class="lock-unlock-btn" data-action="grantEarlyUnlock" data-id="${opened.id}">Ruxsat berish</button>`;
       } else if (author) {
-        actionBlock = `<p style="font-size:10.5px;color:#B79AAE;margin-top:10px">Bu xatni faqat siz (yozgan kishi) erta ochishga ruxsat bera olasiz — sherigingiz soʻraguncha kuting.</p>`;
+        actionBlock = `<p style="font-size:10.5px;color:#A88EA4;margin-top:10px">Bu xatni faqat siz (yozgan kishi) erta ochishga ruxsat bera olasiz — sherigingiz soʻraguncha kuting.</p>`;
       } else if (opened.earlyUnlockRequested) {
         actionBlock = `<p style="font-size:12px;color:#8A6E80;margin-top:10px">Soʻrovingiz yuborildi — sherigingiz ruxsat berishini kutmoqdasiz.</p>`;
       } else {
@@ -883,7 +1120,7 @@ function renderLetters() {
           <div class="content">
             <div class="letter-locked">
               <div class="lock-icon">🔒</div>
-              <p class="baloo" style="font-size:16px;color:#5B3A56;margin:10px 0 4px">${esc(opened.title)}</p>
+              <p class="baloo" style="font-size:16px;color:#5B445C;margin:10px 0 4px">${esc(opened.title)}</p>
               <p style="font-size:12px;color:#8A6E80;margin:0">${formatDate(opened.unlockDate)}gacha qulflangan · ${daysUntil(opened.unlockDate)} kun qoldi</p>
               ${actionBlock}
             </div>
@@ -896,8 +1133,8 @@ function renderLetters() {
         <div class="content">
           <div class="letter-open">
             <p style="font-size:30px;margin:0 0 8px">${opened.mood}</p>
-            <p class="baloo" style="font-size:17px;color:#5B3A56;margin:0 0 4px">${esc(opened.title)}</p>
-            <p style="font-size:11px;color:#B79AAE;margin:0 0 18px">${esc(formatDate(opened.date))}${opened.postedBy ? " · " + esc(opened.postedBy) + " yozgan" : ""}</p>
+            <p class="baloo" style="font-size:17px;color:#5B445C;margin:0 0 4px">${esc(opened.title)}</p>
+            <p style="font-size:11px;color:#A88EA4;margin:0 0 18px">${esc(formatDate(opened.date))}${opened.postedBy ? " · " + esc(opened.postedBy) + " yozgan" : ""}</p>
             <p style="font-size:13px;color:#7A5670;line-height:1.7;text-align:left;white-space:pre-wrap">${esc(opened.body)}</p>
           </div>
         </div>
@@ -911,8 +1148,8 @@ function renderLetters() {
           <div style="display:flex;align-items:center;gap:12px">
             <div style="font-size:20px">🔒</div>
             <div>
-              <p style="margin:0;font-size:13px;font-weight:500;color:#5B3A56">${esc(l.title)}</p>
-              <p style="margin:0;font-size:11px;color:#B79AAE">${daysUntil(l.unlockDate)} kun qoldi</p>
+              <p style="margin:0;font-size:13px;font-weight:500;color:#5B445C">${esc(l.title)}</p>
+              <p style="margin:0;font-size:11px;color:#A88EA4">${daysUntil(l.unlockDate)} kun qoldi</p>
             </div>
           </div>
           <span class="lock-badge">🔒 qulflangan</span>
@@ -923,8 +1160,8 @@ function renderLetters() {
       <div class="letter-row-main" data-action="openLetter" data-id="${l.id}">
         <div style="font-size:20px">✉️</div>
         <div>
-          <p style="margin:0;font-size:13px;font-weight:500;color:#5B3A56">${esc(l.title)}</p>
-          <p style="margin:0;font-size:11px;color:#B79AAE">${esc(formatDate(l.date))}</p>
+          <p style="margin:0;font-size:13px;font-weight:500;color:#5B445C">${esc(l.title)}</p>
+          <p style="margin:0;font-size:11px;color:#A88EA4">${esc(formatDate(l.date))}</p>
           ${posted(l)}
         </div>
       </div>
@@ -938,7 +1175,7 @@ function renderLetters() {
     </div>`;
   }).join("");
   return `<div class="screen">${renderTopBar("Xatlar", { addAction: "openLetterForm" })}<div class="content">
-    <p style="font-size:10.5px;color:#B79AAE;margin:0 0 12px">🔒 Qulflangan xatlar hech qachon oʻzi oʻchib ketmaydi — faqat muddati kelganda yoki sherigingiz roziligi bilan ochiladi.</p>
+    <p style="font-size:10.5px;color:#A88EA4;margin:0 0 12px">🔒 Qulflangan xatlar hech qachon oʻzi oʻchib ketmaydi — faqat muddati kelganda yoki sherigingiz roziligi bilan ochiladi.</p>
     ${rows || emptyState("Hali xat yoʻq. + tugmasi orqali yozing.")}</div></div>`;
 }
 
@@ -962,7 +1199,7 @@ function renderFolderList(listKey, folders) {
         <div class="bucket-row">
           <div class="bucket-check ${item.done ? "done" : ""}" data-action="toggleItem" data-list="${listKey}" data-folder="${folder.id}" data-item="${item.id}">${item.done ? "✓" : ""}</div>
           <div style="flex:1">
-            <p style="margin:0;font-size:13px;color:#5B3A56;text-decoration:${item.done ? "line-through" : "none"};opacity:${item.done ? 0.55 : 1}">${esc(item.text)}</p>
+            <p style="margin:0;font-size:13px;color:#5B445C;text-decoration:${item.done ? "line-through" : "none"};opacity:${item.done ? 0.55 : 1}">${esc(item.text)}</p>
             ${item.postedBy ? `<p style="margin:2px 0 0;font-size:10px;color:#C9A9BB">— ${esc(item.postedBy)} qoʻshgan</p>` : ""}
           </div>
           <div class="row-actions">
@@ -1021,7 +1258,7 @@ function renderAnniversaries() {
         <span class="lbl">${days === 0 ? "BUGUN" : "KUN"}</span>
       </div>
       <div style="flex:1">
-        <p style="margin:0;font-size:13px;font-weight:500;color:#5B3A56">${esc(a.type)}</p>
+        <p style="margin:0;font-size:13px;font-weight:500;color:#5B445C">${esc(a.type)}</p>
         <p style="margin:2px 0 0;font-size:11px;color:#8A6E80">${esc(formatDate(a.date))}${a.note ? " · " + esc(a.note) : ""}</p>
         ${a.postedBy ? `<p style="margin:2px 0 0;font-size:10px;color:#C9A9BB">— ${esc(a.postedBy)} qoʻshgan</p>` : ""}
       </div>
@@ -1041,6 +1278,7 @@ function renderTime() {
     { key: "bucket", label: "Orzular" },
     { key: "tasks", label: "Vazifalar" },
     { key: "anniv", label: "Sanalar" },
+    { key: "story", label: "💖 Hikoyamiz" },
   ];
   const segBtns = modes.map(o => `<button class="${state.timeMode === o.key ? "active" : ""}" data-action="setTimeMode" data-mode="${o.key}">${o.label}</button>`).join("");
 
@@ -1052,8 +1290,8 @@ function renderTime() {
       <div class="timeline-item">
         <div class="timeline-dot"></div>
         <div>
-          <p style="margin:0;font-size:11px;color:#B79AAE">${esc(formatDate(m.date))}</p>
-          <p style="margin:2px 0 0;font-size:13px;font-weight:500;color:#5B3A56">${m.emoji} ${esc(m.title)}</p>
+          <p style="margin:0;font-size:11px;color:#A88EA4">${esc(formatDate(m.date))}</p>
+          <p style="margin:2px 0 0;font-size:13px;font-weight:500;color:#5B445C">${m.emoji} ${esc(m.title)}</p>
           ${m.postedBy ? `<p style="margin:2px 0 0;font-size:10px;color:#C9A9BB">— ${esc(m.postedBy)} qoʻshgan</p>` : ""}
         </div>
         <div class="row-actions">
@@ -1068,6 +1306,8 @@ function renderTime() {
   } else if (state.timeMode === "anniv") {
     addAction = "openAnniversaryForm";
     body = renderAnniversaries();
+  } else if (state.timeMode === "story") {
+    body = renderOurStory();
   } else {
     addAction = "openTaskForm";
     body = renderTasks();
@@ -1080,6 +1320,19 @@ function renderTime() {
         <div class="segment">${segBtns}</div>
         ${body}
       </div>
+    </div>`;
+}
+
+function renderOurStory() {
+  return `
+    <div class="our-story-page">
+      <h3>💖 Our Story</h3>
+      ${state.ourStoryLoading
+        ? `<p style="font-size:13px;color:#5B445C">✨ Hikoyangiz yozilmoqda...</p>`
+        : state.ourStory
+          ? `<p>${esc(state.ourStory)}</p>`
+          : `<p style="font-size:12.5px;color:#A88EA4">Xotiralaringiz, xatlaringiz va sanalaringiz asosida AI sizga o'zbek tilida qisqa, iliq sevgi hikoyasi yozib beradi.</p>`}
+      <button class="primary-btn" data-action="generateOurStory" ${state.ourStoryLoading ? "disabled" : ""}>${state.ourStory ? "Qayta yozdirish" : "Hikoyani yaratish"}</button>
     </div>`;
 }
 
@@ -1118,11 +1371,11 @@ function renderGenderPick() {
       <div style="display:flex;gap:12px;justify-content:center">
         <button class="gender-btn" data-action="chooseGender" data-gender="qiz">
           <span style="font-size:26px">👩</span>
-          <span class="baloo" style="font-size:13px;color:#5B3A56">Qiz</span>
+          <span class="baloo" style="font-size:13px;color:#5B445C">Qiz</span>
         </button>
         <button class="gender-btn" data-action="chooseGender" data-gender="yigit">
           <span style="font-size:26px">🧑</span>
-          <span class="baloo" style="font-size:13px;color:#5B3A56">Yigit</span>
+          <span class="baloo" style="font-size:13px;color:#5B445C">Yigit</span>
         </button>
       </div>
     </div>`;
@@ -1169,7 +1422,7 @@ function renderLink() {
         <label class="form-label">Sherigingizning kodi</label>
         <input class="form-input" id="partnerCodeInput" value="${esc(state.partnerCodeEntered)}" placeholder="Masalan: AB12CD">
       </div>
-      ${state.linkError ? `<p style="font-size:12px;color:#D4537E;margin:0 0 10px">${esc(state.linkError)}</p>` : ""}
+      ${state.linkError ? `<p style="font-size:12px;color:#FF7BA7;margin:0 0 10px">${esc(state.linkError)}</p>` : ""}
       <button class="primary-btn" data-action="linkPartner">Ulash</button>
       <button class="ghost-btn" data-action="skipLink">Hozircha oʻtkazib yuborish</button>
     </div>`;
@@ -1216,13 +1469,13 @@ function renderPickTab() {
           : `<button type="button" class="add-folder-btn" data-action="openAddQuestion" data-stage="${stage.id}" data-cat="${esc(cat.title)}" style="margin-top:6px">+ Savol qoʻshish</button>`}
       </div>`).join("");
     return `
-      <div class="stage-block" style="background:${stage.sensitive ? "#F1ECFF" : "#FFF3E3"}">
+      <div class="stage-block" style="background:${stage.sensitive ? "#F0EAFF" : "#FFEEE3"}">
         <div class="stage-head" data-action="toggleStage" data-stage="${stage.id}">
           <div>
-            <p class="baloo" style="margin:0;font-size:14px;color:#5B3A56">${esc(stage.label)} · ${esc(stage.title)}</p>
+            <p class="baloo" style="margin:0;font-size:14px;color:#5B445C">${esc(stage.label)} · ${esc(stage.title)}</p>
             <p style="margin:2px 0 0;font-size:11px;color:#8A6E80">${esc(stage.note)}</p>
           </div>
-          <span style="font-size:12px;color:#B79AAE;display:inline-block;transform:${open ? "rotate(180deg)" : "none"}">⌄</span>
+          <span style="font-size:12px;color:#A88EA4;display:inline-block;transform:${open ? "rotate(180deg)" : "none"}">⌄</span>
         </div>
         ${open ? `<div class="stage-body">${catsHtml}</div>` : ""}
       </div>`;
@@ -1230,7 +1483,7 @@ function renderPickTab() {
   const changed = JSON.stringify([...state.draftSelected].sort()) !== JSON.stringify([...myQA().selectedForPartner].sort());
   return `
     <p style="font-size:12px;color:#8A6E80;margin:0 0 4px">Sherigingizga bilishni xohlagan savollaringizni belgilang, keyin pastdagi tugma bilan yuboring.</p>
-    <p style="font-size:10.5px;color:#B79AAE;margin:0 0 12px">✎ — matnini tahrirlash, 🗑 — butunlay oʻchirish, "+ Savol qoʻshish" — oʻzingizniki qoʻshish. Eslatma: savol matnini oʻzgartirsangiz, unga avval berilgan javob koʻrinishdan yoʻqolishi mumkin.</p>
+    <p style="font-size:10.5px;color:#A88EA4;margin:0 0 12px">✎ — matnini tahrirlash, 🗑 — butunlay oʻchirish, "+ Savol qoʻshish" — oʻzingizniki qoʻshish. Eslatma: savol matnini oʻzgartirsangiz, unga avval berilgan javob koʻrinishdan yoʻqolishi mumkin.</p>
     ${changed ? `<div class="link-badge pending" style="width:100%;box-sizing:border-box;justify-content:center">⚠️ Oʻzgartirildi — hali yuborilmagan</div>` : ""}
     ${body}
     <button class="primary-btn" data-action="sendSelected" style="margin-top:8px">${changed ? "Tanlanganlarni yuborish" : "✓ Yuborilgan"}</button>`;
@@ -1272,7 +1525,7 @@ function renderIncomingTab() {
     });
   });
   const toggle = answeredCount > 0
-    ? `<p style="font-size:11px;color:#B4497A;text-decoration:underline;cursor:pointer;margin:0 0 10px" data-action="toggleShowAnswered">${state.showAnsweredIncoming ? "Javob berilganlarni yashirish" : `Javob berilgan ${answeredCount} tasini ko'rsatish`}</p>`
+    ? `<p style="font-size:11px;color:#E85D8F;text-decoration:underline;cursor:pointer;margin:0 0 10px" data-action="toggleShowAnswered">${state.showAnsweredIncoming ? "Javob berilganlarni yashirish" : `Javob berilgan ${answeredCount} tasini ko'rsatish`}</p>`
     : "";
   return rows.length || toggle
     ? `<p style="font-size:12px;color:#8A6E80;margin:0 0 12px">Sherigingiz sizdan shu savollarni soʻragan:</p>${toggle}${rows.join("") || emptyState("Barchasiga javob berdingiz! 🎉")}`
@@ -1302,33 +1555,200 @@ function renderPartnerAnswersTab() {
     : emptyState("Hali sherigingizga savol yubormagansiz — \"Savol tanlash\" boʻlimidan boshlang.");
 }
 
+function zodiacFromDate(dateStr) {
+  if (!dateStr) return "";
+  const m = /^\d{4}-(\d{2})-(\d{2})$/.exec(dateStr);
+  if (!m) return "";
+  const mo = parseInt(m[1], 10), d = parseInt(m[2], 10);
+  const signs = [
+    [20,"♑ Uloq"],[19,"♒ Dolvon"],[21,"♓ Baliq"],[20,"♈ Qo'chqor"],[21,"♉ Ho'kiz"],
+    [21,"♊ Egizak"],[23,"♋ Qisqichbaqa"],[23,"♌ Arslon"],[23,"♍ Sunbula"],[23,"♎ Tarozi"],
+    [22,"♏ Chayon"],[22,"♐ Kamon"],[20,"♑ Uloq"],
+  ];
+  return d <= signs[mo - 1][0] ? signs[mo - 1][1] : signs[mo][1];
+}
+
+function applyTheme() {
+  const preset = D.themePresets.find(t => t.name === state.theme) || D.themePresets[0];
+  document.documentElement.style.setProperty("--bg", preset.bg);
+  document.documentElement.style.setProperty("--primary", preset.primary);
+  document.documentElement.style.setProperty("--pink-light", preset.accent);
+}
+
+function renderMoodSection() {
+  const mq = myQA();
+  return `
+    <div class="premium-card">
+      <p class="section-title">💭 Today's Feeling</p>
+      <div class="mood-row">
+        ${D.moodEmojis.map(e => `<button type="button" class="mood-btn ${mq.mood === e ? "active" : ""}" data-action="setMood" data-mood="${e}">${e}</button>`).join("")}
+      </div>
+      <p style="font-size:10.5px;color:#A88EA4;text-align:center;margin:10px 0 0">Sherigingiz buni Bosh sahifada "Partner Today" sifatida ko'radi.</p>
+    </div>`;
+}
+
+function renderAboutMeSection() {
+  const fav = myQA().favorites;
+  const fields = [
+    ["color", "Sevimli rang"], ["food", "Sevimli taom"], ["drink", "Sevimli ichimlik"],
+    ["flower", "Sevimli gul"], ["place", "Sevimli joy"], ["movie", "Sevimli film"], ["song", "Sevimli qo'shiq"],
+  ];
+  return `
+    <div class="premium-card">
+      <p class="section-title">✨ About Me</p>
+      <div class="fav-grid">
+        ${fields.map(([key, label]) => `
+          <div class="fav-field">
+            <label>${esc(label)}</label>
+            <input id="fav-${key}" value="${esc(fav[key] || "")}" placeholder="...">
+          </div>`).join("")}
+      </div>
+      <button class="primary-btn" data-action="saveFavorites" style="margin-top:12px">Saqlash</button>
+    </div>`;
+}
+
+function renderPersonalitySection() {
+  const p = myQA().personality;
+  return `
+    <div class="premium-card">
+      <p class="section-title">🧸 Personality</p>
+      <div class="form-field"><label class="form-label">MBTI</label>
+        <select class="form-input" id="pers-mbti"><option value="">—</option>${D.mbtiTypes.map(t => `<option value="${t}" ${p.mbti === t ? "selected" : ""}>${t}</option>`).join("")}</select>
+      </div>
+      <div class="form-field"><label class="form-label">Love language</label>
+        <select class="form-input" id="pers-lovelang"><option value="">—</option>${D.loveLanguages.map(t => `<option value="${esc(t)}" ${p.loveLanguage === t ? "selected" : ""}>${esc(t)}</option>`).join("")}</select>
+      </div>
+      <div class="form-field"><label class="form-label">Attachment style</label>
+        <select class="form-input" id="pers-attach"><option value="">—</option>${D.attachmentStyles.map(t => `<option value="${esc(t)}" ${p.attachment === t ? "selected" : ""}>${esc(t)}</option>`).join("")}</select>
+      </div>
+      <div class="form-field"><label class="form-label">Tug'ilgan kun</label>
+        <input class="form-input" type="date" id="pers-birthday" value="${esc(p.birthday || "")}">
+        ${p.birthday ? `<p class="emoji-hint">Zodiac: ${zodiacFromDate(p.birthday)}</p>` : ""}
+      </div>
+      <button class="primary-btn" data-action="savePersonality">Saqlash</button>
+    </div>`;
+}
+
+function renderWishlistSection() {
+  const rows = state.wishlist.map(w => `
+    <div class="wishlist-row">
+      <div class="bucket-check ${w.done ? "done" : ""}" data-action="toggleWish" data-id="${w.id}">${w.done ? "✓" : ""}</div>
+      <p style="flex:1;margin:0;font-size:13px;color:#5B445C;text-decoration:${w.done ? "line-through" : "none"};opacity:${w.done ? 0.55 : 1}">${esc(w.text)}</p>
+      <button class="icon-btn danger" data-action="deleteWish" data-id="${w.id}">🗑</button>
+    </div>`).join("");
+  return `
+    <div class="premium-card">
+      <p class="section-title">🎁 Wishlist</p>
+      <p style="font-size:11px;color:#A88EA4;margin:0 0 10px">Sherigingizdan xohlaganlaringiz</p>
+      ${rows || emptyState("Hali bo'sh")}
+      <div class="emoji-pick">${D.wishlistSuggestions.map(s => `<button type="button" data-emoji="${esc(s)}" data-target="wish-input" class="emoji-opt" style="width:auto;padding:0 8px;font-size:11px">${esc(s)}</button>`).join("")}</div>
+      <div class="add-item-row"><input type="text" id="wish-input" placeholder="Yangi istak..."><button data-action="addWish">Qoʻsh</button></div>
+    </div>`;
+}
+
+function renderJournalSection() {
+  const entries = state.journal.slice().reverse().map(j => `
+    <div class="journal-entry">
+      <p style="margin:0 0 4px;font-size:10px;color:#A88EA4">${esc(j.date)}</p>
+      <p style="margin:0;font-size:13px;color:#5B445C;white-space:pre-wrap">${esc(j.text)}</p>
+      <button class="icon-btn danger" data-action="deleteJournal" data-id="${j.id}" style="margin-top:6px">🗑 O'chirish</button>
+    </div>`).join("");
+  return `
+    <div class="premium-card">
+      <p class="section-title">📖 Private Journal</p>
+      <p style="font-size:11px;color:#A88EA4;margin:0 0 10px">🔒 Faqat siz ko'rasiz — sherigingiz hech qachon ko'rmaydi, serverga ham jo'natilmaydi.</p>
+      <textarea class="form-textarea" rows="3" id="journal-input" placeholder="Bugun nima his qildingiz..."></textarea>
+      <button class="primary-btn" data-action="addJournal" style="margin-top:8px">Saqlash</button>
+      <div style="margin-top:14px">${entries || emptyState("Hali yozuv yo'q")}</div>
+    </div>`;
+}
+
+function renderCoupleStatsSection() {
+  const dt = daysTogether();
+  const stats = [
+    [state.memories.length, "Xotira"], [state.letters.length, "Xat"], [state.tracks.length, "Qo'shiq"],
+    [dt ? dt.days : 0, "Kun"], [state.gardenCount || 0, "Challenge"], [state.anniversaries.length, "Sana"],
+  ];
+  return `
+    <div class="premium-card">
+      <p class="section-title">📊 Couple Stats</p>
+      <div class="stat-grid">
+        ${stats.map(([n, l]) => `<div class="stat-box"><span class="n">${n}</span><span class="l">${esc(l)}</span></div>`).join("")}
+      </div>
+    </div>`;
+}
+
+function renderThemeSection() {
+  return `
+    <div class="premium-card">
+      <p class="section-title">🎨 Theme</p>
+      <div class="theme-swatch-row">
+        ${D.themePresets.map(t => `<button type="button" class="theme-swatch ${state.theme === t.name ? "active" : ""}" style="background:${t.primary}" data-action="setTheme" data-theme="${esc(t.name)}" title="${esc(t.name)}"></button>`).join("")}
+      </div>
+    </div>`;
+}
+
+function renderPrivacySection() {
+  return `
+    <div class="premium-card">
+      <p class="section-title">🔐 Privacy</p>
+      ${state.pin
+        ? `<p style="font-size:12px;color:#5B445C;margin:0 0 10px">PIN oʻrnatilgan (${state.pin.length} xonali).</p>
+           <button class="ghost-btn" data-action="removePin" style="color:#FF7BA7">PIN'ni oʻchirish</button>`
+        : `<div class="form-field"><label class="form-label">4 xonali PIN oʻrnatish</label><input class="form-input" type="tel" maxlength="4" id="new-pin-input" placeholder="0000"></div>
+           <button class="primary-btn" data-action="setPin">Oʻrnatish</button>`}
+    </div>`;
+}
+
+function renderDashboardTab() {
+  return `
+    <div class="myspace-avatar-wrap">
+      <div class="myspace-avatar" data-action="pickAvatar">${myQA().avatar ? `<img src="${myQA().avatar}">` : genderConfig().icon}</div>
+      <p class="baloo" style="margin:10px 0 0;font-size:17px;color:#5B445C">${esc(state.greetingNickname || state.myName || "Siz")}</p>
+      <p style="margin:2px 0 0;font-size:11px;color:#A88EA4">${state.gender === "qiz" ? "Qiz" : "Yigit"}</p>
+    </div>
+    ${renderMoodSection()}
+    ${renderAboutMeSection()}
+    ${renderWishlistSection()}
+    ${renderPersonalitySection()}
+    ${renderJournalSection()}
+    ${renderCoupleStatsSection()}
+    ${renderThemeSection()}
+    ${renderPrivacySection()}`;
+}
+
 function renderProfile() {
-  const tabs = [
+  const qTabs = [
     { key: "pick", label: "Savol tanlash" },
     { key: "incoming", label: "Menga kelgan" },
     { key: "partnerAnswers", label: "Sherigim javobi" },
   ];
-  let body = "";
-  if (state.profileTab === "pick") body = renderPickTab();
-  else if (state.profileTab === "incoming") body = renderIncomingTab();
-  else body = renderPartnerAnswersTab();
+  let questionsBody = "";
+  if (state.profileTab === "pick") questionsBody = renderPickTab();
+  else if (state.profileTab === "incoming") questionsBody = renderIncomingTab();
+  else questionsBody = renderPartnerAnswersTab();
 
   return `
     <div class="screen">
-      ${renderTopBar("Mening profilim", { hasBack: true, backAction: "back" })}
+      ${renderTopBar("My Space", { hasBack: true, backAction: "back" })}
       <div class="content">
         <div class="mycode-chip">
           <span>🔑 Mening kodim: <span class="code-value-sm">${state.myCode || "—"}</span></span>
-          ${state.linked ? `<span class="link-badge" style="margin:0">🔗 Ulangan</span>` : `<span style="font-size:11px;color:#B4497A;text-decoration:underline;cursor:pointer" data-action="goLinkFromProfile">ulash</span>`}
+          ${state.linked ? `<span class="link-badge" style="margin:0">🔗 Ulangan</span>` : `<span style="font-size:11px;color:#E85D8F;text-decoration:underline;cursor:pointer" data-action="goLinkFromProfile">ulash</span>`}
         </div>
         <div class="segment">
-          ${tabs.map(t => `<button class="${state.profileTab === t.key ? "active" : ""}" data-action="setProfileTab" data-ptab="${t.key}">${t.label}</button>`).join("")}
+          <button class="${state.mySpaceTab === "dashboard" ? "active" : ""}" data-action="setMySpaceTab" data-mtab="dashboard">🌷 My Space</button>
+          <button class="${state.mySpaceTab === "questions" ? "active" : ""}" data-action="setMySpaceTab" data-mtab="questions">💌 Savollar</button>
         </div>
-        ${body}
-        <p style="font-size:10.5px;color:#B79AAE;text-align:center;margin-top:14px">
-          "Maxfiy" bosqichdagi savollarni hech qachon majburlab soʻramang — ular ikkalangiz ham tayyor boʻlgandagina ochiladi. 🌙
-        </p>
-        <button class="ghost-btn" data-action="deleteProfile" style="color:#D4537E;margin-top:10px">🗑 Profilni oʻchirish va qaytadan boshlash</button>
+        ${state.mySpaceTab === "dashboard" ? renderDashboardTab() : `
+          <div class="segment">
+            ${qTabs.map(t => `<button class="${state.profileTab === t.key ? "active" : ""}" data-action="setProfileTab" data-ptab="${t.key}">${t.label}</button>`).join("")}
+          </div>
+          ${questionsBody}
+          <p style="font-size:10.5px;color:#A88EA4;text-align:center;margin-top:14px">
+            "Maxfiy" bosqichdagi savollarni hech qachon majburlab soʻramang — ular ikkalangiz ham tayyor boʻlgandagina ochiladi. 🌙
+          </p>`}
+        <button class="ghost-btn" data-action="deleteProfile" style="color:#FF7BA7;margin-top:16px">🗑 Profilni oʻchirish va qaytadan boshlash</button>
       </div>
     </div>`;
 }
@@ -1368,8 +1788,8 @@ function renderModal() {
       <div class="form-field">
         <label class="form-label">Ovozli xabar (ixtiyoriy)</label>
         ${state.isRecording && state.recordTarget === "new"
-          ? `<button type="button" class="lock-unlock-btn" data-action="stopRecordNew" style="background:#D4537E">⏹ Toʻxtatish (yozilmoqda...)</button>`
-          : `<button type="button" class="lock-unlock-btn" data-action="startRecordNew" style="background:#5B3A56">🎙️ Ovoz yozish</button>`}
+          ? `<button type="button" class="lock-unlock-btn" data-action="stopRecordNew" style="background:#FF7BA7">⏹ Toʻxtatish (yozilmoqda...)</button>`
+          : `<button type="button" class="lock-unlock-btn" data-action="startRecordNew" style="background:#5B445C">🎙️ Ovoz yozish</button>`}
         ${state.newMemoryVoice ? `<div style="margin-top:8px"><audio class="audio-player" controls src="${state.newMemoryVoice}"></audio><button type="button" class="icon-btn danger" data-action="clearNewVoice">🗑 Ovozni oʻchirish</button></div>` : ""}
         <p class="emoji-hint">Yoki fayldan tanlang:</p>
         <input class="form-input" type="file" accept="audio/*" id="mf-voice">
@@ -1507,9 +1927,31 @@ function renderBottomNav() {
 
 /* ================= MAIN RENDER ================= */
 
+function renderPinLock() {
+  const len = (state._pinDraft || "").length;
+  return `
+    <div style="padding:60px 24px;text-align:center">
+      <p style="font-size:34px;margin:0 0 6px">🔐</p>
+      <p class="baloo" style="font-size:18px;color:#5B445C;margin:0 0 4px">Ilova qulflangan</p>
+      <p style="font-size:12px;color:#A88EA4;margin:0 0 10px">PIN kodingizni kiriting</p>
+      <div class="pin-dots">${[0,1,2,3].map(i => `<div class="pin-dot ${i < len ? "filled" : ""}"></div>`).join("")}</div>
+      <div class="pin-keypad">
+        ${[1,2,3,4,5,6,7,8,9].map(n => `<button class="pin-key" data-action="pinKey" data-k="${n}">${n}</button>`).join("")}
+        <div></div>
+        <button class="pin-key" data-action="pinKey" data-k="0">0</button>
+        <button class="pin-key" data-action="pinBackspace">⌫</button>
+      </div>
+    </div>`;
+}
+
 function render() {
   let main = "";
   let nav = "";
+
+  if (state.pin && !state.pinUnlocked) {
+    document.getElementById("app").innerHTML = renderPinLock();
+    return;
+  }
 
   if (state.screen === "onboarding") main = renderOnboarding();
   else if (state.screen === "gender") main = renderGenderPick();
@@ -1608,10 +2050,12 @@ function resetContentToZero() {
 
 document.addEventListener("DOMContentLoaded", async () => {
   const app = document.getElementById("app");
+  applyTheme();
   await tryTelegramRecovery();
   state.draftSelected = (myQA().selectedForPartner || []).slice();
   pickHomeReminderLetter();
   startRoomPolling();
+  setTimeout(updateStreakOnOpen, 800); // xona ma'lumoti kelishini biroz kutamiz
 
   app.addEventListener("click", e => {
     if (e.target.classList && e.target.classList.contains("modal-overlay")) { state.modal = null; render(); }
@@ -1633,12 +2077,33 @@ document.addEventListener("DOMContentLoaded", async () => {
     else if (action === "back") { state.screen = "main"; state.letterOpenId = null; state.memoryDetailId = null; render(); }
     else if (action === "closeLetter") { state.letterOpenId = null; render(); }
     else if (action === "openLetter") { state.letterOpenId = Number(el.dataset.id); render(); }
+    else if (action === "toggleReaction") {
+      const m = state.memories.find(x => x.id === Number(el.dataset.id));
+      const emoji = el.dataset.emoji;
+      if (!m.reactions) m.reactions = {};
+      if (!m.reactions[emoji]) m.reactions[emoji] = [];
+      const idx = m.reactions[emoji].indexOf(whoAmI());
+      if (idx === -1) m.reactions[emoji].push(whoAmI()); else m.reactions[emoji].splice(idx, 1);
+      persistAll(); render();
+    }
     else if (action === "openMemory") { state.memoryDetailId = Number(el.dataset.id); state.screen = "memoryDetail"; render(); }
     else if (action === "openMemoryAtImage") {
       const id = Number(el.dataset.id);
       state.memoryDetailId = id;
       state.memoryCarouselIndex[id] = Number(el.dataset.idx);
       state.screen = "memoryDetail"; render();
+    }
+    else if (action === "completeCapsule") {
+      ensureCapsuleFresh();
+      if (!state.capsule.doneBy.includes(whoAmI())) {
+        state.capsule.doneBy.push(whoAmI());
+        if (state.capsule.doneBy.length >= 2 && !state.capsule.counted) {
+          state.gardenCount = (state.gardenCount || 0) + 1;
+          state.capsule.counted = true;
+        }
+        pushRoom();
+      }
+      render();
     }
     else if (action === "pickAvatar") {
       const inp = document.createElement("input");
@@ -1683,6 +2148,20 @@ document.addEventListener("DOMContentLoaded", async () => {
         state.mapPins = state.mapPins.filter(p => p.id !== pin.id);
         persistAll(); render();
       }
+    }
+    else if (action === "generateOurStory") {
+      const code = getRoomCode();
+      if (!code) { alert("Avval profilingizni sozlang."); return; }
+      state.ourStoryLoading = true; render();
+      fetch(`/api/our-story/${code}`, { method: "POST" })
+        .then(r => r.json())
+        .then(data => {
+          state.ourStoryLoading = false;
+          if (data.ok) state.ourStory = data.story;
+          else alert(data.error || "Xatolik yuz berdi.");
+          render();
+        })
+        .catch(() => { state.ourStoryLoading = false; alert("Serverga ulanib bo'lmadi."); render(); });
     }
     else if (action === "setTimeMode") { state.timeMode = el.dataset.mode; render(); }
 
@@ -1758,6 +2237,75 @@ document.addEventListener("DOMContentLoaded", async () => {
     else if (action === "skipLink") { safeSet("couple_link_skipped", true); state.screen = "profile"; render(); }
     else if (action === "goLinkFromProfile") { state.screen = "link"; render(); }
 
+    else if (action === "pinKey") {
+      state._pinDraft = (state._pinDraft || "") + el.dataset.k;
+      if (state._pinDraft.length === 4) {
+        if (state._pinDraft === state.pin) { state.pinUnlocked = true; state._pinDraft = ""; render(); }
+        else { state._pinDraft = ""; alert("PIN noto'g'ri."); render(); }
+      } else render();
+    }
+    else if (action === "pinBackspace") { state._pinDraft = (state._pinDraft || "").slice(0, -1); render(); }
+    else if (action === "setMySpaceTab") { state.mySpaceTab = el.dataset.mtab; render(); }
+    else if (action === "setMood") { myQA().mood = el.dataset.mood; pushRoom(); render(); }
+    else if (action === "saveFavorites") {
+      const fav = myQA().favorites;
+      ["color", "food", "drink", "flower", "place", "movie", "song"].forEach(key => {
+        const inp = document.getElementById("fav-" + key);
+        if (inp) fav[key] = inp.value.trim();
+      });
+      pushRoom(); render();
+    }
+    else if (action === "savePersonality") {
+      const p = myQA().personality;
+      p.mbti = document.getElementById("pers-mbti").value;
+      p.loveLanguage = document.getElementById("pers-lovelang").value;
+      p.attachment = document.getElementById("pers-attach").value;
+      p.birthday = document.getElementById("pers-birthday").value;
+      pushRoom(); render();
+    }
+    else if (action === "addWish") {
+      const input = document.getElementById("wish-input");
+      const text = input ? input.value.trim() : "";
+      if (text) { state.wishlist.push({ id: uid(state.wishlist), text, done: false, by: whoAmI() }); pushRoom(); }
+      render();
+    }
+    else if (action === "toggleWish") {
+      const w = state.wishlist.find(x => x.id === Number(el.dataset.id));
+      if (w) { w.done = !w.done; pushRoom(); }
+      render();
+    }
+    else if (action === "deleteWish") {
+      state.wishlist = state.wishlist.filter(x => x.id !== Number(el.dataset.id));
+      pushRoom(); render();
+    }
+    else if (action === "addJournal") {
+      const input = document.getElementById("journal-input");
+      const text = input ? input.value.trim() : "";
+      if (text) {
+        state.journal.push({ id: uid(state.journal), date: formatDate(todayStr()), text });
+        safeSet("couple_journal_private", state.journal); // FAQAT mahalliy
+      }
+      render();
+    }
+    else if (action === "deleteJournal") {
+      state.journal = state.journal.filter(x => x.id !== Number(el.dataset.id));
+      safeSet("couple_journal_private", state.journal);
+      render();
+    }
+    else if (action === "setTheme") {
+      state.theme = el.dataset.theme; safeSet("couple_theme", state.theme);
+      applyTheme(); render();
+    }
+    else if (action === "setPin") {
+      const input = document.getElementById("new-pin-input");
+      const val = input ? input.value.trim() : "";
+      if (val.length === 4 && /^\d{4}$/.test(val)) { state.pin = val; safeSet("couple_pin", val); render(); }
+      else alert("PIN aynan 4 ta raqamdan iborat bo'lishi kerak.");
+    }
+    else if (action === "removePin") {
+      state.pin = ""; safeSet("couple_pin", "");
+      render();
+    }
     else if (action === "setProfileTab") { state.profileTab = el.dataset.ptab; render(); }
     else if (action === "toggleStage") { const id = el.dataset.stage; state.openStages[id] = !state.openStages[id]; render(); }
     else if (action === "openAddQuestion") { state.addingQuestionFor = { stageId: Number(el.dataset.stage), catTitle: el.dataset.cat }; render(); }
@@ -1958,7 +2506,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const emoji = document.getElementById("mf-emoji").value.trim() || "☕️";
       const note = document.getElementById("mf-note").value.trim();
       const voiceInput = document.getElementById("mf-voice");
-      const colors = ["#FFE1EC", "#E4E0FF", "#FFF0D9", "#DBF7EF"];
+      const colors = ["#FFE3EF", "#ECE5FF", "#FFF2DD", "#D8F5E8"];
       const finish = (voiceDataUrl) => {
         state.memories.push({ id: uid(state.memories), title: title || "Yangi xotira", kind, date, emoji, color: colors[state.memories.length % colors.length], note, voice: voiceDataUrl || null, images: state.newMemoryImages.slice(), postedBy: whoAmI() });
         state.newMemoryImages = []; state.newMemoryVoice = null;
